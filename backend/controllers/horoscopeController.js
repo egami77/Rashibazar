@@ -609,3 +609,194 @@ function getSymbolForRashi(rashi) {
   };
   return symbols[rashi];
 }
+
+// Update or create horoscope prediction (Astrologer)
+export const updateHoroscope = async (req, res) => {
+  try {
+    const { rashi, period, date } = req.params;
+    const { prediction, advice, luckyNumber, luckyColor, compatibility, additionalInfo, categoryPredictions } = req.body;
+
+    console.log(`📝 Updating horoscope for ${rashi} (${period})`);
+
+    // Validate inputs
+    const validRashis = [
+      'Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo',
+      'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'
+    ];
+    
+    const validPeriods = ['daily', 'weekly', 'monthly', 'yearly'];
+    
+    if (!validRashis.includes(rashi)) {
+      return res.status(400).json({ 
+        message: "Invalid rashi",
+        validRashis 
+      });
+    }
+    
+    if (!validPeriods.includes(period)) {
+      return res.status(400).json({ 
+        message: "Invalid period",
+        validPeriods 
+      });
+    }
+
+    if (!prediction || prediction.trim().length === 0) {
+      return res.status(400).json({ 
+        message: "Prediction text cannot be empty" 
+      });
+    }
+
+    // Handle date parsing
+    const predictionDate = new Date(date);
+    if (isNaN(predictionDate.getTime())) {
+      return res.status(400).json({ 
+        message: "Invalid date format" 
+      });
+    }
+
+    // Calculate date range based on period
+    let startDate, endDate;
+    
+    if (period === 'weekly') {
+      startDate = new Date(predictionDate);
+      startDate.setDate(startDate.getDate() - startDate.getDay());
+      endDate = new Date(startDate);
+      endDate.setDate(endDate.getDate() + 7);
+    } else if (period === 'monthly') {
+      startDate = new Date(predictionDate.getFullYear(), predictionDate.getMonth(), 1);
+      endDate = new Date(predictionDate.getFullYear(), predictionDate.getMonth() + 1, 1);
+    } else if (period === 'yearly') {
+      startDate = new Date(predictionDate.getFullYear(), 0, 1);
+      endDate = new Date(predictionDate.getFullYear() + 1, 0, 1);
+    } else {
+      // Daily
+      startDate = new Date(predictionDate.getFullYear(), predictionDate.getMonth(), predictionDate.getDate());
+      endDate = new Date(predictionDate.getFullYear(), predictionDate.getMonth(), predictionDate.getDate() + 1);
+    }
+
+    // Find existing horoscope or create new one
+    let horoscope = await Horoscope.findOne({
+      rashi,
+      period,
+      date: {
+        $gte: startDate,
+        $lt: endDate
+      }
+    });
+
+    if (horoscope) {
+      // Update existing
+      horoscope.prediction = prediction;
+      horoscope.advice = advice || horoscope.advice;
+      horoscope.luckyNumber = luckyNumber || horoscope.luckyNumber;
+      horoscope.luckyColor = luckyColor || horoscope.luckyColor;
+      horoscope.compatibility = compatibility || horoscope.compatibility;
+      
+      if (additionalInfo) {
+        horoscope.additionalInfo = {
+          ...horoscope.additionalInfo,
+          ...additionalInfo
+        };
+      }
+      
+      if (categoryPredictions) {
+        horoscope.categoryPredictions = {
+          ...horoscope.categoryPredictions,
+          ...categoryPredictions
+        };
+      }
+      
+      horoscope.updatedAt = new Date();
+      await horoscope.save();
+      
+      console.log(`✅ Horoscope updated for ${rashi} (${period})`);
+    } else {
+      // Create new
+      const newHoroscope = new Horoscope({
+        rashi,
+        period,
+        date: predictionDate,
+        prediction,
+        advice,
+        luckyNumber,
+        luckyColor,
+        compatibility,
+        additionalInfo,
+        categoryPredictions
+      });
+      
+      await newHoroscope.save();
+      horoscope = newHoroscope;
+      
+      console.log(`✅ New horoscope created for ${rashi} (${period})`);
+    }
+
+    res.json({
+      success: true,
+      message: "Horoscope updated successfully",
+      data: horoscope
+    });
+  } catch (err) {
+    console.error("❌ updateHoroscope error:", err);
+    res.status(500).json({ 
+      message: "Failed to update horoscope",
+      error: err.message 
+    });
+  }
+};
+
+// Get horoscopes for astrologer management
+export const getAstrologerHoroscopes = async (req, res) => {
+  try {
+    const period = req.query.period || null;
+    
+    const query = {};
+    
+    if (period) {
+      query.period = period;
+    }
+
+    const horoscopes = await Horoscope.find(query)
+      .sort({ createdAt: -1 })
+      .limit(100);
+
+    res.json({
+      success: true,
+      data: horoscopes
+    });
+  } catch (err) {
+    console.error("❌ getAstrologerHoroscopes error:", err);
+    res.status(500).json({ 
+      message: "Failed to fetch horoscopes",
+      error: err.message 
+    });
+  }
+};
+
+// Delete horoscope
+export const deleteHoroscope = async (req, res) => {
+  try {
+    const { horoscopeId } = req.params;
+
+    const horoscope = await Horoscope.findByIdAndDelete(horoscopeId);
+
+    if (!horoscope) {
+      return res.status(404).json({ 
+        message: "Horoscope not found" 
+      });
+    }
+
+    console.log(`✅ Horoscope deleted: ${horoscope.rashi} (${horoscope.period})`);
+
+    res.json({
+      success: true,
+      message: "Horoscope deleted successfully"
+    });
+  } catch (err) {
+    console.error("❌ deleteHoroscope error:", err);
+    res.status(500).json({ 
+      message: "Failed to delete horoscope",
+      error: err.message 
+    });
+  }
+}

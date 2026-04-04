@@ -1,0 +1,227 @@
+// src/pages/MyBookings.jsx
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { format, parseISO, isBefore } from 'date-fns';
+import { Calendar, Clock, User, XCircle, Loader2, Star, Phone } from 'lucide-react';
+import toast from 'react-hot-toast';
+import API from '../services/api';
+
+const MyBookings = () => {
+  const navigate = useNavigate();
+  const [bookings, setBookings] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState('all');
+
+  useEffect(() => {
+    loadBookings();
+  }, []);
+
+  const loadBookings = async () => {
+    setLoading(true);
+    try {
+      const response = await API.get('/bookings/my-bookings');
+      setBookings(response.data);
+    } catch (error) {
+      console.error("Error loading bookings:", error);
+      toast.error("Failed to load bookings");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCancel = async (bookingId) => {
+    if (!window.confirm("Are you sure you want to cancel this booking?")) return;
+    
+    const reason = prompt("Please provide a reason for cancellation (optional):");
+    
+    try {
+      await API.put(`/bookings/${bookingId}/cancel`, { reason });
+      toast.success("Booking cancelled successfully");
+      loadBookings();
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to cancel booking");
+    }
+  };
+
+  const getStatusBadge = (status) => {
+    const badges = {
+      'pending': 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30',
+      'confirmed': 'bg-green-500/20 text-green-300 border-green-500/30',
+      'cancelled': 'bg-red-500/20 text-red-300 border-red-500/30',
+      'completed': 'bg-blue-500/20 text-blue-300 border-blue-500/30',
+      'no-show': 'bg-gray-500/20 text-gray-300 border-gray-500/30'
+    };
+    return badges[status] || 'bg-purple-500/20 text-purple-300 border-purple-500/30';
+  };
+
+  const getPaymentStatusBadge = (status) => {
+    return status === 'paid' 
+      ? 'bg-green-500/20 text-green-300' 
+      : 'bg-yellow-500/20 text-yellow-300';
+  };
+
+  const canCancel = (booking) => {
+    if (booking.bookingStatus !== 'pending' && booking.bookingStatus !== 'confirmed') return false;
+    
+    const bookingDateTime = new Date(booking.date);
+    const [hours, minutes] = booking.time.split(':');
+    bookingDateTime.setHours(parseInt(hours), parseInt(minutes), 0);
+    
+    return isBefore(new Date(), bookingDateTime);
+  };
+
+  const filteredBookings = bookings.filter(booking => {
+    if (filter === 'all') return true;
+    return booking.bookingStatus === filter;
+  });
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-black via-purple-900 to-black pt-24 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-12 w-12 animate-spin text-yellow-400 mx-auto mb-4" />
+          <p className="text-gray-300">Loading your bookings...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-black via-purple-900 to-black text-white pt-24 px-4 pb-12">
+      <div className="max-w-5xl mx-auto">
+        <h1 className="text-4xl font-bold text-center mb-2 bg-gradient-to-r from-yellow-300 via-pink-400 to-purple-500 bg-clip-text text-transparent">
+          My Bookings
+        </h1>
+        <p className="text-center text-gray-300 mb-8">View and manage your consultation bookings</p>
+
+        {/* Filter Tabs */}
+        <div className="flex flex-wrap justify-center gap-2 mb-8">
+          {['all', 'pending', 'confirmed', 'completed', 'cancelled'].map((status) => (
+            <button
+              key={status}
+              onClick={() => setFilter(status)}
+              className={`px-4 py-2 rounded-lg font-semibold transition-all capitalize ${
+                filter === status
+                  ? 'bg-gradient-to-r from-yellow-400 to-pink-500 text-black'
+                  : 'bg-black/30 border border-purple-500/30 text-gray-300 hover:bg-purple-900/30'
+              }`}
+            >
+              {status}
+            </button>
+          ))}
+        </div>
+
+        {filteredBookings.length === 0 ? (
+          <div className="bg-black/30 backdrop-blur-lg rounded-xl border-2 border-purple-500/30 p-12 text-center">
+            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-purple-900/30 mb-4">
+              <Calendar className="h-10 w-10 text-purple-400" />
+            </div>
+            <p className="text-gray-400 text-lg mb-4">No bookings found</p>
+            <button
+              onClick={() => navigate('/booking')}
+              className="px-6 py-2 bg-gradient-to-r from-yellow-400 to-pink-500 text-black rounded-lg font-semibold hover:opacity-90 transition-opacity"
+            >
+              Book an Astrologer
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {filteredBookings.map((booking) => (
+              <div
+                key={booking._id}
+                className="bg-black/30 backdrop-blur-lg rounded-xl border-2 border-purple-500/30 p-6 hover:border-yellow-400/50 transition-all"
+              >
+                <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
+                  <div className="flex items-center gap-4">
+                    <img
+                      src={booking.astrologerId?.profileImage || `https://ui-avatars.com/api/?name=${booking.astrologerId?.name}&background=8B5CF6&color=fff`}
+                      alt={booking.astrologerId?.name}
+                      className="w-12 h-12 rounded-full border-2 border-purple-500"
+                    />
+                    <div>
+                      <h3 className="text-lg font-semibold text-white">{booking.astrologerId?.name}</h3>
+                      <div className="flex items-center gap-2 text-sm text-gray-400">
+                        <Star className="h-3 w-3 text-yellow-400 fill-yellow-400" />
+                        <span>{booking.astrologerId?.rating?.toFixed(1) || '0.0'}</span>
+                        <span className="text-gray-500">({booking.astrologerId?.totalReviews || 0} reviews)</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <span className={`px-4 py-2 rounded-full text-sm font-semibold border capitalize ${getStatusBadge(booking.bookingStatus)}`}>
+                    {booking.bookingStatus}
+                  </span>
+                </div>
+
+                <div className="grid md:grid-cols-4 gap-4 mb-6">
+                  <div className="bg-black/50 p-3 rounded-lg">
+                    <div className="flex items-center gap-2 text-xs text-gray-400 mb-1">
+                      <Calendar className="h-3 w-3" />
+                      Date
+                    </div>
+                    <div className="text-white font-semibold">
+                      {format(parseISO(booking.date), 'MMM dd, yyyy')}
+                    </div>
+                  </div>
+                  
+                  <div className="bg-black/50 p-3 rounded-lg">
+                    <div className="flex items-center gap-2 text-xs text-gray-400 mb-1">
+                      <Clock className="h-3 w-3" />
+                      Time
+                    </div>
+                    <div className="text-white font-semibold">{booking.time}</div>
+                  </div>
+                  
+                  <div className="bg-black/50 p-3 rounded-lg">
+                    <div className="flex items-center gap-2 text-xs text-gray-400 mb-1">
+                      <User className="h-3 w-3" />
+                      Payment
+                    </div>
+                    <div className={`px-2 py-1 rounded-full text-xs inline-block ${getPaymentStatusBadge(booking.paymentStatus)}`}>
+                      {booking.paymentStatus}
+                    </div>
+                  </div>
+                  
+                  <div className="bg-black/50 p-3 rounded-lg">
+                    <div className="flex items-center gap-2 text-xs text-gray-400 mb-1">
+                      Amount
+                    </div>
+                    <div className="text-yellow-400 font-bold">₹{booking.amount}</div>
+                  </div>
+                </div>
+
+                {booking.notes && (
+                  <div className="mb-4 p-3 bg-black/30 rounded-lg">
+                    <p className="text-sm text-gray-400 mb-1">Your Notes:</p>
+                    <p className="text-gray-300 text-sm">{booking.notes}</p>
+                  </div>
+                )}
+
+                {booking.cancellationReason && (
+                  <div className="mb-4 p-3 bg-red-900/20 rounded-lg">
+                    <p className="text-sm text-red-400 mb-1">Cancellation Reason:</p>
+                    <p className="text-gray-300 text-sm">{booking.cancellationReason}</p>
+                  </div>
+                )}
+
+                {canCancel(booking) && (
+                  <div className="flex justify-end">
+                    <button
+                      onClick={() => handleCancel(booking._id)}
+                      className="flex items-center gap-2 px-4 py-2 bg-red-600/20 border border-red-500/30 rounded-lg text-red-300 hover:bg-red-600/30 transition-colors"
+                    >
+                      <XCircle className="h-4 w-4" />
+                      Cancel Booking
+                    </button>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default MyBookings;

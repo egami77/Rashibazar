@@ -37,6 +37,46 @@ export const getDailyHoroscopeForAll = async () => {
   }
 };
 
+// Update horoscope (for astrologers)
+export const updateHoroscope = async (rashi, period, date, horoscopeData) => {
+  console.log(`📝 Updating horoscope for ${rashi} (${period})`);
+  
+  try {
+    const response = await API.put(`/horoscope/${rashi}/${period}/${date}`, horoscopeData);
+    return response.data;
+  } catch (error) {
+    console.error("Error updating horoscope:", error);
+    throw error;
+  }
+};
+
+// Get horoscopes for astrologer management
+export const getAstrologerHoroscopes = async (period = null) => {
+  console.log(`📡 Fetching astrologer horoscopes${period ? ` (${period})` : ''}`);
+  
+  try {
+    const params = period ? { period } : {};
+    const response = await API.get('/horoscope/astrologer/all', { params });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching astrologer horoscopes:", error);
+    throw error;
+  }
+};
+
+// Delete horoscope (for astrologers)
+export const deleteHoroscope = async (horoscopeId) => {
+  console.log(`🗑️ Deleting horoscope: ${horoscopeId}`);
+  
+  try {
+    const response = await API.delete(`/horoscope/${horoscopeId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error deleting horoscope:", error);
+    throw error;
+  }
+};
+
 // Get today's date in readable format - ALWAYS RETURNS STRING
 export const getFormattedDate = (period, date = null) => {
   const now = date ? new Date(date) : new Date();

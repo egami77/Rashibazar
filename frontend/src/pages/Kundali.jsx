@@ -168,159 +168,184 @@ const BSCalendar = ({ selectedDate, onSelect }) => {
   );
 };
 
-// Enhanced North Indian Chart Component
-const NorthIndianChart = ({ planets, houses, ascendant }) => {
-  const houseAngles = houses?.map(h => h.longitude) || Array(12).fill(0).map((_, i) => i * 30);
-  
-  const rashiData = [
-    { number: 1, symbol: '♈', name: 'Mesha', color: 'text-red-400' },
-    { number: 2, symbol: '♉', name: 'Vrishabha', color: 'text-green-400' },
-    { number: 3, symbol: '♊', name: 'Mithuna', color: 'text-yellow-400' },
-    { number: 4, symbol: '♋', name: 'Karka', color: 'text-gray-400' },
-    { number: 5, symbol: '♌', name: 'Simha', color: 'text-orange-400' },
-    { number: 6, symbol: '♍', name: 'Kanya', color: 'text-green-300' },
-    { number: 7, symbol: '♎', name: 'Tula', color: 'text-pink-400' },
-    { number: 8, symbol: '♏', name: 'Vrishchika', color: 'text-red-300' },
-    { number: 9, symbol: '♐', name: 'Dhanu', color: 'text-purple-400' },
-    { number: 10, symbol: '♑', name: 'Makara', color: 'text-brown-400' },
-    { number: 11, symbol: '♒', name: 'Kumbha', color: 'text-blue-400' },
-    { number: 12, symbol: '♓', name: 'Meena', color: 'text-teal-400' }
-  ];
-  
-  return (
-    <div className="relative w-full max-w-2xl mx-auto">
-      <div className="aspect-square w-full relative bg-gradient-to-br from-purple-900/20 via-black/30 to-purple-900/20 rounded-3xl border-4 border-yellow-400/30 p-6">
-        
-        {/* Outer zodiac circle with rashis */}
-        <div className="absolute inset-10 border-2 border-purple-400/30 rounded-full">
-          {/* Rashi symbols around the circle */}
-          {Array.from({ length: 12 }).map((_, i) => {
-            const angle = (i * 30 - 90) * Math.PI / 180;
-            const radius = 40;
-            const x = 50 + radius * Math.cos(angle);
-            const y = 50 + radius * Math.sin(angle);
-            const rashi = rashiData[i];
-            
-            return (
-              <div
-                key={i}
-                className="absolute w-12 h-12 transform -translate-x-1/2 -translate-y-1/2"
-                style={{ left: `${x}%`, top: `${y}%` }}
-              >
-                <div className="w-full h-full flex items-center justify-center">
-                  <div className={`${rashi.color} bg-black/80 rounded-full w-12 h-12 flex items-center justify-center border-2 border-yellow-400/30 shadow-lg`}>
-                    <span className="text-2xl">{rashi.symbol}</span>
-                  </div>
-                </div>
-                <div className="text-xs text-center mt-1 text-white bg-black/70 px-2 py-1 rounded">
-                  {rashi.number}
-                </div>
-              </div>
-            );
-          })}
+// Traditional Square Rashi Chart Component - Perfect Diamond Layout
+const RashiChart = ({ planets, ascendant }) => {
+  const getPlanetsInHouse = (houseNum) => {
+    return planets?.filter(p => p.house === houseNum) || [];
+  };
+
+  const HouseSection = ({ houseNum }) => {
+    const housePlanets = getPlanetsInHouse(houseNum);
+
+    return (
+      <motion.div
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: (houseNum - 1) * 0.05 }}
+        className="flex flex-col items-center justify-center w-full h-full p-1 text-xs"
+      >
+        {/* House Number */}
+        <div className="font-bold text-yellow-300 text-sm bg-red-900/60 px-2 py-0.5 rounded border border-yellow-500/50">
+          H{houseNum}
         </div>
-        
-        {/* House division lines */}
-        <div className="absolute inset-16">
-          {Array.from({ length: 12 }).map((_, i) => {
-            const angle = (i * 30) * Math.PI / 180;
-            const radius = 32;
-            const x1 = 50 + radius * Math.cos(angle);
-            const y1 = 50 + radius * Math.sin(angle);
-            const x2 = 50 + (radius - 18) * Math.cos(angle);
-            const y2 = 50 + (radius - 18) * Math.sin(angle);
-            
-            return (
-              <div key={`line-${i}`}>
-                {/* House division line */}
-                <div 
-                  className="absolute w-0.5 h-6 bg-yellow-400/30 transform origin-top"
-                  style={{
-                    left: `${x1}%`,
-                    top: `${y1}%`,
-                    transform: `rotate(${i * 30}deg)`
-                  }}
-                />
-                
-                {/* House number */}
-                <div 
-                  className="absolute w-8 h-8 flex items-center justify-center text-sm font-bold text-white bg-gradient-to-br from-purple-900 to-black rounded-full border border-purple-500/50 shadow-lg"
-                  style={{
-                    left: `${x2}%`,
-                    top: `${y2}%`,
-                    transform: 'translate(-50%, -50%)'
-                  }}
-                >
-                  {i + 1}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-        
+
         {/* Planets */}
-        {planets?.map((planet, idx) => {
-          const houseIndex = (planet.house - 1) % 12;
-          const baseAngle = houseAngles[houseIndex];
-          const variance = (idx * 7) % 25; // Stagger planets in house
-          const angle = (baseAngle + variance) * Math.PI / 180;
-          const radius = 22 + (idx % 4) * 4;
-          const x = 50 + radius * Math.cos(angle);
-          const y = 50 + radius * Math.sin(angle);
-          
-          return (
+        <div className="flex flex-wrap gap-0.5 justify-center mt-1">
+          {housePlanets.map((planet, idx) => (
             <motion.div
               key={idx}
-              initial={{ scale: 0, rotate: -180 }}
-              animate={{ scale: 1, rotate: 0 }}
-              transition={{ delay: idx * 0.1, type: "spring" }}
-              className={`absolute w-12 h-12 rounded-full ${planet.color.replace('text-', 'bg-')}/20 border-2 ${planet.color.replace('text-', 'border-')} flex items-center justify-center transform -translate-x-1/2 -translate-y-1/2 shadow-xl hover:scale-110 transition-transform cursor-pointer`}
-              style={{ left: `${x}%`, top: `${y}%` }}
-              title={`${planet.name} in ${planet.rashi} - House ${planet.house}\nDegree: ${planet.degree}\nNakshatra: ${planet.nakshatra} Pada ${planet.pada}`}
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: (houseNum - 1) * 0.05 + idx * 0.02 }}
+              className="w-4 h-4 rounded-full bg-black border border-yellow-500/60 flex items-center justify-center text-xs font-bold"
+              title={`${planet.name} - ${planet.degree}`}
             >
-              <div className="relative">
-                <span className="text-xl font-bold">{planet.symbol}</span>
-                {planet.retrograde && (
-                  <span className="absolute -top-3 -right-3 text-xs bg-red-500 text-white px-1.5 py-0.5 rounded-full font-bold">R</span>
-                )}
-              </div>
+              <span className={planet.color}>{planet.symbol}</span>
             </motion.div>
-          );
-        })}
-        
-        {/* Center - Ascendant */}
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-24 h-24">
-          <motion.div 
-            animate={{ rotate: 360 }}
-            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-            className="w-full h-full rounded-full bg-gradient-to-br from-yellow-400/20 via-red-500/20 to-orange-500/20 border-4 border-yellow-400/50 flex items-center justify-center"
-          >
-            <div className="text-center">
-              <div className="text-yellow-400 text-sm font-bold tracking-widest">LAGNA</div>
-              <div className="text-white text-2xl font-bold">{ascendant?.substring(0, 4)}</div>
-              <div className="text-gray-300 text-xs">Ascendant</div>
-            </div>
-          </motion.div>
+          ))}
         </div>
-        
-        {/* Chart labels */}
-        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 text-yellow-300 text-lg font-bold bg-black/50 px-4 py-1 rounded-full">
-          NORTH INDIAN CHART (D1)
-        </div>
-        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-gray-400 text-sm bg-black/50 px-3 py-1 rounded-full">
-          Equal House System • Placidus
+      </motion.div>
+    );
+  };
+
+  return (
+    <div className="w-full max-w-4xl mx-auto">
+      {/* Decorative Title */}
+      <div className="mb-8 text-center">
+        <div className="inline-block">
+          <div className="flex items-center justify-center gap-3 mb-2">
+            <div className="w-1 h-8 bg-gradient-to-b from-yellow-400 to-orange-500 rounded-full"></div>
+            <h3 className="text-3xl font-bold bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">
+              Rashi Chart
+            </h3>
+            <div className="w-1 h-8 bg-gradient-to-b from-yellow-400 to-orange-500 rounded-full"></div>
+          </div>
+          <div className="text-sm text-gray-400">Traditional South Indian Square Division</div>
         </div>
       </div>
-      
-      {/* Planet Legend */}
-      <div className="mt-6 grid grid-cols-3 md:grid-cols-9 gap-2">
-        {planets?.slice(0, 9).map((planet, idx) => (
-          <div key={idx} className="flex items-center gap-2 p-2 bg-black/30 rounded">
-            <span className={`text-lg ${planet.color}`}>{planet.symbol}</span>
-            <span className="text-sm text-white">{planet.name}</span>
-            <span className="text-xs text-gray-400">H{planet.house}</span>
+
+      {/* Main Chart Container - Diamond Layout */}
+      <div className="relative flex justify-center bg-gradient-to-br from-black/80 via-purple-900/40 to-black/80 border-4 border-red-700/60 rounded-2xl p-8 shadow-2xl"
+        style={{
+          backgroundImage: 'radial-gradient(circle at 20% 50%, rgba(99,102,241,0.1) 0%, transparent 50%)'
+        }}
+      >
+        <svg width="480" height="480" viewBox="0 0 480 480" className="absolute inset-0 z-0">
+          {/* Outer square rotated (diamond shape) */}
+          <rect x="80" y="80" width="320" height="320" fill="none" stroke="#b93333" strokeWidth="3" transform="rotate(45 240 240)"/>
+          
+          {/* Main diagonals */}
+          <line x1="80" y1="240" x2="400" y2="240" stroke="#b93333" strokeWidth="2"/>
+          <line x1="240" y1="80" x2="240" y2="400" stroke="#b93333" strokeWidth="2"/>
+          
+          {/* Diagonal lines from corners */}
+          <line x1="80" y1="80" x2="400" y2="400" stroke="#b93333" strokeWidth="2"/>
+          <line x1="400" y1="80" x2="80" y2="400" stroke="#b93333" strokeWidth="2"/>
+          
+          {/* Center circle for Lagna */}
+          <circle cx="240" cy="240" r="45" fill="rgba(251, 146, 60, 0.15)" stroke="#fb923c" strokeWidth="2"/>
+          <circle cx="240" cy="240" r="35" fill="none" stroke="#f59e0b" strokeWidth="1.5" opacity="0.6"/>
+        </svg>
+
+        {/* House Positions - Absolute layout matching the image */}
+        <div className="relative w-96 h-96">
+          {/* H12 - Top */}
+          <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-2 w-16 h-16 flex items-center justify-center">
+            <HouseSection houseNum={12} />
           </div>
-        ))}
+
+          {/* H2 - Top Left */}
+          <div className="absolute top-6 left-6 w-16 h-16 flex items-center justify-center">
+            <HouseSection houseNum={2} />
+          </div>
+
+          {/* H3 - Left */}
+          <div className="absolute top-1/2 left-0 transform -translate-y-1/2 -translate-x-2 w-16 h-16 flex items-center justify-center">
+            <HouseSection houseNum={3} />
+          </div>
+
+          {/* H4 - Left Lower */}
+          <div className="absolute top-1/3 left-6 transform translate-y-8 w-16 h-16 flex items-center justify-center">
+            <HouseSection houseNum={4} />
+          </div>
+
+          {/* H5 - Bottom Left Upper */}
+          <div className="absolute bottom-1/3 left-6 transform -translate-y-8 w-16 h-16 flex items-center justify-center">
+            <HouseSection houseNum={5} />
+          </div>
+
+          {/* H6 - Bottom Left */}
+          <div className="absolute bottom-6 left-6 w-16 h-16 flex items-center justify-center">
+            <HouseSection houseNum={6} />
+          </div>
+
+          {/* H7 - Bottom */}
+          <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-2 w-16 h-16 flex items-center justify-center">
+            <HouseSection houseNum={7} />
+          </div>
+
+          {/* H8 - Bottom Right */}
+          <div className="absolute bottom-6 right-6 w-16 h-16 flex items-center justify-center">
+            <HouseSection houseNum={8} />
+          </div>
+
+          {/* H9 - Bottom Right Upper */}
+          <div className="absolute bottom-1/3 right-6 transform -translate-y-8 w-16 h-16 flex items-center justify-center">
+            <HouseSection houseNum={9} />
+          </div>
+
+          {/* H10 - Right */}
+          <div className="absolute top-1/2 right-0 transform -translate-y-1/2 translate-x-2 w-16 h-16 flex items-center justify-center">
+            <HouseSection houseNum={10} />
+          </div>
+
+          {/* H11 - Right Upper */}
+          <div className="absolute top-1/3 right-6 transform translate-y-8 w-16 h-16 flex items-center justify-center">
+            <HouseSection houseNum={11} />
+          </div>
+
+          {/* H1 - Center (Lagna) */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.3 }}
+            className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center z-20"
+          >
+            <div className="text-4xl font-bold text-orange-400 drop-shadow-lg">ॐ</div>
+            <div className="text-xs font-bold text-yellow-300 mt-1 tracking-widest">Rising Lagna</div>
+            <div className="text-xs font-bold text-yellow-400">Ascendant</div>
+            <div className="text-sm font-bold text-yellow-300 mt-0.5">H1</div>
+          </motion.div>
+        </div>
+      </div>
+
+      {/* Planet Information */}
+      <div className="mt-8 bg-black/50 border border-purple-500/30 rounded-xl p-6">
+        <h4 className="text-lg font-bold text-yellow-300 mb-4">Planetary Details</h4>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+          {planets?.map((planet, idx) => (
+            <motion.div
+              key={idx}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: idx * 0.05 }}
+              className="p-3 bg-gradient-to-br from-purple-900/40 to-black/60 border border-purple-500/30 rounded-lg text-center hover:border-yellow-400/50 transition-all"
+            >
+              <div className={`text-2xl mb-2 ${planet.color}`}>{planet.symbol}</div>
+              <div className="text-xs font-bold text-white mb-1">{planet.name}</div>
+              <div className="text-xs text-gray-400">H{planet.house}</div>
+              <div className="text-xs text-yellow-400 font-mono mt-1">{planet.degree}</div>
+              {planet.retrograde && (
+                <div className="text-xs bg-red-500/30 text-red-300 px-1 py-0.5 rounded mt-1 font-bold">Retrograde</div>
+              )}
+            </motion.div>
+          ))}
+        </div>
+      </div>
+
+      {/* Footer Info */}
+      <div className="mt-6 text-center text-sm text-gray-500">
+        <p>🔯 Vedic Astrology • South Indian Style Chart</p>
       </div>
     </div>
   );
@@ -1524,11 +1549,10 @@ Generated by RashiBazar • ${new Date().toLocaleDateString()}
                       <div className="bg-black/30 p-6 rounded-2xl border-2 border-purple-700/30">
                         <div className="flex items-center gap-3 mb-6">
                           <Target className="h-6 w-6 text-yellow-400" />
-                          <h3 className="text-2xl font-bold text-yellow-300">North Indian Chart (D1)</h3>
+                          <h3 className="text-2xl font-bold text-yellow-300">Rashi Chart (Square Division)</h3>
                         </div>
-                        <NorthIndianChart
+                        <RashiChart
                           planets={kundaliData.planets}
-                          houses={kundaliData.houses}
                           ascendant={kundaliData.ascendant.english}
                         />
                         <div className="mt-8 grid grid-cols-3 gap-4">

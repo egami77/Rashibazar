@@ -185,6 +185,7 @@ export const calculateKundali = (data) => {
   };
 };
 
+
 // Helper functions (add these at the bottom of the file)
 function calculateJulianDay(year, month, day, decimalHours) {
   const UT = decimalHours - NEPAL_TIMEZONE_OFFSET;

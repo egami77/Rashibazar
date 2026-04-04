@@ -3,18 +3,24 @@ import express from "express";
 import { 
   getHoroscope, 
   getAllRashis, 
-  getDailyHoroscopeForAll 
+  getDailyHoroscopeForAll,
+  updateHoroscope,
+  getAstrologerHoroscopes,
+  deleteHoroscope
 } from "../controllers/horoscopeController.js";
 
 const router = express.Router();
 
-// Get all rashis information
+// Specific routes first (before path-based routes)
 router.get("/rashis", getAllRashis);
-
-// Get horoscope for specific rashi and period
-router.get("/:rashi/:period", getHoroscope);
-
-// Get today's horoscope for all rashis
+router.get("/astrologer/all", getAstrologerHoroscopes);
 router.get("/daily/all", getDailyHoroscopeForAll);
+
+// Routes with ID parameter
+router.delete("/:horoscopeId", deleteHoroscope);
+
+// Routes with rashi/period/date parameters
+router.put("/:rashi/:period/:date", updateHoroscope);
+router.get("/:rashi/:period", getHoroscope);
 
 export default router;
