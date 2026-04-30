@@ -3,7 +3,7 @@ import axios from "axios";
 
 // Create axios instance
 const API = axios.create({
-  baseURL: "http://localhost:5000/api", // Make sure this matches your backend port
+  baseURL: "https://rashibazar.onrender.com/api", // Make sure this matches your backend port
   headers: {
     "Content-Type": "application/json",
     "Accept": "application/json"
@@ -18,11 +18,11 @@ API.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-    
+
     if (import.meta.env.DEV) {
       console.log(`📤 ${config.method.toUpperCase()} ${config.url}`, config.data || '');
     }
-    
+
     return config;
   },
   (error) => {
@@ -50,14 +50,14 @@ API.interceptors.response.use(
         }
       });
     }
-    
+
     console.error("❌ API Error:", {
       url: error.config?.url,
       method: error.config?.method,
       status: error.response?.status,
       message: error.response?.data?.message || error.message,
     });
-    
+
     if (error.response?.status === 401) {
       console.log("🔒 Unauthorized - clearing session");
       const isAuthEndpoint = error.config?.url?.includes('/auth/');
@@ -68,7 +68,7 @@ API.interceptors.response.use(
         window.location.href = "/login";
       }
     }
-    
+
     return Promise.reject(error);
   }
 );
