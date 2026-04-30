@@ -28,7 +28,9 @@ const horoscopeSchema = new mongoose.Schema({
     max: 99
   },
   luckyColor: String,
+  luckyGem: String,
   compatibility: String,
+  compatibleSigns: String,
   advice: String,
   additionalInfo: {
     element: String,

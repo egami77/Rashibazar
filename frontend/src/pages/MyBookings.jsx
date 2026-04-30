@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { format, parseISO, isBefore } from 'date-fns';
-import { Calendar, Clock, User, XCircle, Loader2, Star, Phone } from 'lucide-react';
+import { Calendar, Clock, User, XCircle, Loader2, Star, Phone, MapPin } from 'lucide-react';
 import toast from 'react-hot-toast';
 import API from '../services/api';
 
@@ -31,9 +31,9 @@ const MyBookings = () => {
 
   const handleCancel = async (bookingId) => {
     if (!window.confirm("Are you sure you want to cancel this booking?")) return;
-    
+
     const reason = prompt("Please provide a reason for cancellation (optional):");
-    
+
     try {
       await API.put(`/bookings/${bookingId}/cancel`, { reason });
       toast.success("Booking cancelled successfully");
@@ -55,18 +55,18 @@ const MyBookings = () => {
   };
 
   const getPaymentStatusBadge = (status) => {
-    return status === 'paid' 
-      ? 'bg-green-500/20 text-green-300' 
+    return status === 'paid'
+      ? 'bg-green-500/20 text-green-300'
       : 'bg-yellow-500/20 text-yellow-300';
   };
 
   const canCancel = (booking) => {
     if (booking.bookingStatus !== 'pending' && booking.bookingStatus !== 'confirmed') return false;
-    
+
     const bookingDateTime = new Date(booking.date);
     const [hours, minutes] = booking.time.split(':');
     bookingDateTime.setHours(parseInt(hours), parseInt(minutes), 0);
-    
+
     return isBefore(new Date(), bookingDateTime);
   };
 
@@ -100,11 +100,10 @@ const MyBookings = () => {
             <button
               key={status}
               onClick={() => setFilter(status)}
-              className={`px-4 py-2 rounded-lg font-semibold transition-all capitalize ${
-                filter === status
+              className={`px-4 py-2 rounded-lg font-semibold transition-all capitalize ${filter === status
                   ? 'bg-gradient-to-r from-yellow-400 to-pink-500 text-black'
                   : 'bg-black/30 border border-purple-500/30 text-gray-300 hover:bg-purple-900/30'
-              }`}
+                }`}
             >
               {status}
             </button>
@@ -147,46 +146,54 @@ const MyBookings = () => {
                       </div>
                     </div>
                   </div>
-                  
+
                   <span className={`px-4 py-2 rounded-full text-sm font-semibold border capitalize ${getStatusBadge(booking.bookingStatus)}`}>
                     {booking.bookingStatus}
                   </span>
                 </div>
 
-                <div className="grid md:grid-cols-4 gap-4 mb-6">
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+                  <div className="bg-black/50 p-3 rounded-lg">
+                    <div className="flex items-center gap-2 text-xs text-gray-400 mb-1">
+                      <MapPin className="h-3 w-3 text-orange-400" />
+                      Type
+                    </div>
+                    <div className="text-white font-semibold text-sm">In-Person</div>
+                  </div>
+
                   <div className="bg-black/50 p-3 rounded-lg">
                     <div className="flex items-center gap-2 text-xs text-gray-400 mb-1">
                       <Calendar className="h-3 w-3" />
                       Date
                     </div>
-                    <div className="text-white font-semibold">
-                      {format(parseISO(booking.date), 'MMM dd, yyyy')}
+                    <div className="text-white font-semibold text-sm">
+                      {format(parseISO(booking.date), 'MMM dd')}
                     </div>
                   </div>
-                  
+
                   <div className="bg-black/50 p-3 rounded-lg">
                     <div className="flex items-center gap-2 text-xs text-gray-400 mb-1">
                       <Clock className="h-3 w-3" />
                       Time
                     </div>
-                    <div className="text-white font-semibold">{booking.time}</div>
+                    <div className="text-white font-semibold text-sm">{booking.time}</div>
                   </div>
-                  
+
                   <div className="bg-black/50 p-3 rounded-lg">
                     <div className="flex items-center gap-2 text-xs text-gray-400 mb-1">
                       <User className="h-3 w-3" />
                       Payment
                     </div>
-                    <div className={`px-2 py-1 rounded-full text-xs inline-block ${getPaymentStatusBadge(booking.paymentStatus)}`}>
+                    <div className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase inline-block ${getPaymentStatusBadge(booking.paymentStatus)}`}>
                       {booking.paymentStatus}
                     </div>
                   </div>
-                  
+
                   <div className="bg-black/50 p-3 rounded-lg">
                     <div className="flex items-center gap-2 text-xs text-gray-400 mb-1">
                       Amount
                     </div>
-                    <div className="text-yellow-400 font-bold">₹{booking.amount}</div>
+                    <div className="text-yellow-400 font-bold text-sm">Npr {booking.amount}</div>
                   </div>
                 </div>
 

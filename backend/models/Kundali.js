@@ -19,6 +19,7 @@ const kundaliSchema = new mongoose.Schema({
   ascendant: { type: String },
   ascendantRashi: { type: String },
   moonRashi: { type: String },
+  birthDetails: { type: Object }, // To store bsDate, districtNe, etc.
   planets: [{
     name: String,
     rashi: String,
@@ -32,7 +33,8 @@ const kundaliSchema = new mongoose.Schema({
   dashas: [{
     planet: String,
     period: String,
-    isCurrent: Boolean
+    isCurrent: Boolean,
+    years: Number
   }],
   nameInitials: [String],
   chartData: { type: Object }

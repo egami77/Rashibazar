@@ -1,7 +1,11 @@
 // backend/server.js
+import dotenv from 'dotenv';
+
+// Load environment variables FIRST before anything else
+dotenv.config();
+
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import connectDB from './config/db.js';
 import authRoutes from './routes/authRoutes.js';
 import astrologerRoutes from './routes/astrologerRoutes.js';
@@ -9,9 +13,8 @@ import bookingRoutes from './routes/bookingRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import kundaliRoutes from './routes/kundaliRoutes.js';
 import horoscopeRoutes from './routes/horoscopeRoutes.js';
-
-// Load environment variables
-dotenv.config();
+import khaltiRoutes from './routes/khaltiRoutes.js';
+import systemRoutes from './routes/systemRoutes.js';
 
 // Connect to MongoDB
 connectDB();
@@ -52,6 +55,8 @@ app.use('/api/bookings', bookingRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/kundali', kundaliRoutes);
 app.use('/api/horoscope', horoscopeRoutes);
+app.use('/api/khalti', khaltiRoutes);
+app.use('/api/system', systemRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

@@ -7,6 +7,12 @@ export const generateKundali = (data) => {
   return API.post("/kundali/generate", data);
 };
 
+// Check compatibility (Guna Milan)
+export const checkCompatibility = (data) => {
+  console.log("📤 Sending compatibility data to API:", data);
+  return API.post("/kundali/compatibility", data);
+};
+
 // Get user's kundali history
 export const getKundaliHistory = () => {
   console.log("📥 Fetching kundali history");

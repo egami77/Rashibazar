@@ -3,6 +3,7 @@ import express from "express";
 import User from "../models/User.js";
 import Astrologer from "../models/Astrologer.js";
 import Booking from "../models/Booking.js";
+import SystemSetting from "../models/SystemSetting.js";
 import authMiddleware from "../middleware/authMiddleware.js";
 import { isAdmin } from "../middleware/roleMiddleware.js";
 
@@ -173,6 +174,48 @@ router.get("/stats", authMiddleware, isAdmin, async (req, res) => {
     });
   } catch (error) {
     console.error("Error fetching stats:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get system settings
+router.get("/settings", authMiddleware, isAdmin, async (req, res) => {
+  try {
+    const settings = await SystemSetting.find();
+    res.json(settings);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Update system setting
+router.post("/settings", authMiddleware, isAdmin, async (req, res) => {
+  try {
+    const { key, value, description } = req.body;
+    let setting = await SystemSetting.findOne({ key });
+    
+    if (setting) {
+      setting.value = value;
+      if (description) setting.description = description;
+      setting.updatedBy = req.user._id;
+    } else {
+      setting = new SystemSetting({ key, value, description, updatedBy: req.user._id });
+    }
+    
+    await setting.save();
+    res.json({ message: "Setting updated", setting });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Broadcast Announcement
+router.post("/broadcast", authMiddleware, isAdmin, async (req, res) => {
+  try {
+    const { title, message, target } = req.body;
+    console.log(`[BROADCAST] ${target.toUpperCase()}: ${title} - ${message}`);
+    res.json({ message: "Broadcast initiated successfully" });
+  } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });

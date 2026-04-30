@@ -1,504 +1,156 @@
 // backend/utils/kundaliCalculator.js
-import { NEPAL_CITIES, RASHIS, PLANETS } from "./astrologyConstants.js";
-
-const NEPAL_TIMEZONE_OFFSET = 5.75;
+import { generateKundaliEngine } from "./vedicEngine.js";
+import { RASHI_EN, NAKSHATRA_NE, RASHI_NE } from "./vedicConstants.js";
+import { createRequire } from "module";
+const require = createRequire(import.meta.url);
+const NepaliDatePkg = require("nepali-date-converter");
+const NepaliDate = NepaliDatePkg.NepaliDate || NepaliDatePkg.default || NepaliDatePkg;
 
 export const calculateKundali = (data) => {
-  console.log("🪐 calculateKundali called with data:", data);
+  console.log("🪐 Accurate calculateKundali called with data:", data);
   
   const { name, birthDate, birthTime, birthPlace, gender, latitude, longitude } = data;
   
-  // Parse birth details - Handle both Date object and string
+  // Parse birth date and time robustly
   let year, month, day;
-  
-  if (birthDate instanceof Date) {
-    year = birthDate.getFullYear();
-    month = birthDate.getMonth() + 1;
-    day = birthDate.getDate();
-  } else if (typeof birthDate === 'string') {
-    // Handle string format (YYYY-MM-DD)
-    const dateParts = birthDate.split('-');
-    if (dateParts.length === 3) {
-      year = parseInt(dateParts[0]);
-      month = parseInt(dateParts[1]);
-      day = parseInt(dateParts[2]);
-    } else {
-      throw new Error("Invalid date format. Use YYYY-MM-DD");
-    }
+  if (typeof birthDate === 'string') {
+    [year, month, day] = birthDate.split('-').map(Number);
+  } else if (birthDate instanceof Date) {
+    // Note: YYYY-MM-DD strings are often parsed as UTC by new Date()
+    // To preserve the calendar date, we use UTC methods.
+    year = birthDate.getUTCFullYear();
+    month = birthDate.getUTCMonth() + 1;
+    day = birthDate.getUTCDate();
   } else {
-    throw new Error("Invalid birthDate. Expected Date object or string (YYYY-MM-DD)");
+    const d = new Date(birthDate);
+    year = d.getUTCFullYear();
+    month = d.getUTCMonth() + 1;
+    day = d.getUTCDate();
   }
   
-  console.log("📅 Parsed date:", { year, month, day });
-  
-  // Parse time
-  let hours, minutes;
+  let hours = 0, minutes = 0;
   if (birthTime.includes(':')) {
-    const timeParts = birthTime.split(':');
-    hours = parseInt(timeParts[0]);
-    minutes = parseInt(timeParts[1]) || 0;
+    [hours, minutes] = birthTime.split(':').map(Number);
   } else {
-    hours = parseInt(birthTime);
-    minutes = 0;
+    hours = parseInt(birthTime) || 0;
   }
-  
-  if (isNaN(hours) || isNaN(minutes)) {
-    throw new Error(`Invalid time format: ${birthTime}. Use HH:MM format`);
-  }
-  
-  // Format time for display
-  const period = hours >= 12 ? 'PM' : 'AM';
-  const hour12 = hours % 12 || 12;
-  const formattedTime = `${hour12}:${minutes.toString().padStart(2, '0')} ${period}`;
-  
-  // Convert to Bikram Sambat (simplified)
-  const bsDate = {
-    year: year + 57,
-    month: month,
-    day: day
-  };
-  
-  const bsMonthName = getBSMonthName(bsDate.month);
-  
-  // Find coordinates
-  let finalLat = latitude;
-  let finalLng = longitude;
-  
-  if (!latitude || !longitude) {
-    const city = NEPAL_CITIES.find(c => c.name === birthPlace);
-    if (city) {
-      finalLat = city.lat;
-      finalLng = city.lng;
-    } else {
-      finalLat = 27.7172;
-      finalLng = 85.3240;
-    }
-  }
-  
-  // Calculate Julian Day
-  const decimalHours = hours + minutes / 60;
-  const jd = calculateJulianDay(year, month, day, decimalHours);
-  
-  // Calculate Ayanamsa
-  const ayanamsa = calculateLahiriAyanamsa(jd);
-  
-  // Calculate Sidereal Time
-  const siderealTime = calculateSiderealTime(jd, finalLng);
-  
-  // Calculate Ascendant
-  const ascendantLongitude = calculateAscendant(siderealTime, finalLat, ayanamsa);
-  const ascendantRashi = getRashiFromLongitude(ascendantLongitude);
-  
-  // Calculate planetary positions
-  const planetaryPositions = calculatePlanetaryPositions(jd, ayanamsa);
-  
-  // Calculate houses
-  const houses = calculateHouses(ascendantLongitude);
-  
-  // Process planets
-  const planets = planetaryPositions.map(pos => {
-    const rashi = getRashiFromLongitude(pos.longitude);
-    const { nakshatra, pada, nakshatraLord } = getNakshatraFromLongitude(pos.longitude);
-    const degree = getDegreeInRashi(pos.longitude);
-    const house = getHouseForPlanet(pos.longitude, houses);
-    const navamsaLong = calculateNavamsa(pos.longitude);
-    const navamsaRashi = getRashiFromLongitude(navamsaLong);
-    
-    const strength = calculatePlanetStrength(pos, house);
-    
-    return {
-      name: pos.name,
-      symbol: getPlanetSymbol(pos.name),
-      color: getPlanetColor(pos.name),
-      longitude: pos.longitude,
-      rashi: rashi.name,
-      english: rashi.english,
-      degree: `${degree.degrees}°${degree.minutes}'`,
-      nakshatra: nakshatra.name,
-      pada,
-      nakshatraLord,
-      house,
-      retrograde: pos.retrograde,
-      navamsaRashi: navamsaRashi.name,
-      strength: Math.round(strength)
-    };
+
+  // Interpretation: birthDate and birthTime are in Nepal Time (NPT, UTC+5:45)
+  // We convert to UTC by creating a Date at that "wall time" and subtracting 5.75 hours
+  // Using Date.UTC gives us the epoch ms for that time as if it were UTC
+  const nptEpochMs = Date.UTC(year, month - 1, day, hours, minutes, 0, 0);
+  const utcMs = nptEpochMs - (5.75 * 3600 * 1000);
+  const birthUtc = new Date(utcMs);
+
+  const result = generateKundaliEngine({
+    birthUtc,
+    latitude: latitude || 27.7172,
+    longitude: longitude || 85.3240
   });
-  
-  // Get Moon Rashi
-  const moonPlanet = planets.find(p => p.name === 'Moon');
-  const moonRashi = moonPlanet ? moonPlanet.rashi : 'Mesha';
-  
-  // Calculate Dashas
-  const dashas = calculateVimshottariDasha(
-    moonPlanet ? moonPlanet.longitude : 0,
-    new Date(year, month - 1, day)
-  );
-  
-  // Name initials
-  const nameInitials = getRashiNameInitials(moonRashi);
-  
-  console.log("✅ Kundali calculation completed");
-  
+
+  // Convert to BS for birth details (using the wall time date)
+  const wallTimeDate = new Date(year, month - 1, day, hours, minutes);
+  const nDate = new NepaliDate(wallTimeDate);
+  const bsDateStr = `${nDate.getYear()}-${String(nDate.getMonth() + 1).padStart(2, '0')}-${String(nDate.getDate()).padStart(2, '0')}`;
+
+  // Map to the format expected by the current frontend/model
+  const formattedPlanets = result.planets.map(p => ({
+    name: p.key,
+    symbol: getPlanetSymbol(p.key),
+    color: getPlanetColor(p.key),
+    longitude: p.longitude,
+    rashi: RASHI_NE[p.rashi],
+    english: RASHI_EN[p.rashi],
+    degree: formatDegree(p.degInRashi),
+    nakshatra: NAKSHATRA_NE[p.nakshatra],
+    pada: p.pada,
+    house: p.house,
+    retrograde: p.retrograde,
+    navamsaRashi: RASHI_NE[result.charts.D9[p.key]],
+    strength: 50 // Simplified strength for now
+  }));
+
+  const formattedDashas = result.vimshottari.mahaDashas.map(d => ({
+    planet: d.lord,
+    period: `${d.startDate.getFullYear()}-${d.endDate.getFullYear()}`,
+    isCurrent: new Date() >= d.startDate && new Date() < d.endDate,
+    years: (d.endDate - d.startDate) / (365.2425 * 86400 * 1000)
+  }));
+
   return {
     name,
     birthDetails: {
-      date: `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`,
-      time: formattedTime,
-      bsDate: `${bsDate.year}-${String(bsDate.month).padStart(2, '0')}-${String(bsDate.day).padStart(2, '0')}`,
-      bsMonth: bsMonthName,
-      bsYear: bsDate.year,
+      date: birthDate,
+      time: birthTime,
+      bsDate: bsDateStr,
+      bsMonth: nDate.getMonth() + 1,
+      bsYear: nDate.getYear(),
       place: birthPlace,
       coordinates: {
-        lat: finalLat,
-        lng: finalLng
+        lat: latitude,
+        lng: longitude
       }
     },
     gender,
     ascendant: {
-      name: ascendantRashi.name,
-      english: ascendantRashi.english,
-      symbol: ascendantRashi.symbol,
-      longitude: ascendantLongitude,
-      lord: ascendantRashi.lord
+      name: RASHI_NE[result.lagnaRashi],
+      english: RASHI_EN[result.lagnaRashi],
+      longitude: result.lagnaLongitude,
     },
     moonSign: {
-      name: moonRashi,
-      english: RASHIS.find(r => r.name === moonRashi)?.english || 'Aries',
-      longitude: moonPlanet?.longitude || 0
+      name: RASHI_NE[result.moonRashi],
+      english: RASHI_EN[result.moonRashi],
+      longitude: result.planets.find(p => p.key === "Moon").longitude
     },
-    planets,
-    houses: houses.map((h, i) => ({
-      number: i + 1,
-      rashi: getRashiFromLongitude(h).name,
-      longitude: h,
-      cusp: h
-    })),
-    dashas: dashas.slice(0, 5),
-    nameInitials,
+    planets: formattedPlanets,
+    dashas: formattedDashas,
+    nameInitials: getRashiNameInitials(RASHI_EN[result.moonRashi]),
     chartData: {
-      ascendantLongitude,
-      houses,
-      planetaryPositions: planetaryPositions.length,
-      ayanamsa,
-      siderealTime
+      ...result,
+      // Include any extra fields needed by the UI
     }
   };
 };
 
-
-// Helper functions (add these at the bottom of the file)
-function calculateJulianDay(year, month, day, decimalHours) {
-  const UT = decimalHours - NEPAL_TIMEZONE_OFFSET;
-  
-  if (month <= 2) {
-    year -= 1;
-    month += 12;
-  }
-  
-  const A = Math.floor(year / 100);
-  const B = 2 - A + Math.floor(A / 4);
-  
-  const JD = Math.floor(365.25 * (year + 4716)) + 
-            Math.floor(30.6001 * (month + 1)) + 
-            day + B - 1524.5 + UT/24;
-  
-  return JD;
+function formatDegree(deg) {
+  const d = Math.floor(deg);
+  const m = Math.floor((deg - d) * 60);
+  return `${d}°${m}'`;
 }
 
-function calculateLahiriAyanamsa(JD) {
-  const T = (JD - 2451545.0) / 36525;
-  return 23.85 + 0.013972222 * (JD - 2451545.0) / 365.25;
-}
-
-function calculateSiderealTime(JD, longitude) {
-  const T = (JD - 2451545.0) / 36525;
-  let GMST = 280.46061837 + 360.98564736629 * (JD - 2451545.0);
-  GMST = ((GMST % 360) + 360) % 360;
-  const LST = GMST + longitude;
-  return ((LST % 360) + 360) % 360;
-}
-
-function calculateAscendant(LST, latitude, ayanamsa) {
-  const LST_rad = LST * Math.PI / 180;
-  const lat_rad = latitude * Math.PI / 180;
-  const eps = 23.4397 * Math.PI / 180;
-  
-  const tanAsc = -Math.cos(LST_rad) / 
-                 (Math.sin(eps) * Math.tan(lat_rad) + Math.cos(eps) * Math.sin(LST_rad));
-  
-  let ascRad = Math.atan(tanAsc);
-  if (Math.cos(LST_rad) < 0) ascRad += Math.PI;
-  
-  let ascDeg = ascRad * 180 / Math.PI;
-  ascDeg = ((ascDeg - ayanamsa) % 360 + 360) % 360;
-  return ascDeg;
-}
-
-function calculatePlanetaryPositions(JD, ayanamsa) {
-  const T = (JD - 2451545.0) / 36525;
-  const positions = [];
-  
-  PLANETS.forEach(planet => {
-    let longitude;
-    let retrograde = false;
-    
-    switch(planet.id) {
-      case 'Su':
-        longitude = 280.46646 + 36000.76983 * T;
-        break;
-      case 'Mo':
-        longitude = 218.3165 + 481267.8813 * T;
-        break;
-      case 'Ma':
-        longitude = 355.433 + 19141.696 * T;
-        break;
-      case 'Me':
-        longitude = 252.251 + 149472.515 * T;
-        retrograde = Math.random() > 0.7;
-        break;
-      case 'Ju':
-        longitude = 34.351 + 3036.302 * T;
-        retrograde = Math.random() > 0.8;
-        break;
-      case 'Ve':
-        longitude = 181.979 + 58519.214 * T;
-        retrograde = Math.random() > 0.6;
-        break;
-      case 'Sa':
-        longitude = 50.077 + 1223.511 * T;
-        retrograde = Math.random() > 0.9;
-        break;
-      case 'Ra':
-        longitude = 125.044 - 1934.136 * T;
-        retrograde = true;
-        break;
-      case 'Ke':
-        longitude = (125.044 - 1934.136 * T + 180) % 360;
-        retrograde = true;
-        break;
-    }
-    
-    longitude = normalizeAngle(longitude - ayanamsa);
-    
-    positions.push({
-      name: planet.name,
-      symbol: planet.symbol,
-      longitude,
-      retrograde
-    });
-  });
-  
-  return positions;
-}
-
-function calculateHouses(ascendant) {
-  const houses = [];
-  for (let i = 0; i < 12; i++) {
-    houses.push((ascendant + i * 30) % 360);
-  }
-  return houses;
-}
-
-function getRashiFromLongitude(longitude) {
-  const normalizedLong = ((longitude % 360) + 360) % 360;
-  const rashiIndex = Math.floor(normalizedLong / 30);
-  return RASHIS[rashiIndex] || RASHIS[0];
-}
-
-function getNakshatraFromLongitude(longitude) {
-  const nakshatras = [
-    { name: 'Ashwini', lord: 'Ketu' },
-    { name: 'Bharani', lord: 'Venus' },
-    { name: 'Krittika', lord: 'Sun' },
-    { name: 'Rohini', lord: 'Moon' },
-    { name: 'Mrigashira', lord: 'Mars' },
-    { name: 'Ardra', lord: 'Rahu' },
-    { name: 'Punarvasu', lord: 'Jupiter' },
-    { name: 'Pushya', lord: 'Saturn' },
-    { name: 'Ashlesha', lord: 'Mercury' },
-    { name: 'Magha', lord: 'Ketu' },
-    { name: 'Purva Phalguni', lord: 'Venus' },
-    { name: 'Uttara Phalguni', lord: 'Sun' },
-    { name: 'Hasta', lord: 'Moon' },
-    { name: 'Chitra', lord: 'Mars' },
-    { name: 'Swati', lord: 'Rahu' },
-    { name: 'Vishakha', lord: 'Jupiter' },
-    { name: 'Anuradha', lord: 'Saturn' },
-    { name: 'Jyeshtha', lord: 'Mercury' },
-    { name: 'Mula', lord: 'Ketu' },
-    { name: 'Purva Ashadha', lord: 'Venus' },
-    { name: 'Uttara Ashadha', lord: 'Sun' },
-    { name: 'Shravana', lord: 'Moon' },
-    { name: 'Dhanishta', lord: 'Mars' },
-    { name: 'Shatabhisha', lord: 'Rahu' },
-    { name: 'Purva Bhadrapada', lord: 'Jupiter' },
-    { name: 'Uttara Bhadrapada', lord: 'Saturn' },
-    { name: 'Revati', lord: 'Mercury' }
-  ];
-  
-  const normalizedLong = ((longitude % 360) + 360) % 360;
-  const nakshatraIndex = Math.floor(normalizedLong / (360/27));
-  
-  return {
-    nakshatra: { 
-      name: nakshatras[nakshatraIndex]?.name || 'Ashwini', 
-      lord: nakshatras[nakshatraIndex]?.lord || 'Ketu' 
-    },
-    pada: (Math.floor((normalizedLong % (360/27)) / (360/27/4)) + 1),
-    nakshatraLord: nakshatras[nakshatraIndex]?.lord || 'Ketu'
-  };
-}
-
-function getDegreeInRashi(longitude) {
-  const degreeInRashi = ((longitude % 360) + 360) % 360 % 30;
-  const degrees = Math.floor(degreeInRashi);
-  const minutes = Math.floor((degreeInRashi - degrees) * 60);
-  return { degrees, minutes };
-}
-
-function getHouseForPlanet(planetLong, houses) {
-  const normalizedLong = ((planetLong % 360) + 360) % 360;
-  
-  for (let i = 0; i < houses.length; i++) {
-    const startAngle = houses[i];
-    const endAngle = houses[(i + 1) % 12];
-    
-    let start = startAngle;
-    let end = endAngle;
-    if (end < start) end += 360;
-    
-    let planetAngle = normalizedLong;
-    if (planetAngle < start) planetAngle += 360;
-    
-    if (planetAngle >= start && planetAngle < end) {
-      return i + 1;
-    }
-  }
-  return 1;
-}
-
-function calculateNavamsa(longitude) {
-  const normalizedLong = ((longitude % 360) + 360) % 360;
-  const rashiIndex = Math.floor(normalizedLong / 30);
-  const positionInRashi = normalizedLong % 30;
-  const navamsaIndex = Math.floor(positionInRashi / (30/9));
-  return ((rashiIndex * 9 + navamsaIndex) % 12) * 30;
-}
-
-function calculatePlanetStrength(planet, house) {
-  let strength = 50;
-  
-  // House strength
-  if ([1, 4, 7, 10].includes(house)) strength += 20;
-  if ([5, 9].includes(house)) strength += 15;
-  if ([3, 6, 11].includes(house)) strength += 10;
-  
-  // Retrograde
-  if (planet.retrograde) strength -= 10;
-  
-  // Planet specific
-  const planetModifiers = {
-    'Sun': 10, 'Moon': 8, 'Mars': -5, 'Mercury': 5,
-    'Jupiter': 15, 'Venus': 12, 'Saturn': -10, 'Rahu': -15, 'Ketu': -15
-  };
-  strength += planetModifiers[planet.name] || 0;
-  
-  return Math.min(Math.max(strength, 0), 100);
-}
-
-function calculateVimshottariDasha(moonLongitude, birthDate) {
-  const dashaYears = {
-    'Ketu': 7, 'Venus': 20, 'Sun': 6, 'Moon': 10,
-    'Mars': 7, 'Rahu': 18, 'Jupiter': 16,
-    'Saturn': 19, 'Mercury': 17
-  };
-  
-  const sequence = ['Ketu', 'Venus', 'Sun', 'Moon', 'Mars', 'Rahu', 'Jupiter', 'Saturn', 'Mercury'];
-  
-  // Calculate starting planet
-  const nakshatraLength = 360 / 27;
-  const moonNakshatra = Math.floor(moonLongitude / nakshatraLength);
-  const startPlanetIndex = moonNakshatra % 9;
-  
-  const dashas = [];
-  const now = new Date();
-  const birthYear = birthDate.getFullYear();
-  
-  // Calculate 5 dashas
-  for (let i = 0; i < 5; i++) {
-    const planetIndex = (startPlanetIndex + i) % 9;
-    const planet = sequence[planetIndex];
-    const years = dashaYears[planet];
-    
-    const startYear = birthYear + i * years;
-    const endYear = startYear + years;
-    
-    const isCurrent = now.getFullYear() >= startYear && now.getFullYear() < endYear;
-    
-    dashas.push({
-      planet,
-      period: `${startYear}-${endYear}`,
-      years,
-      isCurrent
-    });
-  }
-  
-  return dashas;
-}
-
-function getBSMonthName(month) {
-  const months = [
-    'Baishakh', 'Jestha', 'Ashadh', 'Shrawan',
-    'Bhadra', 'Ashwin', 'Kartik', 'Mangsir',
-    'Poush', 'Magh', 'Falgun', 'Chaitra'
-  ];
-  return months[month - 1] || months[0];
-}
-
-function getPlanetSymbol(planetName) {
+function getPlanetSymbol(key) {
   const symbols = {
-    'Sun': '☉', 'Moon': '☽', 'Mars': '♂', 'Mercury': '☿',
-    'Jupiter': '♃', 'Venus': '♀', 'Saturn': '♄',
-    'Rahu': '☊', 'Ketu': '☋'
+    Sun: '☉', Moon: '☽', Mars: '♂', Mercury: '☿',
+    Jupiter: '♃', Venus: '♀', Saturn: '♄',
+    Rahu: '☊', Ketu: '☋'
   };
-  return symbols[planetName] || '★';
+  return symbols[key] || '★';
 }
 
-function getPlanetColor(planetName) {
+function getPlanetColor(key) {
   const colors = {
-    'Sun': 'text-yellow-500',
-    'Moon': 'text-gray-300',
-    'Mars': 'text-red-500',
-    'Mercury': 'text-green-500',
-    'Jupiter': 'text-orange-400',
-    'Venus': 'text-pink-400',
-    'Saturn': 'text-blue-400',
-    'Rahu': 'text-purple-400',
-    'Ketu': 'text-indigo-400'
+    Sun: 'text-yellow-500', Moon: 'text-gray-300', Mars: 'text-red-500',
+    Mercury: 'text-green-500', Jupiter: 'text-orange-400', Venus: 'text-pink-400',
+    Saturn: 'text-blue-400', Rahu: 'text-purple-400', Ketu: 'text-indigo-400'
   };
-  return colors[planetName] || 'text-white';
+  return colors[key] || 'text-white';
 }
 
-function getRashiNameInitials(rashiName) {
+function getRashiNameInitials(rashiEn) {
   const initialsMap = {
-    'Mesha': ['A', 'L', 'E', 'Chu', 'Che', 'Cho'],
-    'Vrishabha': ['I', 'U', 'E', 'O', 'Va', 'Vi'],
-    'Mithuna': ['Ka', 'Ki', 'Ku', 'Gha', 'Ng', 'Chha'],
-    'Karka': ['Hi', 'Hu', 'He', 'Ho', 'Da', 'Di'],
-    'Simha': ['Ma', 'Mi', 'Mu', 'Me', 'Mo', 'Ta'],
-    'Kanya': ['To', 'Pa', 'Pi', 'Pu', 'Sha', 'Na'],
-    'Tula': ['Ra', 'Ri', 'Ru', 'Re', 'Ro', 'Ta'],
-    'Vrishchika': ['To', 'Na', 'Ni', 'Nu', 'Ne', 'No'],
-    'Dhanu': ['Ye', 'Yo', 'Bha', 'Bhi', 'Bhu', 'Dha'],
-    'Makara': ['Bho', 'Ja', 'Ji', 'Ju', 'Je', 'Jo'],
-    'Kumbha': ['Gu', 'Ge', 'Go', 'Sa', 'Si', 'Su'],
-    'Meena': ['Di', 'Du', 'Tha', 'Jha', 'Tra', 'De']
+    'Aries': ['A', 'L', 'E', 'Chu', 'Che', 'Cho'],
+    'Taurus': ['I', 'U', 'E', 'O', 'Va', 'Vi'],
+    'Gemini': ['Ka', 'Ki', 'Ku', 'Gha', 'Ng', 'Chha'],
+    'Cancer': ['Hi', 'Hu', 'He', 'Ho', 'Da', 'Di'],
+    'Leo': ['Ma', 'Mi', 'Mu', 'Me', 'Mo', 'Ta'],
+    'Virgo': ['To', 'Pa', 'Pi', 'Pu', 'Sha', 'Na'],
+    'Libra': ['Ra', 'Ri', 'Ru', 'Re', 'Ro', 'Ta'],
+    'Scorpio': ['To', 'Na', 'Ni', 'Nu', 'Ne', 'No'],
+    'Sagittarius': ['Ye', 'Yo', 'Bha', 'Bhi', 'Bhu', 'Dha'],
+    'Capricorn': ['Bho', 'Ja', 'Ji', 'Ju', 'Je', 'Jo'],
+    'Aquarius': ['Gu', 'Ge', 'Go', 'Sa', 'Si', 'Su'],
+    'Pisces': ['Di', 'Du', 'Tha', 'Jha', 'Tra', 'De']
   };
-  
-  return initialsMap[rashiName] || ['A', 'B', 'C', 'D', 'E', 'F'];
+  return initialsMap[rashiEn] || ['A', 'B', 'C'];
 }
 
-function normalizeAngle(angle) {
-  angle = angle % 360;
-  return angle < 0 ? angle + 360 : angle;
-}

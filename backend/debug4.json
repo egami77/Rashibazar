@@ -1,0 +1,27 @@
+{
+  "bookingId": "BOOK-1775451642321-BEVTNX",
+  "dbAmount": 500,
+  "khaltiId": "CR34czYEfPexBKbBwgsv99",
+  "lookupResult": {
+    "success": true,
+    "pidx": "CR34czYEfPexBKbBwgsv99",
+    "status": "Completed",
+    "amount": 55000,
+    "transaction_id": "x2h5gZgtqYozyCNnErVcYF",
+    "isCompleted": true,
+    "raw": {
+      "pidx": "CR34czYEfPexBKbBwgsv99",
+      "total_amount": 55000,
+      "status": "Completed",
+      "transaction_id": "x2h5gZgtqYozyCNnErVcYF",
+      "fee": 1650,
+      "refunded": false
+    }
+  },
+  "expectedPaisa": 55000,
+  "validationResult": {
+    "valid": false,
+    "error": "Order ID mismatch",
+    "expected": "BOOK-1775451642321-BEVTNX"
+  }
+}

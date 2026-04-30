@@ -20,6 +20,7 @@ const astrologerSchema = new mongoose.Schema({
     enum: ['pending', 'approved', 'rejected'],
     default: 'pending'
   },
+  meetingLink: { type: String, default: "" },
   isActive: { type: Boolean, default: false },
   totalEarnings: { type: Number, default: 0 },
   monthlyEarnings: { type: Number, default: 0 },

@@ -84,10 +84,10 @@ const Signup = () => {
     setLoading(true);
     try {
       const response = await registerUser(userForm);
-      
+
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("user", JSON.stringify(response.data.user));
-      
+
       toast.success("Registration successful!");
       navigate("/login");
     } catch (error) {
@@ -137,10 +137,10 @@ const Signup = () => {
     setLoading(true);
     try {
       const response = await registerAstrologer(astrologerForm);
-      
+
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("astrologer", JSON.stringify(response.data.astrologer));
-      
+
       toast.success("Registration successful! Your profile is pending admin approval.");
       navigate("/login");
     } catch (error) {
@@ -173,11 +173,10 @@ const Signup = () => {
               setActiveTab("user");
               setError("");
             }}
-            className={`flex-1 py-3 rounded-lg font-semibold transition-all ${
-              activeTab === "user"
+            className={`flex-1 py-3 rounded-lg font-semibold transition-all ${activeTab === "user"
                 ? "bg-gradient-to-r from-yellow-400 to-pink-500 text-black"
                 : "text-gray-300 hover:text-white hover:bg-white/10"
-            }`}
+              }`}
           >
             User
           </button>
@@ -186,11 +185,10 @@ const Signup = () => {
               setActiveTab("astrologer");
               setError("");
             }}
-            className={`flex-1 py-3 rounded-lg font-semibold transition-all ${
-              activeTab === "astrologer"
+            className={`flex-1 py-3 rounded-lg font-semibold transition-all ${activeTab === "astrologer"
                 ? "bg-gradient-to-r from-yellow-400 to-pink-500 text-black"
                 : "text-gray-300 hover:text-white hover:bg-white/10"
-            }`}
+              }`}
           >
             Astrologer
           </button>
@@ -392,7 +390,7 @@ const Signup = () => {
               </div>
 
               <div>
-                <label className="block text-sm text-gray-300 mb-2">Price Per Session (₹)</label>
+                <label className="block text-sm text-gray-300 mb-2">Price Per Session (Npr)</label>
                 <input
                   type="number"
                   name="pricePerSession"

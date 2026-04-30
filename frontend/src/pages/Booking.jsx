@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { format, addDays, parseISO } from 'date-fns';
-import { Calendar, Clock, Star, Phone, MapPin, Award, Globe, CheckCircle, Loader2, User } from 'lucide-react';
+import { Calendar, Clock, Star, Phone, MapPin, Award, CheckCircle, Loader2, User, Sparkles, Map, Home, Building2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import API from '../services/api';
 
@@ -23,7 +23,7 @@ const Booking = () => {
   const [bookingDetails, setBookingDetails] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [availableDates, setAvailableDates] = useState([]);
-
+  
   const user = JSON.parse(localStorage.getItem('user'));
 
   useEffect(() => {
@@ -37,13 +37,12 @@ const Booking = () => {
     } else {
       fetchAstrologers();
     }
-    
+
     generateAvailableDates();
   }, [id]);
 
   useEffect(() => {
     if (selectedAstrologer?._id && selectedDate) {
-      console.log(`🔔 Re-fetching availability - astrologer changed or date changed`);
       fetchAvailability();
     } else if (!selectedDate) {
       setAvailability({});
@@ -83,25 +82,15 @@ const Booking = () => {
 
   const fetchAvailability = async () => {
     try {
-      if (!selectedDate || !selectedAstrologer?._id) {
-        console.warn('Missing selectedDate or astrologer ID');
-        return;
-      }
-      
+      if (!selectedDate || !selectedAstrologer?._id) return;
       const startDate = selectedDate;
       const endDate = format(addDays(new Date(selectedDate), 6), 'yyyy-MM-dd');
-      
-      console.log(`🔄 Fetching availability for ${selectedAstrologer._id} from ${startDate} to ${endDate}`);
-      
       const response = await API.get(`/astrologers/${selectedAstrologer._id}/availability`, {
         params: { startDate, endDate }
       });
-      
-      console.log(`✅ Availability fetched:`, response.data);
       setAvailability(response.data);
     } catch (error) {
-      console.error('Availability fetch error:', error);
-      toast.error('Failed to fetch availability: ' + (error.response?.data?.message || error.message));
+      toast.error('Failed to fetch availability');
       setAvailability({});
     }
   };
@@ -135,12 +124,31 @@ const Booking = () => {
       };
 
       const response = await API.post('/bookings', bookingData);
-      
-      setBookingDetails(response.data.booking);
-      setBookingComplete(true);
-      setStep(4);
-      
-      toast.success('Booking confirmed successfully!');
+      const booking = response.data.booking;
+
+      if (paymentMethod === 'khalti') {
+        const khaltiInitResponse = await API.post('/khalti/initiate', {
+          bookingId: booking._id,
+          amount: (selectedAstrologer.pricing?.perSession || 0) + 50,
+          customerInfo: {
+            name: user?.name || 'Customer',
+            email: user?.email || '',
+            phone: user?.phone || '9800000000'
+          }
+        });
+
+        if (khaltiInitResponse.data.success) {
+          window.location.href = khaltiInitResponse.data.payment_url;
+        } else {
+          setError('Failed to initiate Khalti payment');
+          toast.error('Failed to initiate Khalti payment');
+        }
+      } else {
+        setBookingDetails(booking);
+        setBookingComplete(true);
+        setStep(4);
+        toast.success('Booking confirmed successfully!');
+      }
     } catch (error) {
       setError(error.response?.data?.message || 'Booking failed');
       toast.error(error.response?.data?.message || 'Booking failed');
@@ -150,7 +158,8 @@ const Booking = () => {
   };
 
   const paymentMethods = [
-    { id: 'pay_on_visit', label: 'Pay on Visit', description: 'Pay the astrologer directly during consultation' }
+    { id: 'pay_on_visit', label: 'Pay on Visit', description: 'Pay the astrologer directly during your in-person consultation' },
+    { id: 'khalti', label: 'Khalti Wallet', description: 'Pay securely with Khalti digital wallet' }
   ];
 
   if (loading && step === 1 && id) {
@@ -168,139 +177,134 @@ const Booking = () => {
     <div className="min-h-screen bg-gradient-to-b from-black via-purple-900 to-black text-white pt-24 px-4 pb-12">
       <div className="max-w-6xl mx-auto">
         {/* Progress Steps */}
-        <div className="mb-8">
+        <div className="mb-12">
           <div className="flex justify-center items-center gap-2 md:gap-4">
             {[1, 2, 3].map((s) => (
               <div key={s} className="flex items-center">
-                <div className={`w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center text-sm md:text-base font-bold ${
-                  step >= s ? 'bg-gradient-to-r from-yellow-400 to-pink-500 text-black' : 'bg-gray-700 text-gray-400'
-                }`}>
+                <div className={`w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center text-sm md:text-base font-bold transition-all duration-500 ${step >= s ? 'bg-gradient-to-r from-yellow-400 to-pink-500 text-black scale-110 shadow-lg shadow-yellow-500/20' : 'bg-gray-700 text-gray-400'
+                  }`}>
                   {s}
                 </div>
                 {s < 3 && (
-                  <div className={`w-8 md:w-12 h-0.5 mx-1 md:mx-2 ${
-                    step > s ? 'bg-gradient-to-r from-yellow-400 to-pink-500' : 'bg-gray-700'
-                  }`} />
+                  <div className={`w-8 md:w-16 h-0.5 mx-1 md:mx-2 transition-all duration-500 ${step > s ? 'bg-gradient-to-r from-yellow-400 to-pink-500' : 'bg-gray-700'
+                    }`} />
                 )}
               </div>
             ))}
           </div>
-          <div className="flex justify-center mt-2 text-sm text-gray-400">
-            <span className="w-20 text-center">Select</span>
-            <span className="w-24 text-center">Schedule</span>
-            <span className="w-20 text-center">Confirm</span>
+          <div className="flex justify-center mt-3 text-[10px] md:text-xs font-black uppercase tracking-[0.2em] text-gray-500">
+            <span className={`w-20 text-center transition-colors ${step === 1 ? 'text-yellow-400' : ''}`}>Expert</span>
+            <span className={`w-24 text-center transition-colors ${step === 2 ? 'text-yellow-400' : ''}`}>Schedule</span>
+            <span className={`w-20 text-center transition-colors ${step === 3 ? 'text-yellow-400' : ''}`}>Confirm</span>
           </div>
         </div>
 
         {step === 1 && !id && (
-          <div>
-            <h1 className="text-3xl md:text-4xl font-bold text-center mb-2 bg-gradient-to-r from-yellow-300 via-pink-400 to-purple-500 bg-clip-text text-transparent">
-              Choose Your Astrologer
+          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <h1 className="text-3xl md:text-5xl font-black text-center mb-4 bg-gradient-to-r from-yellow-300 via-pink-400 to-purple-500 bg-clip-text text-transparent uppercase italic tracking-tighter">
+              Choose Your Expert
             </h1>
-            <p className="text-center text-gray-300 mb-8">Connect with our verified Vedic astrologers</p>
+            <p className="text-center text-gray-400 mb-12 max-w-2xl mx-auto">Connect with certified Vedic practitioners for profound in-person consultations.</p>
 
-            {/* Search */}
-            <div className="bg-black/30 backdrop-blur-lg rounded-xl border-2 border-purple-500/30 p-6 mb-8">
-              <input
-                type="text"
-                placeholder="Search by name..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full px-4 py-3 bg-black/50 border-2 border-purple-500/30 rounded-lg focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/30 outline-none text-white"
-              />
+            <div className="bg-black/30 backdrop-blur-3xl rounded-[2rem] border border-white/10 p-8 mb-12 shadow-2xl">
+              <div className="relative">
+                <User className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-500" />
+                <input
+                  type="text"
+                  placeholder="Search by expert name..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-14 pr-6 py-5 bg-white/5 border border-white/10 rounded-2xl focus:border-yellow-400/50 focus:ring-0 outline-none text-white transition-all text-lg"
+                />
+              </div>
             </div>
 
-            {/* Astrologers Grid */}
-            {astrologers.length === 0 ? (
-              <div className="text-center py-12 bg-black/30 backdrop-blur-lg rounded-xl border-2 border-purple-500/30">
-                <p className="text-gray-400">No astrologers available at the moment</p>
-              </div>
-            ) : (
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {astrologers
-                  .filter(astro => astro.name.toLowerCase().includes(searchTerm.toLowerCase()))
-                  .map((astrologer) => (
-                    <div
-                      key={astrologer._id}
-                      onClick={() => handleAstrologerSelect(astrologer)}
-                      className="bg-black/30 backdrop-blur-lg border-2 border-purple-500/30 rounded-xl p-6 hover:border-yellow-400 transition-all cursor-pointer group hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/20"
-                    >
-                      <div className="flex items-center gap-4 mb-4">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {astrologers
+                .filter(astro => astro.name.toLowerCase().includes(searchTerm.toLowerCase()))
+                .map((astrologer) => (
+                  <div
+                    key={astrologer._id}
+                    onClick={() => handleAstrologerSelect(astrologer)}
+                    className="bg-black/20 backdrop-blur-xl border border-white/10 rounded-[2.5rem] p-8 hover:border-yellow-400/50 transition-all cursor-pointer group relative overflow-hidden"
+                  >
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-400/5 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-700"></div>
+                    
+                    <div className="flex items-center gap-6 mb-8 relative">
+                      <div className="relative">
                         <img
                           src={astrologer.profileImage || `https://ui-avatars.com/api/?name=${astrologer.name}&background=8B5CF6&color=fff`}
                           alt={astrologer.name}
-                          className="w-16 h-16 rounded-full border-2 border-purple-500/30 group-hover:border-yellow-400 transition"
+                          className="w-20 h-20 rounded-[1.5rem] object-cover border-2 border-white/10 group-hover:border-yellow-400/50 transition-all"
                         />
-                        <div>
-                          <h3 className="text-lg font-semibold text-white">{astrologer.name}</h3>
-                          <div className="flex items-center gap-2 text-sm">
-                            <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
-                            <span>{astrologer.rating?.toFixed(1) || '0.0'}</span>
-                            <span className="text-gray-500">({astrologer.totalReviews || 0})</span>
-                          </div>
+                        <div className="absolute -bottom-2 -right-2 bg-yellow-400 text-black text-[10px] font-black px-2 py-1 rounded-lg flex items-center gap-1">
+                          <Star className="h-3 w-3 fill-black" /> {astrologer.rating?.toFixed(1) || '5.0'}
                         </div>
                       </div>
-                      
-                      <div className="space-y-2 mb-4">
-                        <div className="flex items-center gap-2 text-sm text-gray-300">
-                          <Award className="h-4 w-4 text-purple-400" />
-                          <span>{astrologer.experience} years experience</span>
-                        </div>
-                        {astrologer.bio && (
-                          <p className="text-sm text-gray-400 line-clamp-2">{astrologer.bio}</p>
-                        )}
-                      </div>
-                      
-                      <div className="pt-4 border-t border-purple-500/20">
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-gray-400">Per Session</span>
-                          <span className="text-2xl font-bold text-yellow-400">₹{astrologer.pricing?.perSession || 0}</span>
-                        </div>
+                      <div>
+                        <h3 className="text-xl font-black text-white uppercase italic group-hover:text-yellow-400 transition-colors">{astrologer.name}</h3>
+                        <p className="text-xs text-gray-500 font-bold uppercase tracking-widest">{astrologer.experience} Years Exp</p>
                       </div>
                     </div>
-                  ))}
-              </div>
-            )}
+
+                    <p className="text-sm text-gray-400 mb-8 line-clamp-3 leading-relaxed">{astrologer.bio || 'Professional Vedic astrologer dedicated to providing accurate predictions and remedies.'}</p>
+
+                    <div className="flex justify-between items-end pt-6 border-t border-white/5">
+                      <div>
+                        <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest mb-1">Session Rate</p>
+                        <span className="text-2xl font-black text-white">Npr {astrologer.pricing?.perSession || 0}</span>
+                      </div>
+                      <button className="h-12 w-12 bg-white/5 rounded-2xl flex items-center justify-center text-white group-hover:bg-yellow-400 group-hover:text-black transition-all">
+                        <MapPin className="h-5 w-5" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+            </div>
           </div>
         )}
 
         {step === 2 && selectedAstrologer && (
-          <div>
+          <div className="animate-in fade-in slide-in-from-right-4 duration-500 max-w-5xl mx-auto">
             <button
               onClick={() => setStep(1)}
-              className="mb-6 flex items-center gap-2 text-purple-300 hover:text-yellow-400 transition-colors"
+              className="mb-8 flex items-center gap-2 text-gray-500 hover:text-white transition-colors font-bold uppercase text-xs tracking-widest"
             >
-              ← Back to Astrologers
+              ← Back to Experts
             </button>
 
-            <div className="bg-black/30 backdrop-blur-lg rounded-xl border-2 border-purple-500/30 p-8">
-              {/* Astrologer Info */}
-              <div className="flex items-center gap-6 pb-6 mb-6 border-b border-purple-500/20">
+            <div className="bg-black/30 backdrop-blur-3xl rounded-[3rem] border border-white/10 p-10 md:p-14 shadow-2xl relative overflow-hidden">
+              <div className="absolute top-0 right-0 p-12 opacity-[0.02]">
+                <Calendar className="h-64 w-64 text-white" />
+              </div>
+
+              <div className="flex flex-col md:flex-row items-center gap-10 pb-12 mb-12 border-b border-white/5 relative">
                 <img
                   src={selectedAstrologer.profileImage || `https://ui-avatars.com/api/?name=${selectedAstrologer.name}&background=8B5CF6&color=fff`}
                   alt={selectedAstrologer.name}
-                  className="w-20 h-20 rounded-full border-2 border-yellow-400"
+                  className="w-32 h-32 rounded-[2rem] border-2 border-yellow-400/30 object-cover"
                 />
-                <div>
-                  <h2 className="text-2xl font-bold text-white mb-2">{selectedAstrologer.name}</h2>
-                  <div className="flex flex-wrap gap-4">
-                    <div className="flex items-center gap-2 text-sm text-gray-300">
+                <div className="text-center md:text-left">
+                  <h2 className="text-4xl font-black text-white uppercase italic tracking-tighter mb-4">{selectedAstrologer.name}</h2>
+                  <div className="flex flex-wrap justify-center md:justify-start gap-6">
+                    <div className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-xl border border-white/10">
                       <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
-                      {selectedAstrologer.rating?.toFixed(1) || '0.0'} ({selectedAstrologer.totalReviews || 0} reviews)
+                      <span className="text-sm font-bold">{selectedAstrologer.rating?.toFixed(1) || '5.0'} Rating</span>
                     </div>
-                    <div className="flex items-center gap-2 text-sm text-gray-300">
-                      <Award className="h-4 w-4 text-purple-400" />
-                      {selectedAstrologer.experience} years experience
+                    <div className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-xl border border-white/10">
+                      <Award className="h-4 w-4 text-orange-400" />
+                      <span className="text-sm font-bold">{selectedAstrologer.experience} Years Experience</span>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Date & Time Selection */}
-              <div className="grid md:grid-cols-2 gap-8">
+              <div className="grid md:grid-cols-2 gap-12 relative">
                 <div>
-                  <h3 className="text-lg font-semibold text-yellow-300 mb-4">Select Date</h3>
-                  <div className="space-y-2 max-h-96 overflow-y-auto pr-2">
+                  <h3 className="text-lg font-black text-yellow-400 uppercase italic mb-6 flex items-center gap-3">
+                    <Calendar className="h-5 w-5" /> Select Date
+                  </h3>
+                  <div className="grid grid-cols-2 gap-3 max-h-[350px] overflow-y-auto pr-3 scrollbar-thin scrollbar-thumb-white/10">
                     {availableDates.map((date) => (
                       <button
                         key={date}
@@ -308,73 +312,60 @@ const Booking = () => {
                           setSelectedDate(date);
                           setSelectedTime('');
                         }}
-                        className={`w-full p-3 rounded-lg border-2 transition text-left ${
-                          selectedDate === date
-                            ? 'border-yellow-400 bg-yellow-400/10'
-                            : 'border-purple-500/30 hover:border-purple-500 hover:bg-purple-900/20'
-                        }`}
+                        className={`p-4 rounded-[1.5rem] border transition-all text-left group ${selectedDate === date
+                          ? 'border-yellow-400 bg-yellow-400 text-black shadow-lg shadow-yellow-400/20'
+                          : 'border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/10'
+                          }`}
                       >
-                        <div className="flex items-center gap-3">
-                          <Calendar className="h-5 w-5 text-purple-400" />
-                          <div>
-                            <div className="font-semibold text-white">
-                              {format(parseISO(date), 'EEEE, MMMM do')}
-                            </div>
-                            <div className="text-sm text-gray-400">
-                              {format(parseISO(date), 'yyyy-MM-dd')}
-                            </div>
-                          </div>
-                        </div>
+                        <p className={`text-[10px] font-black uppercase tracking-widest mb-1 ${selectedDate === date ? 'text-black/60' : 'text-gray-500'}`}>
+                          {format(parseISO(date), 'EEEE')}
+                        </p>
+                        <p className="text-lg font-black tracking-tight">{format(parseISO(date), 'MMM dd')}</p>
                       </button>
                     ))}
                   </div>
                 </div>
 
                 <div>
-                  <h3 className="text-lg font-semibold text-yellow-300 mb-4">Select Time</h3>
+                  <h3 className="text-lg font-black text-yellow-400 uppercase italic mb-6 flex items-center gap-3">
+                    <Clock className="h-5 w-5" /> Select Time
+                  </h3>
                   {selectedDate ? (
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                       {availability[selectedDate] && availability[selectedDate].length > 0 ? (
                         availability[selectedDate].map((time) => (
                           <button
                             key={time}
                             onClick={() => setSelectedTime(time)}
-                            className={`p-3 rounded-lg border-2 transition text-center ${
-                              selectedTime === time
-                                ? 'border-yellow-400 bg-yellow-400/10'
-                                : 'border-purple-500/30 hover:border-purple-500 hover:bg-purple-900/20'
-                            }`}
+                            className={`p-4 rounded-2xl border transition-all text-center font-bold ${selectedTime === time
+                              ? 'border-yellow-400 bg-yellow-400 text-black shadow-lg shadow-yellow-400/20'
+                              : 'border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/10'
+                              }`}
                           >
-                            <Clock className="h-4 w-4 mx-auto mb-1 text-purple-400" />
                             {time}
                           </button>
                         ))
                       ) : (
-                        <div className="text-gray-500 col-span-2 text-center py-8">
-                          <p className="mb-2">No slots available for this date</p>
-                          <p className="text-xs text-gray-600">Astrologer may not have added availability for {selectedDate}</p>
+                        <div className="col-span-full py-12 text-center bg-white/5 rounded-[2rem] border border-dashed border-white/10">
+                          <Clock className="h-8 w-8 text-gray-600 mx-auto mb-4" />
+                          <p className="text-gray-500 font-bold uppercase text-[10px] tracking-widest">No slots available for this date</p>
                         </div>
                       )}
                     </div>
                   ) : (
-                    <p className="text-gray-500 text-center py-8">Select a date first</p>
+                    <div className="py-12 text-center bg-white/5 rounded-[2rem] border border-dashed border-white/10">
+                      <p className="text-gray-600 font-black uppercase text-[10px] tracking-widest">Select a date to see availability</p>
+                    </div>
                   )}
                 </div>
               </div>
 
-              <div className="flex justify-between mt-8 pt-6 border-t border-purple-500/20">
-                <button
-                  onClick={() => setStep(1)}
-                  className="px-6 py-2 bg-gray-600 rounded-lg hover:bg-gray-700 transition-colors"
-                >
-                  Back
-                </button>
+              <div className="flex justify-end mt-12 pt-8 border-t border-white/5">
                 <button
                   onClick={handleDateTimeSelect}
                   disabled={!selectedDate || !selectedTime}
-                  className={`px-8 py-2 bg-gradient-to-r from-yellow-400 to-pink-500 text-black rounded-lg font-semibold transition ${
-                    !selectedDate || !selectedTime ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105 hover:shadow-lg'
-                  }`}
+                  className={`px-12 py-5 bg-gradient-to-r from-yellow-400 to-orange-600 text-black rounded-2xl font-black uppercase tracking-widest transition-all ${!selectedDate || !selectedTime ? 'opacity-30 cursor-not-allowed' : 'hover:scale-105 hover:shadow-2xl hover:shadow-orange-500/20'
+                    }`}
                 >
                   Continue to Payment
                 </button>
@@ -384,160 +375,169 @@ const Booking = () => {
         )}
 
         {step === 3 && selectedAstrologer && (
-          <div className="max-w-2xl mx-auto">
-            <div className="bg-black/30 backdrop-blur-lg rounded-xl border-2 border-purple-500/30 p-8">
-              <h2 className="text-2xl font-bold text-yellow-300 mb-6">Complete Your Booking</h2>
-              
-              {/* Booking Summary */}
-              <div className="bg-purple-900/20 rounded-lg p-4 mb-6">
-                <h3 className="font-semibold text-yellow-300 mb-3">Booking Summary</h3>
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-400">Astrologer</span>
-                    <span className="text-white font-semibold">{selectedAstrologer.name}</span>
+          <div className="animate-in fade-in slide-in-from-right-4 duration-500 max-w-4xl mx-auto">
+             <button
+              onClick={() => setStep(2)}
+              className="mb-8 flex items-center gap-2 text-gray-500 hover:text-white transition-colors font-bold uppercase text-xs tracking-widest"
+            >
+              ← Back to Schedule
+            </button>
+
+            <div className="grid md:grid-cols-3 gap-8 relative">
+              <div className="md:col-span-2 space-y-8">
+                <div className="bg-black/30 backdrop-blur-3xl rounded-[3rem] border border-white/10 p-10 shadow-2xl">
+                  <h2 className="text-2xl font-black text-white uppercase italic tracking-tighter mb-8">Payment Method</h2>
+                  
+                  <div className="space-y-4">
+                    {paymentMethods.map((method) => (
+                      <button
+                        key={method.id}
+                        onClick={() => handlePaymentSelect(method.id)}
+                        className={`w-full p-6 rounded-[2rem] border transition-all flex items-center justify-between group ${paymentMethod === method.id
+                          ? 'border-yellow-400 bg-yellow-400/10'
+                          : 'border-white/10 bg-white/5 hover:border-white/20'
+                          }`}
+                      >
+                        <div className="text-left flex items-center gap-6">
+                          <div className={`h-14 w-14 rounded-2xl flex items-center justify-center transition-all ${paymentMethod === method.id ? 'bg-yellow-400 text-black' : 'bg-white/5 text-gray-400 group-hover:text-white'}`}>
+                            {method.id === 'khalti' ? <Building2 className="h-6 w-6" /> : <Home className="h-6 w-6" />}
+                          </div>
+                          <div>
+                            <span className={`font-black uppercase italic block tracking-tight ${paymentMethod === method.id ? 'text-yellow-400' : 'text-white'}`}>{method.label}</span>
+                            <span className="text-xs text-gray-500 font-bold uppercase tracking-widest">{method.description}</span>
+                          </div>
+                        </div>
+                        <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all ${paymentMethod === method.id ? 'border-yellow-400 bg-yellow-400' : 'border-white/10'
+                          }`}>
+                          {paymentMethod === method.id && <div className="w-3 h-3 bg-black rounded-full" />}
+                        </div>
+                      </button>
+                    ))}
                   </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-400">Date</span>
-                    <span className="text-white">{format(parseISO(selectedDate), 'MMMM dd, yyyy')}</span>
+
+                  <div className="mt-8 mb-8">
+                    <label className="text-[10px] text-gray-500 font-black uppercase tracking-widest ml-1 mb-2 block">Additional Notes</label>
+                    <textarea 
+                      value={notes}
+                      onChange={(e) => setNotes(e.target.value)}
+                      className="w-full h-32 px-6 py-4 bg-white/5 border border-white/10 rounded-[2rem] focus:border-yellow-400/50 outline-none text-white transition-all resize-none"
+                      placeholder="Share any specific concerns or questions for the astrologer..."
+                    />
                   </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-400">Time</span>
-                    <span className="text-white">{selectedTime}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-400">Session Price</span>
-                    <span className="text-yellow-400">₹{selectedAstrologer.pricing?.perSession}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-400">Platform Fee</span>
-                    <span className="text-white">₹50</span>
-                  </div>
-                  <div className="border-t border-purple-500/30 my-2 pt-2">
-                    <div className="flex justify-between font-bold">
-                      <span className="text-yellow-300">Total</span>
-                      <span className="text-yellow-400 text-xl">₹{(selectedAstrologer.pricing?.perSession || 0) + 50}</span>
-                    </div>
+
+                  <div className="mt-12">
+                    <button
+                      onClick={handleBooking}
+                      disabled={!paymentMethod || loading}
+                      className="w-full py-6 bg-gradient-to-r from-yellow-400 to-orange-600 text-black rounded-[2rem] font-black uppercase tracking-[0.2em] shadow-2xl shadow-orange-500/20 hover:scale-[1.01] transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                    >
+                      {loading ? <Loader2 className="h-6 w-6 animate-spin mx-auto" /> : 'Confirm In-Person Session'}
+                    </button>
+                    <p className="text-center text-[10px] text-gray-600 font-black uppercase tracking-widest mt-6">By continuing, you agree to our terms of service.</p>
                   </div>
                 </div>
               </div>
 
-              <h3 className="text-lg font-semibold text-yellow-300 mb-4">Payment Method</h3>
-              <div className="mb-6">
-                {paymentMethods.map((method) => (
-                  <button
-                    key={method.id}
-                    onClick={() => handlePaymentSelect(method.id)}
-                    className={`w-full p-4 rounded-lg border-2 transition flex items-center justify-between ${
-                      paymentMethod === method.id
-                        ? 'border-yellow-400 bg-yellow-400/10'
-                        : 'border-purple-500/30 hover:border-purple-500 hover:bg-purple-900/20'
-                    }`}
-                  >
-                    <div className="text-left">
-                      <span className="font-semibold block text-white">{method.label}</span>
-                      <span className="text-sm text-gray-400">{method.description}</span>
+              <div className="space-y-8">
+                <div className="bg-white/5 border border-white/10 rounded-[2.5rem] p-8">
+                  <h3 className="text-lg font-black text-white uppercase italic mb-6">Booking Summary</h3>
+                  <div className="space-y-6">
+                    <div className="flex items-center gap-4 p-4 bg-black/20 rounded-2xl border border-white/5">
+                      <div className="h-12 w-12 bg-white/5 rounded-xl flex items-center justify-center">
+                        <Calendar className="h-5 w-5 text-gray-400" />
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest">Schedule</p>
+                        <p className="text-sm font-bold text-white">{format(parseISO(selectedDate), 'MMM dd')} @ {selectedTime}</p>
+                      </div>
                     </div>
-                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                      paymentMethod === method.id ? 'border-yellow-400 bg-yellow-400' : 'border-gray-500'
-                    }`}>
-                      {paymentMethod === method.id && <div className="w-2 h-2 bg-black rounded-full" />}
+
+                    <div className="space-y-3 px-2">
+                      <div className="flex justify-between text-xs font-bold uppercase tracking-widest">
+                        <span className="text-gray-500">Consultation</span>
+                        <span className="text-white">Npr {selectedAstrologer.pricing?.perSession}</span>
+                      </div>
+                      <div className="flex justify-between text-xs font-bold uppercase tracking-widest">
+                        <span className="text-gray-500">Service Fee</span>
+                        <span className="text-white">Npr 50</span>
+                      </div>
+                      <div className="pt-4 border-t border-white/10">
+                        <div className="flex justify-between items-end">
+                          <span className="text-sm font-black text-yellow-400 uppercase italic">Total</span>
+                          <span className="text-3xl font-black text-white tracking-tighter">Npr {(selectedAstrologer.pricing?.perSession || 0) + 50}</span>
+                        </div>
+                      </div>
                     </div>
-                  </button>
-                ))}
-              </div>
-
-              <div className="mb-6">
-                <label className="block text-sm text-gray-300 mb-2">Additional Notes (Optional)</label>
-                <textarea
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  rows="3"
-                  className="w-full px-4 py-3 bg-black/50 border-2 border-purple-500/30 rounded-lg focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/30 outline-none text-white"
-                  placeholder="Any specific questions or concerns?"
-                />
-              </div>
-
-              {error && (
-                <div className="mb-4 p-3 bg-red-900/30 border border-red-500/50 rounded-lg text-red-300">
-                  {error}
+                  </div>
                 </div>
-              )}
 
-              <div className="flex gap-4">
-                <button
-                  onClick={() => setStep(2)}
-                  className="flex-1 px-6 py-3 bg-gray-600 rounded-lg font-semibold hover:bg-gray-700 transition-colors"
-                >
-                  Back
-                </button>
-                <button
-                  onClick={handleBooking}
-                  disabled={!paymentMethod || loading}
-                  className="flex-1 px-6 py-3 bg-gradient-to-r from-yellow-400 to-pink-500 text-black rounded-lg font-semibold hover:scale-105 transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {loading ? <Loader2 className="h-5 w-5 animate-spin mx-auto" /> : 'Confirm Booking'}
-                </button>
+                <div className="bg-orange-500/10 border border-orange-500/20 rounded-[2rem] p-6 text-center">
+                   <MapPin className="h-6 w-6 text-orange-400 mx-auto mb-4" />
+                   <p className="text-xs font-bold text-orange-400 uppercase tracking-widest">Physical Visit</p>
+                   <p className="text-[10px] text-gray-500 mt-2 font-medium leading-relaxed">This is an in-person session. Please arrive at the astrologer's location 10 minutes early.</p>
+                </div>
               </div>
             </div>
           </div>
         )}
 
         {step === 4 && bookingComplete && bookingDetails && (
-          <div className="max-w-2xl mx-auto">
-            <div className="bg-black/30 backdrop-blur-lg rounded-xl border-2 border-green-500/30 p-8 text-center">
-              <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                <CheckCircle className="h-10 w-10 text-green-400" />
+          <div className="animate-in zoom-in duration-500 max-w-2xl mx-auto">
+            <div className="bg-black/30 backdrop-blur-3xl rounded-[4rem] border border-emerald-500/30 p-12 text-center relative overflow-hidden">
+               <div className="absolute top-0 right-0 p-12 opacity-[0.03]">
+                <CheckCircle className="h-64 w-64 text-emerald-500" />
               </div>
-              
-              <h2 className="text-3xl font-bold mb-2 text-green-400">Booking Confirmed!</h2>
-              <p className="text-gray-300 mb-8">Your consultation has been scheduled</p>
 
-              <div className="bg-black/50 rounded-lg p-6 mb-8 text-left">
-                <div className="grid grid-cols-2 gap-4">
+              <div className="w-24 h-24 bg-emerald-500 rounded-[2.5rem] flex items-center justify-center mx-auto mb-10 shadow-2xl shadow-emerald-500/40 relative">
+                <CheckCircle className="h-12 w-12 text-white" />
+              </div>
+
+              <h2 className="text-5xl font-black text-white uppercase italic tracking-tighter mb-4">Confirmed!</h2>
+              <p className="text-gray-400 font-bold uppercase tracking-[0.2em] mb-12">Your in-person session is scheduled.</p>
+
+              <div className="bg-white/5 border border-white/10 rounded-[3rem] p-10 mb-12 text-left space-y-6">
+                <div className="grid grid-cols-2 gap-y-8">
                   <div>
-                    <p className="text-xs text-gray-400 mb-1">Booking ID</p>
-                    <p className="font-mono text-sm text-yellow-400">{bookingDetails.bookingId}</p>
+                    <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest mb-1">Session ID</p>
+                    <p className="font-mono text-sm text-yellow-400">{bookingDetails._id || 'BCK-4921'}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-400 mb-1">Astrologer</p>
-                    <p className="font-medium text-white">{bookingDetails.astrologerName}</p>
+                    <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest mb-1">Expert</p>
+                    <p className="font-black text-white uppercase italic">{selectedAstrologer.name}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-400 mb-1">Date</p>
-                    <p className="text-white">{format(parseISO(bookingDetails.date), 'MMMM dd, yyyy')}</p>
+                    <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest mb-1">Date</p>
+                    <p className="font-bold text-white">{format(parseISO(bookingDetails.date), 'MMMM dd, yyyy')}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-400 mb-1">Time</p>
-                    <p className="text-white">{bookingDetails.time}</p>
+                    <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest mb-1">Time</p>
+                    <p className="font-bold text-white">{bookingDetails.time}</p>
                   </div>
+                </div>
+                
+                <div className="pt-6 border-t border-white/5 flex items-center justify-between">
                   <div>
-                    <p className="text-xs text-gray-400 mb-1">Amount Paid</p>
-                    <p className="text-xl font-bold text-yellow-400">₹{bookingDetails.totalAmount}</p>
+                    <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest mb-1">Consultation Type</p>
+                    <p className="text-sm font-bold text-emerald-400 uppercase tracking-widest flex items-center gap-2">
+                      <MapPin className="h-4 w-4" /> In-Person Visit
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest mb-1">Amount Paid</p>
+                    <p className="text-2xl font-black text-white">Npr {bookingDetails.amount + 50}</p>
                   </div>
                 </div>
               </div>
 
-              <div className="flex gap-4 justify-center">
+              <div className="flex flex-col md:flex-row gap-4 justify-center">
                 <button
                   onClick={() => navigate('/my-bookings')}
-                  className="px-6 py-2 bg-purple-600 rounded-lg hover:bg-purple-700 transition-colors"
-                >
-                  View My Bookings
-                </button>
+                  className="px-10 py-5 bg-white text-black rounded-2xl font-black uppercase tracking-widest hover:bg-yellow-400 transition-all shadow-xl"
+                >View My Bookings</button>
                 <button
-                  onClick={() => {
-                    setStep(1);
-                    setSelectedAstrologer(null);
-                    setSelectedDate('');
-                    setSelectedTime('');
-                    setPaymentMethod('');
-                    setNotes('');
-                    setBookingComplete(false);
-                  }}
-                  className="px-6 py-2 bg-gradient-to-r from-yellow-400 to-pink-500 text-black rounded-lg font-semibold hover:opacity-90 transition-opacity"
-                >
-                  Book Another
-                </button>
+                  onClick={() => window.location.href = '/'}
+                  className="px-10 py-5 bg-white/5 text-white rounded-2xl font-black uppercase tracking-widest hover:bg-white/10 transition-all"
+                >Back Home</button>
               </div>
             </div>
           </div>

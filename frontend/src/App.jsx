@@ -1,8 +1,10 @@
 // src/App.jsx
-import { Routes, Route, Navigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
+import API from "./services/api";
 
 // Pages
 import LandingPage from "./pages/LandingPage";
@@ -17,10 +19,43 @@ import Calendar from "./pages/Calendar";
 import Profile from "./pages/Profile";
 import Booking from "./pages/Booking";
 import MyBookings from "./pages/MyBookings";
+import PaymentCallback from "./pages/PaymentCallback";
 import AstrologerDashboard from "./pages/AstrologerDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
+import MaintenancePage from "./pages/MaintenancePage";
 
 function App() {
+  const [maintenanceMode, setMaintenanceMode] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const location = useLocation();
+
+  useEffect(() => {
+    const checkSystemStatus = async () => {
+      try {
+        const { data } = await API.get('/system/config');
+        setMaintenanceMode(data.MAINTENANCE_MODE === 'true' || data.MAINTENANCE_MODE === true);
+      } catch (error) {
+        console.error("System sync failed");
+      } finally {
+        setLoading(false);
+      }
+    };
+    checkSystemStatus();
+  }, []);
+
+  // Determine if we should show maintenance page
+  // We allow access to login and admin dashboard so maintenance can be turned off
+  const isAdminPath = location.pathname.startsWith('/admin');
+  const isLoginPath = location.pathname === '/login';
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const isAdmin = user.role === 'admin';
+
+  if (loading) return null;
+
+  if (maintenanceMode && !isAdmin && !isAdminPath && !isLoginPath) {
+    return <MaintenancePage />;
+  }
+
   return (
     <>
       <Navbar />
@@ -104,6 +139,14 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={['user']}>
               <MyBookings />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/payment/callback" 
+          element={
+            <ProtectedRoute allowedRoles={['user']}>
+              <PaymentCallback />
             </ProtectedRoute>
           } 
         />

@@ -25,7 +25,7 @@ const bookingSchema = new mongoose.Schema({
   },
   paymentMethod: {
     type: String,
-    enum: ['pay_on_visit'],
+    enum: ['pay_on_visit', 'khalti'],
     default: 'pay_on_visit'
   },
   paymentStatus: {
@@ -33,12 +33,29 @@ const bookingSchema = new mongoose.Schema({
     enum: ['pending', 'paid', 'failed', 'refunded'],
     default: 'pending'
   },
+  // Khalti payment fields
+  khaltiPaymentId: { type: String }, // pidx from Khalti
+  khaltiTransactionId: { type: String },
+  khaltiPaymentUrl: { type: String },
+  khaltiExpiresAt: { type: Date },
+  khaltiStatus: {
+    type: String,
+    enum: ['initiated', 'completed', 'expired', 'failed'],
+  },
   consultationType: {
     type: String,
     enum: ['kundali', 'horoscope', 'compatibility', 'general'],
     default: 'general'
   },
   notes: { type: String, maxlength: 500 },
+  birthDetails: {
+    name: String,
+    date: Date,
+    time: String,
+    place: String,
+    district: String,
+    gender: String
+  },
   cancellationReason: { type: String },
   createdAt: { type: Date, default: Date.now }
 });

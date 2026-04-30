@@ -31,7 +31,7 @@ export const createBooking = async (req, res) => {
       return res.status(404).json({ message: "Astrologer not found or not available" });
     }
     
-    console.log(`✅ Astrologer found: ${astrologer.name}, Pricing: ₹${astrologer.pricing.perSession}`);
+    console.log(`✅ Astrologer found: ${astrologer.name}, Pricing: Npr${astrologer.pricing.perSession}`);
     
     // Parse date properly
     let bookingDate;

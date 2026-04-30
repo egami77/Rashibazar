@@ -197,7 +197,8 @@ export const getAstrologerDashboard = async (req, res) => {
         totalEarnings: earnings[0]?.total || 0,
         monthlyEarnings: astrologer.monthlyEarnings || 0,
         rating: astrologer.rating || 0,
-        totalReviews: astrologer.totalReviews || 0
+        totalReviews: astrologer.totalReviews || 0,
+        meetingLink: astrologer.meetingLink || ""
       },
       recentBookings: recentBookings.map(booking => {
         const bookingObj = {
@@ -213,7 +214,8 @@ export const getAstrologerDashboard = async (req, res) => {
           paymentStatus: booking.paymentStatus,
           consultationType: booking.consultationType,
           paymentMethod: booking.paymentMethod,
-          notes: booking.notes
+          notes: booking.notes,
+          birthDetails: booking.birthDetails
         };
         console.log('📦 Booking object:', { id: bookingObj.id, bookingId: booking._id, status: booking.bookingStatus });
         return bookingObj;
@@ -235,7 +237,7 @@ export const updateAstrologerProfile = async (req, res) => {
       return res.status(404).json({ message: "Astrologer profile not found" });
     }
 
-    const allowedUpdates = ['name', 'phone', 'experience', 'pricing', 'bio', 'profileImage'];
+    const allowedUpdates = ['name', 'phone', 'experience', 'pricing', 'bio', 'profileImage', 'meetingLink'];
     
     allowedUpdates.forEach(field => {
       if (req.body[field] !== undefined) {
@@ -259,7 +261,8 @@ export const updateAstrologerProfile = async (req, res) => {
         experience: astrologer.experience,
         pricing: astrologer.pricing,
         bio: astrologer.bio,
-        profileImage: astrologer.profileImage
+        profileImage: astrologer.profileImage,
+        meetingLink: astrologer.meetingLink
       }
     });
   } catch (err) {

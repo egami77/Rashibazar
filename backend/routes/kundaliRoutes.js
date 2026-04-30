@@ -4,7 +4,8 @@ import {
   generateKundali,
   getKundaliHistory,
   getKundali,
-  deleteKundali
+  deleteKundali,
+  checkCompatibility
 } from "../controllers/kundaliController.js";
 import authMiddleware from "../middleware/authMiddleware.js";
 
@@ -14,6 +15,7 @@ const router = express.Router();
 router.use(authMiddleware);
 
 router.post("/generate", generateKundali);
+router.post("/compatibility", checkCompatibility);
 router.get("/history", getKundaliHistory);
 router.get("/:id", getKundali);
 router.delete("/:id", deleteKundali);

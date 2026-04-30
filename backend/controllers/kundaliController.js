@@ -1,6 +1,7 @@
 // backend/controllers/kundaliController.js
 import Kundali from "../models/Kundali.js";
 import { calculateKundali } from "../utils/kundaliCalculator.js";
+import { generateKundaliEngine, calculateGunaMilan } from "../utils/vedicEngine.js";
 
 // === GENERATE KUNDALI ===
 export const generateKundali = async (req, res) => {
@@ -63,6 +64,7 @@ export const generateKundali = async (req, res) => {
         gender,
         latitude,
         longitude,
+        birthDetails: kundaliData.birthDetails,
         ascendant: kundaliData.ascendant.name,
         ascendantRashi: kundaliData.ascendant.name,
         moonRashi: kundaliData.moonSign.name,
@@ -101,7 +103,6 @@ export const getKundaliHistory = async (req, res) => {
 
     const kundalis = await Kundali.find({ userId: req.userId })
       .sort({ createdAt: -1 })
-      .select("name birthDate birthPlace ascendantRashi moonRashi createdAt")
       .lean();
 
     const formatted = kundalis.map(k => ({
@@ -160,5 +161,45 @@ export const deleteKundali = async (req, res) => {
   } catch (err) {
     console.error("deleteKundali error:", err);
     res.status(500).json({ error: err.message });
+  }
+};
+
+export const checkCompatibility = async (req, res) => {
+  try {
+    const { partner1, partner2 } = req.body;
+    const processPartner = (p) => {
+      const birth = new Date(p.birthDate);
+      const [h, m] = p.birthTime.split(':').map(Number);
+      birth.setUTCHours(h, m, 0, 0);
+      return generateKundaliEngine({
+        birthUtc: new Date(birth.getTime() - (5.75 * 60 * 60 * 1000)),
+        latitude: p.latitude || 27.7,
+        longitude: p.longitude || 85.3,
+      });
+    };
+    const astro1 = processPartner(partner1);
+    const astro2 = processPartner(partner2);
+    const matchingResult = calculateGunaMilan(astro1, astro2);
+    const checkMangal = (a) => {
+      const h = [1, 4, 7, 8, 12];
+      const mL = a.planets.find(p => p.key === "Mars").house;
+      const mR = a.moonRashi, maR = a.planets.find(p => p.key === "Mars").rashi;
+      const mM = ((maR - mR + 12) % 12) + 1;
+      return h.includes(mL) || h.includes(mM);
+    };
+    let verdict = "Challenging Match 🔴", vColor = "text-red-400";
+    const s = matchingResult.totalObtained;
+    if (s >= 28) { verdict = "Excellent Match! 🎉"; vColor = "text-green-400"; }
+    else if (s >= 21) { verdict = "Good Match ✨"; vColor = "text-yellow-400"; }
+    else if (s >= 18) { verdict = "Average Match ⚖️"; vColor = "text-orange-400"; }
+    res.json({
+      score: s, maxScore: 36, percentage: matchingResult.percentage,
+      verdict, verdictColor: vColor, koots: matchingResult.koots,
+      partner1: { name: partner1.name, rashi: astro1.moonRashi, nakshatra: astro1.moonNakshatra, pada: astro1.planets[1].pada, mangalDosha: checkMangal(astro1) },
+      partner2: { name: partner2.name, rashi: astro2.moonRashi, nakshatra: astro2.moonNakshatra, pada: astro2.planets[1].pada, mangalDosha: checkMangal(astro2) },
+      doshas: matchingResult.doshas
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Compatibility error", error: error.message });
   }
 };
