@@ -8,12 +8,15 @@ import Astrologer from "../models/Astrologer.js";
 // Password strength rule
 const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
-// Lazy init so credentials exist after loadEnv.js runs (ESM import order)
-let transporter;
+const hasEmailService = () =>
+  Boolean(process.env.RESEND_API_KEY?.trim()) ||
+  Boolean(
+    process.env.EMAIL_USER?.trim() &&
+      process.env.EMAIL_PASS?.replace(/\s/g, "")
+  );
 
 const verifyEmailConfig = () => {
   const user = process.env.EMAIL_USER?.trim();
-  // Gmail app passwords are 16 chars; strip spaces if pasted as "xxxx xxxx xxxx xxxx"
   const pass = process.env.EMAIL_PASS?.replace(/\s/g, "");
   if (!user || !pass) {
     throw new Error("EMAIL_USER and EMAIL_PASS must be set on the server");
@@ -21,43 +24,95 @@ const verifyEmailConfig = () => {
   return { user, pass };
 };
 
-const getTransporter = () => {
-  if (!transporter) {
-    const { user, pass } = verifyEmailConfig();
-    // Explicit SMTP (port 465) works more reliably on cloud hosts (Render) than service: "gmail"
-    transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 465,
-      secure: true,
-      auth: { user, pass },
-      connectionTimeout: 15000,
-      greetingTimeout: 15000,
-      socketTimeout: 30000,
-    });
+/** Resend HTTP API — reliable on Render (Gmail SMTP often times out on cloud hosts) */
+const sendViaResend = async ({ to, subject, html }) => {
+  const apiKey = process.env.RESEND_API_KEY?.trim();
+  const from =
+    process.env.RESEND_FROM?.trim() ||
+    "RashiBazar <onboarding@resend.dev>";
+
+  const response = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ from, to: [to], subject, html }),
+  });
+
+  if (!response.ok) {
+    const detail = await response.text();
+    throw new Error(`Resend ${response.status}: ${detail}`);
   }
-  return transporter;
 };
 
-const sendMailWithTimeout = (mailOptions, timeoutMs = 30000) =>
-  Promise.race([
-    getTransporter().sendMail(mailOptions),
+const sendMailWithGmail = (mailOptions, port, secure, timeoutMs) => {
+  const { user, pass } = verifyEmailConfig();
+  const transport = nodemailer.createTransport({
+    host: "smtp.gmail.com",
+    port,
+    secure,
+    requireTLS: !secure,
+    auth: { user, pass },
+    connectionTimeout: 20000,
+    greetingTimeout: 20000,
+    socketTimeout: 40000,
+  });
+
+  return Promise.race([
+    transport.sendMail(mailOptions),
     new Promise((_, reject) =>
       setTimeout(() => reject(new Error("Email delivery timed out")), timeoutMs)
     ),
   ]);
+};
+
+/** Try Gmail on 587 then 465 (Render blocks or slows one port sometimes) */
+const sendMailWithGmailFallback = async (mailOptions, timeoutMs = 45000) => {
+  const attempts = [
+    { port: 587, secure: false },
+    { port: 465, secure: true },
+  ];
+  let lastError;
+  for (const { port, secure } of attempts) {
+    try {
+      await sendMailWithGmail(mailOptions, port, secure, timeoutMs);
+      return;
+    } catch (err) {
+      lastError = err;
+      console.warn(`Gmail SMTP port ${port} failed:`, err.message);
+    }
+  }
+  throw lastError;
+};
+
+const deliverResetEmail = async (mailOptions) => {
+  if (process.env.RESEND_API_KEY?.trim()) {
+    await sendViaResend({
+      to: mailOptions.to,
+      subject: mailOptions.subject,
+      html: mailOptions.html,
+    });
+    return;
+  }
+  await sendMailWithGmailFallback(mailOptions);
+};
 
 const getForgotPasswordErrorMessage = (err) => {
   const code = err?.code;
   const msg = err?.message || "";
 
+  if (/resend/i.test(msg)) {
+    return "Email API error. Check RESEND_API_KEY on Render.";
+  }
   if (code === "EAUTH" || /invalid login|authentication/i.test(msg)) {
-    return "Gmail login failed on the server. Set EMAIL_PASS to a Gmail App Password (16 characters, no spaces) in Render env vars.";
+    return "Gmail login failed. Use a Gmail App Password in EMAIL_PASS, or set RESEND_API_KEY (recommended for hosting).";
   }
   if (msg === "Email delivery timed out" || code === "ETIMEDOUT") {
-    return "Email server timed out. Wait a minute and try again.";
+    return "Gmail SMTP timed out from the server. Add RESEND_API_KEY on Render (free at resend.com) for reliable email.";
   }
   if (["ESOCKET", "ECONNECTION", "ECONNREFUSED", "ENOTFOUND"].includes(code)) {
-    return "Could not reach Gmail SMTP from the server. Check Render environment variables and redeploy.";
+    return "Could not reach the mail server from Render. Use RESEND_API_KEY instead of Gmail SMTP.";
   }
   return "Could not send the reset email. Please try again later.";
 };
@@ -449,15 +504,16 @@ export const forgotPassword = async (req, res) => {
       </div>
     `;
 
-    let emailUser;
-    try {
-      ({ user: emailUser } = verifyEmailConfig());
-    } catch {
+    if (!hasEmailService()) {
       return res.status(503).json({
         message:
-          "Email service is not configured on the server. Set EMAIL_USER and EMAIL_PASS in hosting env vars.",
+          "Email not configured. On Render set RESEND_API_KEY (recommended) or EMAIL_USER + EMAIL_PASS.",
       });
     }
+
+    const { user: emailUser } = process.env.RESEND_API_KEY?.trim()
+      ? { user: process.env.EMAIL_USER?.trim() || "noreply@resend.dev" }
+      : verifyEmailConfig();
 
     const mailOptions = {
       from: `"RashiBazar" <${emailUser}>`,
@@ -466,21 +522,38 @@ export const forgotPassword = async (req, res) => {
       html: message,
     };
 
-    // Only tell the user it was sent after SMTP accepts the message
-    await sendMailWithTimeout(mailOptions, 30000);
-    console.log(`✅ Reset email sent to ${user.email}`);
+    const successMessage =
+      "Password reset email sent successfully. Please check your inbox and spam folder.";
 
-    res.json({
-      message:
-        "Password reset email sent successfully. Please check your inbox and spam folder.",
-    });
+    // Resend is fast — wait for it. Gmail on Render often times out if awaited.
+    if (process.env.RESEND_API_KEY?.trim()) {
+      await deliverResetEmail(mailOptions);
+      console.log(`✅ Reset email sent to ${user.email} (Resend)`);
+      return res.json({ message: successMessage });
+    }
+
+    if (process.env.NODE_ENV === "production") {
+      res.json({
+        message:
+          "Password reset requested. Check your inbox and spam folder within a few minutes.",
+      });
+      deliverResetEmail(mailOptions)
+        .then(() => console.log(`✅ Reset email sent to ${user.email}`))
+        .catch((err) =>
+          console.error(`Reset email failed for ${user.email}:`, err.message)
+        );
+      return;
+    }
+
+    await deliverResetEmail(mailOptions);
+    console.log(`✅ Reset email sent to ${user.email}`);
+    res.json({ message: successMessage });
   } catch (err) {
     console.error("forgotPassword error:", {
       code: err?.code,
       message: err?.message,
       response: err?.response,
     });
-    transporter = null; // allow retry after env/credential fix without restart
 
     res.status(500).json({
       message: getForgotPasswordErrorMessage(err),
