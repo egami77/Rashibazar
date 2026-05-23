@@ -95,4 +95,8 @@ API.interceptors.response.use(
   }
 );
 
+/** Ping hosted API (e.g. Render cold start) before slow auth actions */
+export const wakeServer = () =>
+  API.get("/health", { timeout: 90000 }).catch(() => null);
+
 export default API;

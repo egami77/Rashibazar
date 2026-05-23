@@ -1,5 +1,5 @@
 // src/services/auth.js
-import API from "./api";
+import API, { wakeServer } from "./api";
 import toast from "react-hot-toast";
 
 //
@@ -88,20 +88,42 @@ export const loginUser = async (data) => {
 // =========================
 // FORGOT PASSWORD
 // =========================
+const FORGOT_PASSWORD_TIMEOUT_MS = 120000;
+
 export const forgotPassword = async (data) => {
-  try {
-    console.log("📤 Requesting password reset for:", data.email);
-    const response = await API.post("/auth/forgot-password", data);
-    toast.success("Password reset email sent!");
-    return response;
-  } catch (error) {
-    const data = error.response?.data;
-    const msg =
-      data?.message || data?.error || error.message || "Failed to send reset email";
-    console.error("❌ Forgot password error:", msg, data || "");
-    toast.error(msg);
-    throw error;
+  console.log("📤 Requesting password reset for:", data.email);
+
+  const requestOpts = { timeout: FORGOT_PASSWORD_TIMEOUT_MS };
+  let lastError;
+
+  for (let attempt = 0; attempt < 2; attempt++) {
+    if (attempt > 0) {
+      toast.loading("Waking up server, retrying…", { id: "forgot-retry" });
+      await wakeServer();
+    }
+
+    try {
+      const response = await API.post("/auth/forgot-password", data, requestOpts);
+      toast.dismiss("forgot-retry");
+      toast.success("Password reset email sent!");
+      return response;
+    } catch (error) {
+      lastError = error;
+      const hasApiResponse = error.response && !error.isNetworkError;
+      if (hasApiResponse || attempt === 1) break;
+    }
   }
+
+  const errData = lastError?.response?.data;
+  const msg =
+    errData?.message ||
+    errData?.error ||
+    lastError?.message ||
+    "Failed to send reset email";
+  console.error("❌ Forgot password error:", msg, errData || "");
+  toast.dismiss("forgot-retry");
+  toast.error(msg);
+  throw lastError;
 };
 
 //

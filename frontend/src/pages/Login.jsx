@@ -1,7 +1,8 @@
 // src/pages/Login.jsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { loginUser, forgotPassword, redirectBasedOnRole } from "../services/auth";
+import { wakeServer } from "../services/api";
 import heroImage from "../assets/hero-cosmic.jpg";
 import toast from "react-hot-toast";
 
@@ -15,6 +16,11 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
+
+  // Wake Render before submit so forgot-password is less likely to time out
+  useEffect(() => {
+    if (showForgot) wakeServer();
+  }, [showForgot]);
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });

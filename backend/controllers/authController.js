@@ -428,18 +428,22 @@ export const forgotPassword = async (req, res) => {
       });
     }
 
-    // Send email
-    await sendMailWithTimeout({
-      from: `"RashiBazar" <${process.env.EMAIL_USER}>`,
-      to: user.email,
-      subject: "Password Reset Request",
-      html: message,
-    });
-
+    // Respond immediately so the client is not blocked by SMTP / cold-start delays
     res.json({
       message:
         "Password reset email sent successfully. Please check your inbox.",
     });
+
+    const mailOptions = {
+      from: `"RashiBazar" <${process.env.EMAIL_USER}>`,
+      to: user.email,
+      subject: "Password Reset Request",
+      html: message,
+    };
+
+    sendMailWithTimeout(mailOptions, 15000).catch((err) =>
+      console.error(`Reset email failed for ${user.email}:`, err.message)
+    );
   } catch (err) {
     console.error("forgotPassword error:", err);
 
