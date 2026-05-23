@@ -8,14 +8,31 @@ import Astrologer from "../models/Astrologer.js";
 // Password strength rule
 const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
-// Gmail transporter setup
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
+// Lazy init so credentials exist after loadEnv.js runs (ESM import order)
+let transporter;
+const getTransporter = () => {
+  if (!transporter) {
+    transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+      connectionTimeout: 10000,
+      greetingTimeout: 10000,
+      socketTimeout: 15000,
+    });
+  }
+  return transporter;
+};
+
+const sendMailWithTimeout = (mailOptions, timeoutMs = 20000) =>
+  Promise.race([
+    getTransporter().sendMail(mailOptions),
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error("Email delivery timed out")), timeoutMs)
+    ),
+  ]);
 
 // Register User (Store only in Users collection)
 export const registerUser = async (req, res) => {
@@ -404,20 +421,35 @@ export const forgotPassword = async (req, res) => {
       </div>
     `;
 
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+      return res.status(503).json({
+        message:
+          "Email service is not configured. Contact support or try again later.",
+      });
+    }
+
     // Send email
-    await transporter.sendMail({
+    await sendMailWithTimeout({
       from: `"RashiBazar" <${process.env.EMAIL_USER}>`,
       to: user.email,
       subject: "Password Reset Request",
       html: message,
     });
 
-    res.json({ 
-      message: "Password reset email sent successfully. Please check your inbox." 
+    res.json({
+      message:
+        "Password reset email sent successfully. Please check your inbox.",
     });
   } catch (err) {
     console.error("forgotPassword error:", err);
-    res.status(500).json({ error: err.message });
+
+    const isAuthError = err.code === "EAUTH";
+    res.status(500).json({
+      message: isAuthError
+        ? "Email login failed. Use a Gmail App Password in EMAIL_PASS (not your normal password)."
+        : "Could not send the reset email. Please try again later.",
+      error: process.env.NODE_ENV === "development" ? err.message : undefined,
+    });
   }
 };
 

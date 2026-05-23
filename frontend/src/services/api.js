@@ -1,14 +1,21 @@
 // src/services/api.js
 import axios from "axios";
 
-// Create axios instance
+const PRODUCTION_API = "https://rashibazar.onrender.com/api";
+
+// Dev: Vite proxies /api → http://localhost:5000 (see vite.config.js)
+// Prod: set VITE_API_BASE_URL on Vercel, or falls back to Render
+const baseURL =
+  import.meta.env.VITE_API_BASE_URL ||
+  (import.meta.env.DEV ? "/api" : PRODUCTION_API);
+
 const API = axios.create({
-  baseURL: "https://rashibazar.onrender.com/api", // Make sure this matches your backend port
+  baseURL,
   headers: {
     "Content-Type": "application/json",
-    "Accept": "application/json"
+    "Accept": "application/json",
   },
-  timeout: 30000,
+  timeout: Number(import.meta.env.VITE_API_TIMEOUT_MS) || 60000,
 });
 
 // Request interceptor to add token
@@ -41,13 +48,28 @@ API.interceptors.response.use(
   },
   (error) => {
     if (!error.response) {
-      console.error("❌ Network Error:", error.message);
+      const isTimeout = error.code === "ECONNABORTED";
+      const isLocalDev = import.meta.env.DEV && baseURL === "/api";
+
+      let message = "Network error. Please check your connection.";
+      if (isTimeout) {
+        message = baseURL.startsWith("http")
+          ? "The server is taking too long to respond. Wait a moment and try again (hosted APIs may need time to wake up)."
+          : "Request timed out. Make sure the backend is running on port 5000.";
+      } else if (isLocalDev) {
+        message =
+          "Cannot reach the local API. Start the backend with: cd backend && npm run dev";
+      }
+
+      console.error("❌ Network Error:", {
+        code: error.code,
+        message: error.message,
+        baseURL,
+      });
+
       return Promise.reject({
-        response: {
-          data: {
-            message: "Network error. Please check your connection."
-          }
-        }
+        response: { data: { message } },
+        isNetworkError: true,
       });
     }
 

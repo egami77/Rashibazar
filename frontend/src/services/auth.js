@@ -95,8 +95,11 @@ export const forgotPassword = async (data) => {
     toast.success("Password reset email sent!");
     return response;
   } catch (error) {
-    console.error("❌ Forgot password error:", error.response?.data || error.message);
-    toast.error(error.response?.data?.message || "Failed to send reset email");
+    const data = error.response?.data;
+    const msg =
+      data?.message || data?.error || error.message || "Failed to send reset email";
+    console.error("❌ Forgot password error:", msg, data || "");
+    toast.error(msg);
     throw error;
   }
 };
