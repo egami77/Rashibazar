@@ -10,23 +10,35 @@ const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8
 
 // Lazy init so credentials exist after loadEnv.js runs (ESM import order)
 let transporter;
+
+const verifyEmailConfig = () => {
+  const user = process.env.EMAIL_USER?.trim();
+  // Gmail app passwords are 16 chars; strip spaces if pasted as "xxxx xxxx xxxx xxxx"
+  const pass = process.env.EMAIL_PASS?.replace(/\s/g, "");
+  if (!user || !pass) {
+    throw new Error("EMAIL_USER and EMAIL_PASS must be set on the server");
+  }
+  return { user, pass };
+};
+
 const getTransporter = () => {
   if (!transporter) {
+    const { user, pass } = verifyEmailConfig();
+    // Explicit SMTP (port 465) works more reliably on cloud hosts (Render) than service: "gmail"
     transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-      connectionTimeout: 10000,
-      greetingTimeout: 10000,
-      socketTimeout: 15000,
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true,
+      auth: { user, pass },
+      connectionTimeout: 15000,
+      greetingTimeout: 15000,
+      socketTimeout: 30000,
     });
   }
   return transporter;
 };
 
-const sendMailWithTimeout = (mailOptions, timeoutMs = 20000) =>
+const sendMailWithTimeout = (mailOptions, timeoutMs = 30000) =>
   Promise.race([
     getTransporter().sendMail(mailOptions),
     new Promise((_, reject) =>
@@ -34,13 +46,20 @@ const sendMailWithTimeout = (mailOptions, timeoutMs = 20000) =>
     ),
   ]);
 
-const verifyEmailConfig = () => {
-  const user = process.env.EMAIL_USER?.trim();
-  const pass = process.env.EMAIL_PASS?.trim();
-  if (!user || !pass) {
-    throw new Error("EMAIL_USER and EMAIL_PASS must be set on the server");
+const getForgotPasswordErrorMessage = (err) => {
+  const code = err?.code;
+  const msg = err?.message || "";
+
+  if (code === "EAUTH" || /invalid login|authentication/i.test(msg)) {
+    return "Gmail login failed on the server. Set EMAIL_PASS to a Gmail App Password (16 characters, no spaces) in Render env vars.";
   }
-  return { user, pass };
+  if (msg === "Email delivery timed out" || code === "ETIMEDOUT") {
+    return "Email server timed out. Wait a minute and try again.";
+  }
+  if (["ESOCKET", "ECONNECTION", "ECONNREFUSED", "ENOTFOUND"].includes(code)) {
+    return "Could not reach Gmail SMTP from the server. Check Render environment variables and redeploy.";
+  }
+  return "Could not send the reset email. Please try again later.";
 };
 
 // Register User (Store only in Users collection)
@@ -448,7 +467,7 @@ export const forgotPassword = async (req, res) => {
     };
 
     // Only tell the user it was sent after SMTP accepts the message
-    await sendMailWithTimeout(mailOptions, 20000);
+    await sendMailWithTimeout(mailOptions, 30000);
     console.log(`✅ Reset email sent to ${user.email}`);
 
     res.json({
@@ -456,13 +475,15 @@ export const forgotPassword = async (req, res) => {
         "Password reset email sent successfully. Please check your inbox and spam folder.",
     });
   } catch (err) {
-    console.error("forgotPassword error:", err);
+    console.error("forgotPassword error:", {
+      code: err?.code,
+      message: err?.message,
+      response: err?.response,
+    });
+    transporter = null; // allow retry after env/credential fix without restart
 
-    const isAuthError = err.code === "EAUTH";
     res.status(500).json({
-      message: isAuthError
-        ? "Email login failed. Use a Gmail App Password in EMAIL_PASS (not your normal password)."
-        : "Could not send the reset email. Please try again later.",
+      message: getForgotPasswordErrorMessage(err),
       error: process.env.NODE_ENV === "development" ? err.message : undefined,
     });
   }
