@@ -34,6 +34,15 @@ const sendMailWithTimeout = (mailOptions, timeoutMs = 20000) =>
     ),
   ]);
 
+const verifyEmailConfig = () => {
+  const user = process.env.EMAIL_USER?.trim();
+  const pass = process.env.EMAIL_PASS?.trim();
+  if (!user || !pass) {
+    throw new Error("EMAIL_USER and EMAIL_PASS must be set on the server");
+  }
+  return { user, pass };
+};
+
 // Register User (Store only in Users collection)
 export const registerUser = async (req, res) => {
   try {
@@ -421,29 +430,31 @@ export const forgotPassword = async (req, res) => {
       </div>
     `;
 
-    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+    let emailUser;
+    try {
+      ({ user: emailUser } = verifyEmailConfig());
+    } catch {
       return res.status(503).json({
         message:
-          "Email service is not configured. Contact support or try again later.",
+          "Email service is not configured on the server. Set EMAIL_USER and EMAIL_PASS in hosting env vars.",
       });
     }
 
-    // Respond immediately so the client is not blocked by SMTP / cold-start delays
-    res.json({
-      message:
-        "Password reset email sent successfully. Please check your inbox.",
-    });
-
     const mailOptions = {
-      from: `"RashiBazar" <${process.env.EMAIL_USER}>`,
+      from: `"RashiBazar" <${emailUser}>`,
       to: user.email,
       subject: "Password Reset Request",
       html: message,
     };
 
-    sendMailWithTimeout(mailOptions, 15000).catch((err) =>
-      console.error(`Reset email failed for ${user.email}:`, err.message)
-    );
+    // Only tell the user it was sent after SMTP accepts the message
+    await sendMailWithTimeout(mailOptions, 20000);
+    console.log(`✅ Reset email sent to ${user.email}`);
+
+    res.json({
+      message:
+        "Password reset email sent successfully. Please check your inbox and spam folder.",
+    });
   } catch (err) {
     console.error("forgotPassword error:", err);
 
