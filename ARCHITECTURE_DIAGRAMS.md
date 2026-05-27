@@ -825,4 +825,148 @@ Am I using this app?
 
 ---
 
-*Visual Architecture Guide - Updated April 5, 2026*
+## SEQUENCE DIAGRAM
+
+The following sequence diagram illustrates the core runtime transactions on the RashiBazar platform in a single figure. It displays the end-to-end user actions categorized into four main phases: Onboarding & Session Setup, Vedic Astrology Tools, Reservation Booking, and Payment Verification with Consultation Completion.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User as Client / React App
+    participant AuthMW as Express authMiddleware
+    participant API as Backend Controllers
+    participant DB as MongoDB Database
+    participant Khalti as Khalti Gateway API
+
+    %% Phase 1: Authentication & Session setup
+    rect rgb(230, 240, 255)
+        Note over User, DB: Phase 1: Authentication & Session Onboarding
+        User->>API: POST /api/auth/register (name, email, password, phone)
+        activate API
+        API->>API: Validate password complexity & hash password (bcrypt)
+        API->>DB: Save User document
+        activate DB
+        DB-->>API: User Document Created
+        deactivate DB
+        API-->>User: 201 Created (Return JWT Token)
+        deactivate API
+        
+        User->>API: POST /api/auth/login (email, password)
+        activate API
+        API->>DB: Find user & verify password
+        activate DB
+        DB-->>API: User Details + password hash
+        deactivate DB
+        API->>API: Check role authorization (including Admin check)
+        API-->>User: 200 OK (Return JWT Token)
+        deactivate API
+    end
+
+    %% Phase 2: Self-Service Astrology Tools
+    rect rgb(240, 255, 240)
+        Note over User, DB: Phase 2: Astrology Tools (Kundali & Compatibility)
+        User->>API: POST /api/kundali/generate (date, time, place) (Headers: JWT Token)
+        activate API
+        API->>AuthMW: Validate JWT Token
+        activate AuthMW
+        AuthMW-->>API: Set req.userId
+        deactivate AuthMW
+        API->>API: Convert Gregorian to BS, Apply Lahiri Ayanamsa, Divide 12 Houses
+        opt If User is Logged In
+            API->>DB: Save Kundali Chart Document
+            activate DB
+            DB-->>API: Saved successfully
+            deactivate DB
+        end
+        API-->>User: 200 OK (Return Kundali Diamond Chart Data)
+        deactivate API
+        
+        User->>API: POST /api/kundali/compatibility (partner1, partner2 details)
+        activate API
+        API->>API: Adjust time to UTC (-5.75 hrs), Run Ashtakoota Guna Milan, check Mangal Dosha
+        API-->>User: 200 OK (Return Guna score / 36 & Mangal match verdict)
+        deactivate API
+    end
+
+    %% Phase 3: Consultation Booking & Payment Integration
+    rect rgb(255, 240, 240)
+        Note over User, Khalti: Phase 3: Booking Reservation & Khalti Payment
+        User->>API: POST /api/bookings (astrologerId, date, time, method: 'khalti') (Headers: JWT Token)
+        activate API
+        API->>AuthMW: Validate JWT Token
+        activate AuthMW
+        AuthMW-->>API: Set req.userId
+        deactivate AuthMW
+        API->>DB: Verify astrologer availability & slot conflicts
+        activate DB
+        DB-->>API: No conflicts
+        deactivate DB
+        API->>DB: Save Booking (status: 'pending', paymentStatus: 'pending')
+        activate DB
+        DB-->>API: Booking doc saved
+        deactivate DB
+        API-->>User: 201 Created (Return Booking info)
+        deactivate API
+
+        User->>API: POST /api/khalti/initiate (bookingId, amount, customerInfo) (Headers: JWT Token)
+        activate API
+        API->>API: Validate amount including Platform Fee (NPR 50)
+        API->>Khalti: POST /epayment/initiate/ (amount in paisa, return_url)
+        activate Khalti
+        Khalti-->>API: Response (pidx, payment_url)
+        deactivate Khalti
+        API->>DB: Update Booking (khaltiPaymentId = pidx, status = 'initiated')
+        activate DB
+        DB-->>API: Updated
+        deactivate DB
+        API-->>User: JSON response (payment_url)
+        deactivate API
+        
+        User->>Khalti: Redirect to payment page & complete payment
+        activate Khalti
+        Khalti-->>User: Redirect to CLIENT_URL/payment/callback?pidx=...&status=Completed
+        deactivate Khalti
+        
+        User->>API: POST /api/khalti/verify (pidx, bookingId) (Headers: JWT Token)
+        activate API
+        API->>Khalti: POST /epayment/lookup/ (verify pidx)
+        activate Khalti
+        Khalti-->>API: Status (Completed)
+        deactivate Khalti
+        API->>DB: Update Booking (status: 'confirmed', paymentStatus: 'paid')
+        activate DB
+        DB-->>API: Saved
+        deactivate DB
+        API-->>User: 200 OK (Payment Verified)
+        deactivate API
+    end
+
+    %% Phase 4: Session Completion & Earnings
+    rect rgb(255, 245, 220)
+        Note over User, DB: Phase 4: Consultation Completion & Earnings Update
+        User->>API: PUT /api/bookings/:id/status (status: 'completed') (Headers: Astrologer JWT Token)
+        activate API
+        API->>AuthMW: Validate JWT Token (Verify Astrologer identity)
+        activate AuthMW
+        AuthMW-->>API: Set req.userId (astrologerId)
+        deactivate AuthMW
+        API->>DB: Verify paymentStatus is 'paid' & retrieve booking amount
+        activate DB
+        DB-->>API: Booking found (amount: X)
+        deactivate DB
+        API->>DB: Update Astrologer stats (totalEarnings += X, completedSessions += 1)
+        activate DB
+        DB-->>API: Astrologer updated
+        deactivate DB
+        API->>DB: Update Booking (bookingStatus: 'completed')
+        activate DB
+        DB-->>API: Saved
+        deactivate DB
+        API-->>User: 200 OK (Consultation Session Completed)
+        deactivate API
+    end
+```
+
+---
+
+*Visual Architecture Guide - Updated May 23, 2026*
