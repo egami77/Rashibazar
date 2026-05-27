@@ -5,6 +5,7 @@ import { loginUser, forgotPassword, redirectBasedOnRole } from "../services/auth
 import { wakeServer } from "../services/api";
 import heroImage from "../assets/hero-cosmic.jpg";
 import toast from "react-hot-toast";
+import Layout from "../components/Layout";
 
 export default function Login() {
   const [activeTab, setActiveTab] = useState("user");
@@ -98,13 +99,9 @@ export default function Login() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-[#0a0a1a] via-[#1a0f3a] to-[#000000] text-white relative overflow-hidden">
-      <div
-        className="absolute inset-0 bg-cover bg-center opacity-30"
-        style={{ backgroundImage: `url(${heroImage})` }}
-      />
-
-      <div className="relative bg-white/10 backdrop-blur-md p-8 rounded-2xl shadow-2xl w-[450px] border border-white/20">
+    <Layout>
+      <div className="flex items-center justify-center min-h-[80vh] relative z-10 w-full px-4">
+        <div className="relative bg-white/10 backdrop-blur-md p-6 sm:p-8 rounded-2xl shadow-2xl w-full max-w-md border border-white/20">
 
         {/* HEADER */}
         <div className="text-center mb-6">
@@ -272,6 +269,7 @@ export default function Login() {
           </form>
         )}
       </div>
-    </div>
+      </div>
+    </Layout>
   );
 }

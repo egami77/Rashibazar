@@ -1,44 +1,55 @@
 import React from "react";
+import Layout from "../components/Layout";
 
 const Profile = () => {
   const user = JSON.parse(localStorage.getItem("user"));
 
   if (!user) {
     return (
-      <div className="text-center text-white pt-32 text-2xl">
-        No user data found.
-      </div>
+      <Layout>
+        <div className="flex flex-col items-center justify-center w-full min-h-[50vh] px-4">
+          <div className="text-center text-purple-200 text-lg bg-black/40 border border-purple-600/30 rounded-xl p-12 backdrop-blur-sm">
+            No user data found.
+          </div>
+        </div>
+      </Layout>
     );
   }
 
   return (
-    <div className="pt-24 min-h-screen px-6 text-white bg-gradient-to-b from-black via-purple-950 to-black">
-      <h1 className="text-4xl font-bold text-yellow-400 text-center mb-6">
-        👤 Profile
-      </h1>
+    <Layout>
+      <div className="w-full flex items-center justify-center py-12 px-4 sm:px-6">
+        <div className="max-w-md w-full">
+          <h1 className="text-5xl font-extrabold text-center mb-8 bg-gradient-to-r from-pink-400 via-purple-300 to-indigo-300 bg-clip-text text-transparent tracking-wide">
+            My Profile
+          </h1>
 
-      <div className="max-w-md mx-auto bg-black/30 p-6 rounded-xl border border-purple-700/30 backdrop-blur-md">
-        <p className="text-lg mb-3">
-          <span className="font-bold text-yellow-400">Name:</span>{" "}
-          {user.name}
-        </p>
-        <p className="text-lg mb-3">
-          <span className="font-bold text-yellow-400">Email:</span>{" "}
-          {user.email}
-        </p>
+          <div className="bg-black/40 backdrop-blur-sm p-8 rounded-xl border border-purple-600/30 shadow-2xl space-y-4">
+            <div className="flex flex-col gap-4">
+              <div className="bg-white/5 rounded-full px-6 py-4 border border-purple-600/20 flex items-center justify-between">
+                <span className="text-purple-300 text-sm font-semibold uppercase tracking-widest">Name</span>
+                <span className="text-white font-bold">{user.name}</span>
+              </div>
+              <div className="bg-white/5 rounded-full px-6 py-4 border border-purple-600/20 flex items-center justify-between overflow-hidden">
+                <span className="text-purple-300 text-sm font-semibold uppercase tracking-widest mr-2 shrink-0">Email</span>
+                <span className="text-white font-bold text-sm truncate">{user.email}</span>
+              </div>
+            </div>
 
-        <button
-          onClick={() => {
-            localStorage.removeItem("token");
-            localStorage.removeItem("user");
-            window.location.href = "/login";
-          }}
-          className="w-full mt-6 bg-red-600 py-2 rounded-full font-semibold"
-        >
-          Logout
-        </button>
+            <button
+              onClick={() => {
+                localStorage.removeItem("token");
+                localStorage.removeItem("user");
+                window.location.href = "/login";
+              }}
+              className="w-full mt-4 py-3 bg-gradient-to-r from-rose-500 to-red-600 text-white rounded-full font-semibold hover:scale-105 transition-all shadow-lg tracking-wide"
+            >
+              Logout
+            </button>
+          </div>
+        </div>
       </div>
-    </div>
+    </Layout>
   );
 };
 

@@ -31,6 +31,7 @@ import {
   getFormattedDate,
   getPeriodLabel 
 } from "../services/horoscope";
+import Layout from "../components/Layout";
 
 // Horoscope Display Component
 const HoroscopeDisplay = ({ rashi, period, data, onBack, onPeriodChange, loading }) => {
@@ -151,16 +152,16 @@ ${new Date().toLocaleDateString()}
       </button>
 
       {/* Header */}
-      <div className="bg-gradient-to-r from-purple-900/30 to-black/30 rounded-[2.5rem] border-2 border-white/5 p-8 mb-8 backdrop-blur-xl relative overflow-hidden">
+      <div className="bg-white/10 rounded-xl border border-purple-400/30 p-8 mb-8 backdrop-blur-md relative overflow-hidden">
         <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 rounded-full blur-3xl"></div>
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
           <div className="flex items-center gap-6">
             <div className={`text-6xl ${rashi.color} filter drop-shadow-lg`}>{rashi.symbol}</div>
             <div>
-              <h2 className="text-4xl font-black text-white uppercase italic tracking-tighter">{rashi.displayName || rashi.name}</h2>
+              <h2 className="text-4xl font-bold text-yellow-400 mb-2">{rashi.displayName || rashi.name}</h2>
               <div className="flex flex-wrap items-center gap-3 mt-2">
-                <span className="text-sm font-bold text-purple-400 uppercase tracking-widest">{rashi.sanskrit}</span>
-                <span className={`text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest ${rashi.bgColor} ${rashi.color} border border-current/20`}>
+                <span className="text-sm font-semibold text-pink-400 uppercase tracking-widest">{rashi.sanskrit}</span>
+                <span className={`text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-widest ${rashi.bgColor} ${rashi.color} border border-current/20`}>
                   {rashi.element} Element
                 </span>
                 <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Lord: {rashi.lord}</span>
@@ -169,15 +170,15 @@ ${new Date().toLocaleDateString()}
           </div>
           
           <div className="flex flex-col items-end">
-            <div className="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-2xl border border-white/10">
+            <div className="flex items-center gap-2 px-4 py-2 bg-black/40 rounded-full border border-purple-600/30">
               {loading ? (
                 <Loader2 className="h-4 w-4 animate-spin text-yellow-300" />
               ) : (
                 <div className="text-yellow-400">{getPeriodIcon(period)}</div>
               )}
-              <span className="text-sm font-black text-white uppercase tracking-widest">{getPeriodTitle(period)}</span>
+              <span className="text-sm font-semibold text-white uppercase tracking-widest">{getPeriodTitle(period)}</span>
             </div>
-            <div className="mt-2 text-xs font-bold text-gray-500 uppercase tracking-widest">
+            <div className="mt-2 text-sm text-gray-400 uppercase tracking-widest">
               {formatDate()}
             </div>
           </div>
@@ -186,7 +187,7 @@ ${new Date().toLocaleDateString()}
 
       {/* Loading State */}
       {loading ? (
-        <div className="flex justify-center items-center h-96 bg-black/20 rounded-[3rem] border border-dashed border-white/5">
+        <div className="flex justify-center items-center h-96 bg-black/40 backdrop-blur-sm rounded-xl border border-purple-600/30">
           <div className="text-center">
             <div className="relative inline-block mb-4">
                <Loader2 className="h-16 w-16 animate-spin text-orange-500" />
@@ -202,42 +203,42 @@ ${new Date().toLocaleDateString()}
             {/* Left Column - Highlights & Advice */}
             <div className="lg:col-span-2 space-y-8">
               {/* Highlights Section (Replaces Detailed Prediction) */}
-              <div className="bg-white/5 p-10 rounded-[3rem] border border-white/10 relative overflow-hidden group">
+              <div className="bg-black/40 backdrop-blur-sm p-10 rounded-xl border border-purple-600/30 relative overflow-hidden group hover:border-purple-500 transition-all duration-300 shadow-2xl">
                 <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:scale-110 transition-transform duration-700">
                   <Zap className="h-40 w-40 text-yellow-400" />
                 </div>
                 
                 <div className="flex items-center gap-4 mb-8">
-                  <div className="h-12 w-12 bg-yellow-400/20 rounded-2xl flex items-center justify-center border border-yellow-400/20">
+                  <div className="h-12 w-12 bg-purple-500/20 rounded-full flex items-center justify-center border border-purple-500/30">
                     <Zap className="h-6 w-6 text-yellow-400" />
                   </div>
-                  <h3 className="text-2xl font-black text-white uppercase italic tracking-tight">Key Highlights</h3>
+                  <h3 className="text-2xl font-semibold text-pink-400">Key Highlights</h3>
                 </div>
                 
                 <div className="relative z-10">
-                  <p className="text-gray-300 text-xl leading-relaxed font-medium italic">
+                  <p className="text-purple-200 text-lg leading-relaxed italic">
                     "{data.data.prediction}"
                   </p>
                   
                   <div className="mt-10 pt-8 border-t border-white/5 flex items-start gap-4">
-                    <div className="h-10 w-10 bg-emerald-500/20 rounded-xl flex items-center justify-center shrink-0 border border-emerald-500/20">
+                    <div className="h-10 w-10 bg-yellow-400/20 rounded-full flex items-center justify-center shrink-0 border border-yellow-400/30">
                       <ShieldCheck className="h-5 w-5 text-emerald-400" />
                     </div>
                     <div>
-                      <p className="text-[10px] text-emerald-400 font-black uppercase tracking-widest mb-1">Expert Advice</p>
-                      <p className="text-gray-400 text-sm leading-relaxed">{data.data.advice}</p>
+                      <p className="text-sm text-yellow-300 font-semibold uppercase tracking-widest mb-1">Expert Advice</p>
+                      <p className="text-gray-300 text-sm leading-relaxed">{data.data.advice}</p>
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* Rashi Info Section (Expanded) */}
-              <div className="bg-white/5 p-10 rounded-[3rem] border border-white/10">
+              <div className="bg-black/40 backdrop-blur-sm p-10 rounded-xl border border-purple-600/30 hover:border-purple-500 transition-all duration-300">
                 <div className="flex items-center gap-4 mb-8">
-                  <div className="h-12 w-12 bg-blue-400/20 rounded-2xl flex items-center justify-center border border-blue-400/20">
+                  <div className="h-12 w-12 bg-purple-500/20 rounded-full flex items-center justify-center border border-purple-500/30">
                     <Compass className="h-6 w-6 text-blue-400" />
                   </div>
-                  <h3 className="text-2xl font-black text-white uppercase italic tracking-tight">Rashi Information</h3>
+                  <h3 className="text-2xl font-semibold text-pink-400">Rashi Information</h3>
                 </div>
                 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -247,7 +248,7 @@ ${new Date().toLocaleDateString()}
                      { label: 'Best Time', val: data.data.additionalInfo?.bestTime || 'Morning', color: 'text-yellow-400' },
                      { label: 'Direction', val: data.data.additionalInfo?.favorableDirection || 'East', color: 'text-emerald-400' }
                    ].map((item, i) => (
-                     <div key={i} className="bg-black/20 p-5 rounded-[2rem] border border-white/5 text-center">
+                     <div key={i} className="bg-black/40 p-5 rounded-xl border border-purple-600/30 text-center hover:border-purple-500 transition-colors">
                         <p className="text-[9px] text-gray-500 font-black uppercase tracking-widest mb-1">{item.label}</p>
                         <p className={`text-sm font-black uppercase ${item.color}`}>{item.val}</p>
                      </div>
@@ -259,37 +260,37 @@ ${new Date().toLocaleDateString()}
             {/* Right Column - Lucky Factors & Actions */}
             <div className="space-y-6">
               {/* Lucky Factors */}
-              <div className="bg-gradient-to-br from-orange-500 to-rose-600 p-8 rounded-[2.5rem] shadow-xl shadow-orange-500/10">
-                <h4 className="text-lg font-black text-white uppercase italic mb-6">Lucky Factors</h4>
+              <div className="bg-gradient-to-br from-purple-900/40 to-indigo-900/40 border border-purple-500/30 p-8 rounded-xl shadow-2xl">
+                <h4 className="text-xl font-semibold text-yellow-300 mb-6">Lucky Factors</h4>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="bg-black/20 p-4 rounded-2xl backdrop-blur-md">
-                    <p className="text-[9px] text-white/50 font-black uppercase tracking-widest mb-1">Number</p>
-                    <p className="text-2xl font-black text-white">{data.data.luckyNumber}</p>
+                    <p className="text-xs text-purple-300 font-semibold uppercase tracking-widest mb-1">Number</p>
+                    <p className="text-2xl font-bold text-white">{data.data.luckyNumber}</p>
                   </div>
                   <div className="bg-black/20 p-4 rounded-2xl backdrop-blur-md">
-                    <p className="text-[9px] text-white/50 font-black uppercase tracking-widest mb-1">Color</p>
-                    <p className="text-sm font-black text-white uppercase">{data.data.luckyColor}</p>
+                    <p className="text-xs text-purple-300 font-semibold uppercase tracking-widest mb-1">Color</p>
+                    <p className="text-sm font-bold text-white uppercase">{data.data.luckyColor}</p>
                   </div>
                   <div className="bg-black/20 p-4 rounded-2xl backdrop-blur-md col-span-2">
-                    <p className="text-[9px] text-white/50 font-black uppercase tracking-widest mb-1">Compatible With</p>
-                    <p className="text-sm font-black text-white uppercase truncate">{data.data.compatibility}</p>
+                    <p className="text-xs text-purple-300 font-semibold uppercase tracking-widest mb-1">Compatible With</p>
+                    <p className="text-sm font-bold text-white uppercase truncate">{data.data.compatibility}</p>
                   </div>
                 </div>
               </div>
 
               {/* Period Quick Select */}
-              <div className="bg-white/5 p-6 rounded-[2.5rem] border border-white/10">
-                <h3 className="text-sm font-black text-white uppercase tracking-[0.2em] mb-6 px-2">Forecast Period</h3>
+              <div className="bg-black/40 backdrop-blur-sm p-6 rounded-xl border border-purple-600/30">
+                <h3 className="text-sm font-semibold text-pink-400 uppercase tracking-widest mb-4 px-2">Forecast Period</h3>
                 <div className="grid grid-cols-2 gap-3">
                   {['daily', 'weekly', 'monthly', 'yearly'].map((p) => (
                     <button
                       key={p}
                       disabled={loading}
                       onClick={() => onPeriodChange(p)}
-                      className={`p-4 rounded-2xl text-xs font-black uppercase tracking-widest transition-all ${
+                      className={`p-3 rounded-xl text-xs font-bold uppercase tracking-widest transition-all shadow-md hover:scale-105 ${
                         period === p
-                          ? 'bg-white text-black shadow-lg'
-                          : 'bg-white/5 text-gray-500 hover:bg-white/10 hover:text-white'
+                          ? 'bg-gradient-to-r from-yellow-400 to-pink-500 text-black shadow-lg'
+                          : 'bg-white/10 text-gray-300 hover:bg-white/20'
                       }`}
                     >
                       {p}
@@ -302,13 +303,13 @@ ${new Date().toLocaleDateString()}
               <div className="flex gap-4">
                 <button 
                   onClick={handleDownload}
-                  className="flex-1 h-16 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 transition-all"
+                  className="flex-1 h-16 bg-black/40 border border-purple-600/30 rounded-xl flex items-center justify-center text-purple-300 hover:text-yellow-400 hover:border-purple-500 transition-all shadow-md"
                 >
                   <Download className="h-6 w-6" />
                 </button>
                 <button 
                   onClick={handleShare}
-                  className="flex-1 h-16 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 transition-all"
+                  className="flex-1 h-16 bg-black/40 border border-purple-600/30 rounded-xl flex items-center justify-center text-purple-300 hover:text-yellow-400 hover:border-purple-500 transition-all shadow-md"
                 >
                   <Share2 className="h-6 w-6" />
                 </button>
@@ -396,13 +397,13 @@ const Horoscope = () => {
   ];
 
   return (
-    <div className="pt-32 min-h-screen px-4 md:px-12 text-white bg-[#050505]">
-      <div className="max-w-7xl mx-auto">
+    <Layout>
+      <div className="max-w-7xl mx-auto w-full py-8">
         {!selectedRashi ? (
           <>
             <header className="text-center mb-24">
-              <h1 className="text-7xl font-black text-white uppercase italic tracking-tighter mb-4">The Horoscope</h1>
-              <p className="text-gray-500 font-bold uppercase tracking-[0.4em] text-xs">Vedic Astrology • Managed Way</p>
+              <h1 className="text-5xl md:text-7xl font-extrabold bg-gradient-to-r from-pink-400 via-purple-300 to-indigo-300 bg-clip-text text-transparent mb-4 tracking-wide">The Horoscope</h1>
+              <p className="text-purple-200 text-lg">Vedic Astrology • Managed Way</p>
             </header>
 
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
@@ -413,12 +414,12 @@ const Horoscope = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.05 }}
                   onClick={() => handleRashiClick(r)}
-                  className={`p-10 rounded-[3rem] ${r.bgColor || 'bg-white/5'} border ${r.borderColor || 'border-white/10'} hover:border-orange-500/50 cursor-pointer transition-all duration-500 group text-center relative overflow-hidden`}
+                  className={`p-10 rounded-xl ${r.bgColor || 'bg-black/40'} border ${r.borderColor || 'border-purple-600/30'} hover:border-purple-500 cursor-pointer transition-all duration-300 shadow-lg group text-center relative overflow-hidden`}
                 >
-                   <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-orange-500/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                   <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-purple-500 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                    <div className={`text-6xl mb-6 ${r.color} group-hover:scale-110 group-hover:rotate-6 transition-transform duration-500`}>{r.symbol}</div>
-                   <h3 className="text-lg font-black text-white uppercase italic tracking-tight">{r.displayName || r.name}</h3>
-                   <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-2">{r.sanskrit}</p>
+                   <h3 className="text-lg font-semibold text-pink-400">{r.displayName || r.name}</h3>
+                   <p className="text-xs text-purple-300 font-semibold uppercase tracking-widest mt-2">{r.sanskrit}</p>
                 </motion.div>
               ))}
             </div>
@@ -434,7 +435,8 @@ const Horoscope = () => {
           />
         )}
       </div>
-    </div>
+      {/* </div> */}
+    </Layout>
   );
 };
 

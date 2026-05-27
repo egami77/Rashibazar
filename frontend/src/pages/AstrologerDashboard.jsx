@@ -28,6 +28,7 @@ import {
 import { format, parseISO, isAfter, isBefore, addMinutes } from 'date-fns';
 import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
+import Layout from '../components/Layout';
 
 const AstrologerDashboard = () => {
   const navigate = useNavigate();
@@ -259,35 +260,38 @@ const AstrologerDashboard = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#050505] flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-b from-black via-purple-950 to-black flex items-center justify-center">
         <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1 }}>
-          <RefreshCw className="h-10 w-10 text-orange-500" />
+          <RefreshCw className="h-10 w-10 text-purple-400" />
         </motion.div>
       </div>
     );
   }
 
+  const dashboardTabs = [
+    { id: 'overview', label: 'Dashboard', icon: LayoutDashboard },
+    { id: 'bookings', label: 'Queue Management', icon: ListTodo },
+    { id: 'availability', label: 'Office Hours', icon: Clock },
+    { id: 'horoscope', label: 'Daily Predictions', icon: Sparkles },
+    { id: 'profile', label: 'Expert Profile', icon: UserIcon }
+  ];
+
   return (
-    <div className="min-h-screen bg-[#050505] text-white flex">
-      {/* Sidebar Navigation */}
-      <aside className="w-72 bg-black/40 backdrop-blur-3xl border-r border-white/5 sticky top-0 h-screen hidden lg:flex flex-col p-8 z-50">
+    <Layout>
+      <div className="flex flex-col lg:flex-row w-full min-h-screen">
+        {/* Sidebar Navigation */}
+        <aside className="w-72 bg-black/40 backdrop-blur-md border-r border-purple-600/30 sticky top-24 h-[calc(100vh-6rem)] hidden lg:flex flex-col p-8 z-40 overflow-y-auto">
         <div className="mb-12">
-          <h2 className="text-2xl font-black bg-gradient-to-r from-orange-400 to-rose-600 bg-clip-text text-transparent italic">RASHIBAZAR</h2>
+          <h2 className="text-2xl font-bold bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent tracking-wide">RASHIBAZAR</h2>
           <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mt-1">Expert Dashboard</p>
         </div>
 
         <nav className="flex-1 space-y-2">
-          {[
-            { id: 'overview', label: 'Dashboard', icon: LayoutDashboard },
-            { id: 'bookings', label: 'Queue Management', icon: ListTodo },
-            { id: 'availability', label: 'Office Hours', icon: Clock },
-            { id: 'horoscope', label: 'Daily Predictions', icon: Sparkles },
-            { id: 'profile', label: 'Expert Profile', icon: UserIcon }
-          ].map(item => (
+          {dashboardTabs.map(item => (
             <button
               key={item.id}
               onClick={() => setActiveTab(item.id)}
-              className={`w-full flex items-center gap-4 px-6 py-4 rounded-[1.5rem] transition-all group ${activeTab === item.id ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/20 font-bold' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`}
+              className={`w-full flex items-center gap-4 px-6 py-4 rounded-full transition-all group ${activeTab === item.id ? 'bg-gradient-to-r from-yellow-400 to-pink-500 text-black shadow-lg font-bold' : 'text-gray-400 hover:bg-purple-900/30 hover:text-white'}`}
             >
               <item.icon className={`h-5 w-5 ${activeTab === item.id ? 'scale-110' : 'group-hover:scale-110'} transition-transform`} />
               <span className="text-sm">{item.label}</span>
@@ -305,13 +309,27 @@ const AstrologerDashboard = () => {
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 p-6 md:p-12 overflow-y-auto pt-24 lg:pt-12">
+      <main className="flex-1 p-4 md:p-8 lg:p-12 overflow-y-auto w-full">
+        {/* Mobile Navigation */}
+        <div className="lg:hidden flex overflow-x-auto pb-4 mb-6 space-x-2 snap-x hide-scrollbar">
+          {dashboardTabs.map(item => (
+            <button
+              key={item.id}
+              onClick={() => setActiveTab(item.id)}
+              className={`flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-full transition-all snap-center ${activeTab === item.id ? 'bg-gradient-to-r from-yellow-400 to-pink-500 text-black font-bold shadow-lg' : 'bg-black/40 border border-purple-600/30 text-gray-300'}`}
+            >
+              <item.icon className="h-4 w-4" />
+              <span className="text-xs whitespace-nowrap">{item.label}</span>
+            </button>
+          ))}
+        </div>
+
         <div className="max-w-6xl mx-auto space-y-12">
           
           {/* Top Bar / Header */}
           <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div>
-              <h1 className="text-4xl font-black text-white uppercase tracking-tighter">
+              <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-purple-300 to-indigo-300 tracking-wide">
                 Namaste, {dashboardData?.profile?.name || 'Expert'}
               </h1>
               <div className="flex items-center gap-4 mt-2">
@@ -329,9 +347,9 @@ const AstrologerDashboard = () => {
               <motion.div 
                 initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
-                className={`flex items-center gap-4 p-4 rounded-[2rem] border backdrop-blur-xl ${nextSessionCountdown.isNear ? 'bg-rose-500/10 border-rose-500/20' : 'bg-orange-500/10 border-orange-500/20'}`}
+                className={`flex items-center gap-4 p-4 rounded-xl border backdrop-blur-sm ${nextSessionCountdown.isNear ? 'bg-rose-500/10 border-rose-500/30' : 'bg-purple-500/10 border-purple-600/30'}`}
               >
-                <div className={`h-12 w-12 rounded-2xl flex items-center justify-center ${nextSessionCountdown.isNear ? 'bg-rose-500 animate-pulse' : 'bg-orange-500 shadow-lg shadow-orange-500/20'}`}>
+                <div className={`h-12 w-12 rounded-full flex items-center justify-center ${nextSessionCountdown.isNear ? 'bg-rose-500 animate-pulse' : 'bg-gradient-to-r from-yellow-400 to-pink-500 shadow-lg'}`}>
                   <Calendar className="h-6 w-6 text-white" />
                 </div>
                 <div>
@@ -363,7 +381,7 @@ const AstrologerDashboard = () => {
                     { label: 'Avg Rating', val: `${dashboardData.stats.rating.toFixed(1)}/5`, icon: Star, color: 'yellow' },
                     { label: 'Total Earnings', val: `Npr ${dashboardData.stats.totalEarnings.toLocaleString()}`, icon: DollarSign, color: 'emerald' }
                   ].map((stat, i) => (
-                    <div key={i} className="bg-white/5 border border-white/10 p-8 rounded-[2.5rem] relative overflow-hidden group hover:border-white/20 transition-all">
+                    <div key={i} className="bg-black/40 border border-purple-600/30 p-6 rounded-xl relative overflow-hidden group hover:border-purple-500 transition-all shadow-md">
                       <div className={`absolute top-0 right-0 w-24 h-24 bg-${stat.color}-500/5 rounded-full -mr-8 -mt-8 group-hover:scale-150 transition-transform duration-700`}></div>
                       <stat.icon className={`h-6 w-6 text-${stat.color}-400 mb-4`} />
                       <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest">{stat.label}</p>
@@ -384,7 +402,7 @@ const AstrologerDashboard = () => {
                     <div className="space-y-4">
                       {dashboardData.recentBookings.filter(b => b.date === format(new Date(), 'yyyy-MM-dd')).length > 0 ? (
                         dashboardData.recentBookings.filter(b => b.date === format(new Date(), 'yyyy-MM-dd')).map((booking, idx) => (
-                          <div key={booking.id} className="bg-white/5 border border-white/10 p-6 rounded-[2rem] flex flex-col md:flex-row items-center gap-6 hover:bg-white/[0.07] transition-all">
+                          <div key={booking.id} className="bg-black/40 border border-purple-600/30 p-6 rounded-xl flex flex-col md:flex-row items-center gap-6 hover:border-purple-500 transition-all shadow-md">
                             <div className="h-16 w-16 bg-white/5 rounded-2xl flex items-center justify-center border border-white/10 shrink-0">
                               <UserIcon className="h-8 w-8 text-gray-500" />
                             </div>
@@ -410,18 +428,18 @@ const AstrologerDashboard = () => {
                               {booking.bookingStatus === 'pending' && (
                                 <button 
                                   onClick={() => handleUpdateBookingStatus(booking.id, 'confirmed')}
-                                  className="px-6 py-3 bg-emerald-500 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:scale-105 transition-all shadow-lg shadow-emerald-500/20"
+                                  className="px-6 py-3 bg-gradient-to-r from-yellow-400 to-pink-500 text-black rounded-full text-xs font-bold uppercase tracking-widest hover:scale-105 transition-all shadow-lg"
                                 >Accept</button>
                               )}
                               <button 
                                 onClick={() => setActiveTab('bookings')}
-                                className="px-6 py-3 bg-white/5 border border-white/10 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-white/10 transition-all"
+                                className="px-6 py-3 bg-black/40 border border-purple-600/30 text-white rounded-full text-xs font-bold uppercase tracking-widest hover:border-purple-500 transition-all"
                               >Queue</button>
                             </div>
                           </div>
                         ))
                       ) : (
-                        <div className="text-center py-20 bg-white/5 border border-dashed border-white/10 rounded-[2rem]">
+                        <div className="text-center py-20 bg-black/40 border border-dashed border-purple-600/30 rounded-xl">
                           <p className="text-gray-500 font-bold uppercase tracking-widest text-sm">No physical visits scheduled for today</p>
                         </div>
                       )}
@@ -431,18 +449,18 @@ const AstrologerDashboard = () => {
                   {/* Sidebar Widgets */}
                   <div className="space-y-8">
                     {/* Quick Actions */}
-                    <div className="bg-gradient-to-br from-orange-500 to-rose-600 p-8 rounded-[2.5rem] shadow-xl shadow-orange-500/10">
-                      <h4 className="text-lg font-black text-white uppercase italic mb-6">Expert Actions</h4>
+                     <div className="bg-gradient-to-br from-yellow-400/20 via-pink-500/20 to-purple-600/20 border border-purple-600/30 p-8 rounded-xl shadow-xl backdrop-blur-sm">
+                       <h4 className="text-lg font-bold text-yellow-300 uppercase mb-6">Expert Actions</h4>
                       <div className="space-y-3">
-                        <button onClick={() => setActiveTab('horoscope')} className="w-full bg-black/20 hover:bg-black/30 text-white p-4 rounded-2xl flex items-center justify-between transition-all group">
+                         <button onClick={() => setActiveTab('horoscope')} className="w-full bg-black/40 border border-purple-600/30 hover:border-purple-500 text-white p-4 rounded-full flex items-center justify-between transition-all group">
                           <span className="font-bold text-sm">Update Predictions</span>
                           <Sparkles className="h-4 w-4 group-hover:rotate-12 transition-transform" />
                         </button>
-                        <button onClick={() => setActiveTab('availability')} className="w-full bg-black/20 hover:bg-black/30 text-white p-4 rounded-2xl flex items-center justify-between transition-all group">
+                         <button onClick={() => setActiveTab('availability')} className="w-full bg-black/40 border border-purple-600/30 hover:border-purple-500 text-white p-4 rounded-full flex items-center justify-between transition-all group">
                           <span className="font-bold text-sm">Manage Schedule</span>
                           <Calendar className="h-4 w-4 group-hover:-rotate-12 transition-transform" />
                         </button>
-                        <button onClick={() => setActiveTab('profile')} className="w-full bg-black/20 hover:bg-black/30 text-white p-4 rounded-2xl flex items-center justify-between transition-all group">
+                         <button onClick={() => setActiveTab('profile')} className="w-full bg-black/40 border border-purple-600/30 hover:border-purple-500 text-white p-4 rounded-full flex items-center justify-between transition-all group">
                           <span className="font-bold text-sm">Edit Profile</span>
                           <Settings className="h-4 w-4 group-hover:scale-110 transition-transform" />
                         </button>
@@ -450,7 +468,7 @@ const AstrologerDashboard = () => {
                     </div>
 
                     {/* Earnings Summary */}
-                    <div className="bg-white/5 border border-white/10 p-8 rounded-[2.5rem]">
+                     <div className="bg-black/40 border border-purple-600/30 p-8 rounded-xl shadow-md">
                       <h4 className="text-lg font-black text-white uppercase italic mb-6 tracking-tight">Revenue Info</h4>
                       <div className="space-y-6">
                         <div className="flex justify-between items-end">
@@ -458,7 +476,7 @@ const AstrologerDashboard = () => {
                           <p className="text-xs text-emerald-400 font-bold">82%</p>
                         </div>
                         <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
-                          <div className="h-full bg-gradient-to-r from-orange-500 to-emerald-500 w-[82%]"></div>
+                          <div className="h-full bg-gradient-to-r from-pink-500 to-purple-600 w-[82%]"></div>
                         </div>
                         <div className="pt-4 flex justify-between items-center">
                           <div>
@@ -493,8 +511,8 @@ const AstrologerDashboard = () => {
                     <div key={group.date} className="space-y-6">
                       <div className="flex items-center gap-4">
                         <div className="h-0.5 flex-1 bg-white/5"></div>
-                        <div className="bg-white/5 px-6 py-2 rounded-full border border-white/10">
-                          <h3 className="text-xs font-black text-orange-500 uppercase tracking-[0.3em]">
+                         <div className="bg-black/40 border border-purple-600/30 px-6 py-2 rounded-full">
+                           <h3 className="text-xs font-bold text-pink-400 uppercase tracking-widest">
                             {format(parseISO(group.date), 'EEEE, MMMM dd, yyyy')}
                           </h3>
                         </div>
@@ -503,7 +521,7 @@ const AstrologerDashboard = () => {
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {group.sessions.map(booking => (
-                          <div key={booking._id} className="bg-white/5 border border-white/10 p-8 rounded-[2.5rem] relative overflow-hidden group">
+                           <div key={booking._id} className="bg-black/40 border border-purple-600/30 p-6 rounded-xl relative overflow-hidden group hover:border-purple-500 transition-all shadow-md">
                             <div className="absolute top-0 right-0 w-32 h-32 opacity-[0.03] rounded-full -mr-16 -mt-16 bg-white group-hover:opacity-[0.07] transition-all"></div>
                             
                             <div className="flex items-start justify-between mb-8">
@@ -540,7 +558,7 @@ const AstrologerDashboard = () => {
                               {booking.bookingStatus === 'confirmed' && (
                                 <button 
                                   onClick={() => handleUpdateBookingStatus(booking._id, 'completed')}
-                                  className="flex-1 px-6 py-4 bg-emerald-500 text-white rounded-2xl text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-500/20"
+                                  className="flex-1 px-6 py-4 bg-gradient-to-r from-yellow-400 to-pink-500 text-black rounded-full text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 hover:scale-105 transition-all shadow-lg"
                                 >
                                   <CheckCircle className="h-4 w-4" /> Mark as Completed
                                 </button>
@@ -550,14 +568,14 @@ const AstrologerDashboard = () => {
                                 <div className="flex w-full gap-3">
                                   <button 
                                     onClick={() => handleUpdateBookingStatus(booking._id, 'confirmed')}
-                                    className="flex-1 px-6 py-4 bg-emerald-500 text-white rounded-2xl text-xs font-black uppercase tracking-widest"
+                                    className="flex-1 px-6 py-4 bg-gradient-to-r from-yellow-400 to-pink-500 text-black rounded-full text-xs font-bold uppercase tracking-widest hover:scale-105 transition-all"
                                   >Confirm Visit</button>
                                   <button 
                                     onClick={() => {
                                       const reason = window.prompt("Reason for cancellation?");
                                       if (reason) handleUpdateBookingStatus(booking._id, 'cancelled', reason);
                                     }}
-                                    className="px-6 py-4 bg-rose-500 text-white rounded-2xl text-xs font-black uppercase tracking-widest"
+                                    className="px-6 py-4 bg-black/40 border border-rose-500/30 text-rose-400 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-rose-500/10 transition-all"
                                   >Decline</button>
                                 </div>
                               )}
@@ -567,7 +585,7 @@ const AstrologerDashboard = () => {
                       </div>
                     </div>
                   )) : (
-                    <div className="text-center py-32 bg-white/5 border border-dashed border-white/10 rounded-[3rem]">
+                    <div className="text-center py-32 bg-black/40 border border-dashed border-purple-600/30 rounded-xl">
                       <Calendar className="h-16 w-16 text-gray-700 mx-auto mb-6" />
                       <p className="text-gray-500 font-black uppercase tracking-widest">No physical visits in the queue</p>
                     </div>
@@ -591,14 +609,14 @@ const AstrologerDashboard = () => {
                   </div>
                   <button 
                     onClick={() => setShowAddSlot(true)}
-                    className="px-8 py-4 bg-gradient-to-r from-orange-500 to-rose-600 rounded-2xl text-xs font-black uppercase tracking-widest flex items-center gap-2 shadow-xl shadow-orange-500/10 hover:scale-105 transition-all"
+                    className="px-8 py-4 bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-600 text-black rounded-full text-xs font-bold uppercase tracking-widest flex items-center gap-2 shadow-lg hover:scale-105 transition-all"
                   >
                     <Plus className="h-4 w-4" /> Add Office Hours
                   </button>
                 </div>
 
                 {showAddSlot && (
-                  <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} className="bg-white/5 border border-white/10 p-10 rounded-[2.5rem] relative overflow-hidden">
+                   <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} className="bg-black/40 border border-purple-600/30 p-10 rounded-xl relative overflow-hidden">
                     <button onClick={() => setShowAddSlot(false)} className="absolute top-8 right-8 text-gray-500 hover:text-white transition-colors"><X className="h-6 w-6" /></button>
                     <h4 className="text-xl font-black text-white uppercase italic mb-8">Define Office Time</h4>
                     
@@ -646,7 +664,7 @@ const AstrologerDashboard = () => {
                   {dayNames.map((day, dayIdx) => {
                     const daySlots = availability.filter(s => s.dayOfWeek === dayIdx);
                     return (
-                      <div key={day} className={`bg-white/5 border border-white/10 p-8 rounded-[2.5rem] ${daySlots.length === 0 ? 'opacity-40 grayscale' : ''}`}>
+                       <div key={day} className={`bg-black/40 border border-purple-600/30 p-6 rounded-xl ${daySlots.length === 0 ? 'opacity-40 grayscale' : 'hover:border-purple-500 transition-all shadow-md'}`}>
                         <div className="flex items-center justify-between mb-8">
                           <h4 className="text-xl font-black text-white uppercase italic">{day}</h4>
                           <span className="text-[10px] font-black text-orange-500 uppercase tracking-widest">{daySlots.length} Slots</span>
@@ -654,7 +672,7 @@ const AstrologerDashboard = () => {
                         
                         <div className="space-y-3">
                           {daySlots.length > 0 ? daySlots.map(slot => (
-                            <div key={slot._id} className="group bg-white/5 p-4 rounded-2xl border border-white/5 flex items-center justify-between hover:bg-white/[0.07] transition-all">
+                             <div key={slot._id} className="group bg-white/5 p-4 rounded-full border border-purple-600/20 flex items-center justify-between hover:border-purple-500 transition-all">
                               <div className="flex items-center gap-3">
                                 <Clock className="h-4 w-4 text-gray-500" />
                                 <span className="text-sm font-bold text-white">{slot.startTime} — {slot.endTime}</span>
@@ -687,12 +705,12 @@ const AstrologerDashboard = () => {
                     <h2 className="text-3xl font-black text-white uppercase italic tracking-tighter">Daily Predictions</h2>
                     <p className="text-xs text-gray-500 font-bold uppercase tracking-widest mt-1">Guide your followers through the stars</p>
                   </div>
-                  <div className="flex bg-white/5 p-1 rounded-2xl border border-white/10">
+                   <div className="flex bg-black/40 p-1 rounded-full border border-purple-600/30">
                     {['daily', 'weekly', 'monthly'].map(p => (
                       <button 
                         key={p} 
                         onClick={() => setActivePeriodTab(p)}
-                        className={`px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activePeriodTab === p ? 'bg-orange-500 text-white' : 'text-gray-500 hover:text-white'}`}
+                        className={`px-8 py-3 rounded-full text-xs font-bold uppercase tracking-widest transition-all ${activePeriodTab === p ? 'bg-gradient-to-r from-yellow-400 to-pink-500 text-black' : 'text-gray-500 hover:text-white'}`}
                       >{p}</button>
                     ))}
                   </div>
@@ -719,7 +737,7 @@ const AstrologerDashboard = () => {
                           });
                           setShowAddHoroscope(true);
                         }}
-                        className={`p-6 rounded-[2rem] border transition-all text-center group ${prediction ? 'bg-emerald-500/10 border-emerald-500/20' : 'bg-white/5 border-white/10 hover:border-orange-500/50'}`}
+                        className={`p-6 rounded-xl border transition-all text-center group ${prediction ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-black/40 border-purple-600/30 hover:border-purple-500'}`}
                       >
                         <div className="text-3xl mb-2 opacity-80 group-hover:scale-110 group-hover:rotate-6 transition-transform">
                           {r.symbol || '✦'}
@@ -735,11 +753,11 @@ const AstrologerDashboard = () => {
 
                 {showAddHoroscope && (
                   <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-                    <div className="bg-[#0f0f13] border border-white/10 w-full max-w-4xl rounded-[3rem] p-10 relative max-h-[90vh] overflow-y-auto">
+                     <div className="bg-black/80 border border-purple-600/40 w-full max-w-4xl rounded-2xl p-10 relative max-h-[90vh] overflow-y-auto backdrop-blur-xl">
                       <button onClick={() => setShowAddHoroscope(false)} className="absolute top-10 right-10 text-gray-500 hover:text-white transition-colors"><X className="h-8 w-8" /></button>
                       
                       <div className="mb-10">
-                        <p className="text-orange-500 text-[10px] font-black uppercase tracking-[0.3em] mb-2">Cosmic Editor</p>
+                         <p className="text-pink-400 text-xs font-semibold uppercase tracking-widest mb-2">Cosmic Editor</p>
                         <h3 className="text-4xl font-black text-white uppercase italic tracking-tighter">
                           Update {horoscopeForm.rashi} {activePeriodTab}
                         </h3>
@@ -755,7 +773,7 @@ const AstrologerDashboard = () => {
                                 <textarea 
                                   value={horoscopeForm.keyHighlights}
                                   onChange={(e) => setHoroscopeForm({ ...horoscopeForm, keyHighlights: e.target.value })}
-                                  className="w-full h-32 bg-white/5 border border-white/10 rounded-3xl p-6 text-white outline-none focus:border-orange-500 transition-all leading-relaxed"
+                                  className="w-full h-32 bg-black/40 border border-purple-600/30 rounded-xl p-6 text-white outline-none focus:border-purple-500 transition-all leading-relaxed"
                                   placeholder="Essential points for the day..."
                                   required
                                 />
@@ -766,7 +784,7 @@ const AstrologerDashboard = () => {
                                 <textarea 
                                   value={horoscopeForm.advice}
                                   onChange={(e) => setHoroscopeForm({ ...horoscopeForm, advice: e.target.value })}
-                                  className="w-full h-32 bg-white/5 border border-white/10 rounded-3xl p-6 text-white outline-none focus:border-orange-500 transition-all leading-relaxed"
+                                  className="w-full h-32 bg-black/40 border border-purple-600/30 rounded-xl p-6 text-white outline-none focus:border-purple-500 transition-all leading-relaxed"
                                   placeholder="Practical steps to align with planetary energies..."
                                 />
                               </div>
@@ -792,7 +810,7 @@ const AstrologerDashboard = () => {
                                 </div>
                               </div>
 
-                              <div className="p-6 bg-white/5 rounded-3xl border border-white/10">
+                               <div className="p-6 bg-black/40 border border-purple-600/20 rounded-xl">
                                 <h5 className="text-[10px] text-orange-500 font-black uppercase tracking-widest mb-4">Rashi Information</h5>
                                 <div className="grid grid-cols-2 gap-4">
                                   <div className="space-y-1">
@@ -817,8 +835,8 @@ const AstrologerDashboard = () => {
                         </div>
 
                         <div className="flex gap-4">
-                          <button type="submit" className="flex-1 py-6 bg-gradient-to-r from-orange-500 to-rose-600 rounded-[2rem] font-black text-white uppercase tracking-widest shadow-xl shadow-orange-500/20 hover:scale-[1.01] transition-all">Publish Prediction</button>
-                          <button type="button" onClick={() => setShowAddHoroscope(false)} className="px-12 py-6 bg-white/5 text-gray-400 rounded-[2rem] font-black uppercase tracking-widest hover:text-white transition-all">Cancel</button>
+                           <button type="submit" className="flex-1 py-5 bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-600 text-black rounded-full font-bold uppercase tracking-widest shadow-lg hover:scale-105 transition-all">Publish Prediction</button>
+                           <button type="button" onClick={() => setShowAddHoroscope(false)} className="px-10 py-5 bg-black/40 border border-purple-600/30 text-gray-400 rounded-full font-bold uppercase tracking-widest hover:text-white transition-all">Cancel</button>
                         </div>
                       </form>
                     </div>
@@ -835,13 +853,13 @@ const AstrologerDashboard = () => {
                 exit={{ opacity: 0, y: -20 }}
                 className="max-w-4xl mx-auto space-y-8"
               >
-                <div className="bg-white/5 border border-white/10 rounded-[3rem] p-12 relative overflow-hidden">
+                 <div className="bg-black/40 border border-purple-600/30 rounded-xl p-12 relative overflow-hidden shadow-2xl">
                   <div className="absolute top-0 right-0 p-12 opacity-[0.03]">
                     <Settings className="h-64 w-64 text-white" />
                   </div>
                   
                   <div className="relative z-10 flex flex-col md:flex-row items-start gap-12">
-                    <div className="h-48 w-48 rounded-[2.5rem] bg-gradient-to-br from-orange-500 to-rose-600 p-1 shrink-0 shadow-2xl">
+                     <div className="h-48 w-48 rounded-full bg-gradient-to-r from-pink-400 to-purple-600 p-1 shrink-0 shadow-2xl">
                       <div className="h-full w-full bg-neutral-900 rounded-[2.4rem] flex items-center justify-center overflow-hidden border-4 border-black/50">
                         {dashboardData?.profile?.profileImage ? (
                           <img src={dashboardData.profile.profileImage} alt="Profile" className="w-full h-full object-cover" />
@@ -853,7 +871,7 @@ const AstrologerDashboard = () => {
 
                     <div className="flex-1 space-y-6">
                       <div>
-                        <p className="text-orange-500 text-[10px] font-black uppercase tracking-widest mb-1">Expert Profile</p>
+                         <p className="text-pink-400 text-xs font-semibold uppercase tracking-widest mb-1">Expert Profile</p>
                         <h2 className="text-4xl font-black text-white uppercase italic tracking-tighter">{dashboardData?.profile?.name}</h2>
                         <p className="text-gray-500 font-bold mt-2">{dashboardData?.profile?.email}</p>
                       </div>
@@ -879,14 +897,14 @@ const AstrologerDashboard = () => {
                         </div>
                       </div>
 
-                      <button onClick={() => setShowProfileEdit(true)} className="px-8 py-4 bg-white text-black rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-orange-500 hover:text-white transition-all shadow-xl shadow-black/20">Edit Public Profile</button>
+                       <button onClick={() => setShowProfileEdit(true)} className="px-8 py-4 bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-600 text-black rounded-full text-sm font-bold uppercase tracking-widest hover:scale-105 transition-all shadow-lg">Edit Public Profile</button>
                     </div>
                   </div>
                 </div>
 
                 {showProfileEdit && (
                   <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-                    <div className="bg-[#0f0f13] border border-white/10 w-full max-w-2xl rounded-[3rem] p-10 relative">
+                     <div className="bg-black/80 border border-purple-600/40 w-full max-w-2xl rounded-2xl p-10 relative backdrop-blur-xl">
                       <button onClick={() => setShowProfileEdit(false)} className="absolute top-10 right-10 text-gray-500 hover:text-white transition-colors"><X className="h-8 w-8" /></button>
                       <h3 className="text-3xl font-black text-white uppercase italic mb-8">Edit Public Profile</h3>
                       
@@ -919,7 +937,7 @@ const AstrologerDashboard = () => {
                             className="w-full h-32 bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white text-sm outline-none focus:border-orange-500 transition-all"
                           />
                         </div>
-                        <button type="submit" className="w-full py-6 bg-white text-black rounded-[2rem] font-black uppercase tracking-widest shadow-xl shadow-black/20 hover:bg-orange-500 hover:text-white transition-all">Save Profile</button>
+                         <button type="submit" className="w-full py-4 bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-600 text-black rounded-full font-bold uppercase tracking-widest shadow-lg hover:scale-105 transition-all">Save Profile</button>
                       </form>
                     </div>
                   </motion.div>
@@ -929,7 +947,8 @@ const AstrologerDashboard = () => {
           </AnimatePresence>
         </div>
       </main>
-    </div>
+      </div>
+    </Layout>
   );
 };
 

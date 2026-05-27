@@ -150,19 +150,24 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* MOBILE BUTTON */}
-          <button
-            className="md:hidden text-white"
-            onClick={() => setIsOpen(!isOpen)}
-          >
-            {isOpen ? <X /> : <Menu />}
-          </button>
+          <div className="flex items-center space-x-2 md:space-x-4">
+            {/* MOBILE BUTTON */}
+            <button
+              className="md:hidden text-white"
+              onClick={() => setIsOpen(!isOpen)}
+            >
+              {isOpen ? <X /> : <Menu />}
+            </button>
+          </div>
         </div>
 
         {/* MOBILE MENU */}
         {isOpen && (
           <div className="md:hidden flex flex-col space-y-2 pb-4">
-            {renderLinks()}
+            <div className="sm:hidden px-3 py-2">
+               {/* Move the translate element here using JS or just let user rotate/resize. Wait, duplicate IDs are bad. I will just rely on the global one. */}
+            </div>
+          {renderLinks()}
 
             {(user || astrologer) ? (
               <button

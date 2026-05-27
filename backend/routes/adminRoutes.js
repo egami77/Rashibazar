@@ -4,6 +4,7 @@ import User from "../models/User.js";
 import Astrologer from "../models/Astrologer.js";
 import Booking from "../models/Booking.js";
 import SystemSetting from "../models/SystemSetting.js";
+import Announcement from "../models/Announcement.js";
 import authMiddleware from "../middleware/authMiddleware.js";
 import { isAdmin } from "../middleware/roleMiddleware.js";
 
@@ -54,12 +55,12 @@ router.put("/astrologers/:id/status", authMiddleware, isAdmin, async (req, res) 
 
     astrologer.approvalStatus = status;
     astrologer.isActive = status === 'approved';
-    
+
     await astrologer.save();
 
     console.log(`Astrologer ${astrologer.name} ${status} successfully`);
 
-    res.json({ 
+    res.json({
       message: `Astrologer ${status} successfully`,
       astrologer: {
         id: astrologer._id,
@@ -80,7 +81,7 @@ router.delete("/astrologers/:id", authMiddleware, isAdmin, async (req, res) => {
   try {
     const { id } = req.params;
     const astrologer = await Astrologer.findByIdAndDelete(id);
-    
+
     if (!astrologer) {
       return res.status(404).json({ message: 'Astrologer not found' });
     }
@@ -98,7 +99,7 @@ router.get("/users", authMiddleware, isAdmin, async (req, res) => {
     const users = await User.find({ role: 'user' })
       .select('-password -resetPasswordToken -resetPasswordExpire')
       .sort({ createdAt: -1 });
-    
+
     res.json(users);
   } catch (error) {
     console.error("Error fetching users:", error);
@@ -111,7 +112,7 @@ router.delete("/users/:id", authMiddleware, isAdmin, async (req, res) => {
   try {
     const { id } = req.params;
     const user = await User.findByIdAndDelete(id);
-    
+
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
@@ -130,7 +131,7 @@ router.get("/bookings", authMiddleware, isAdmin, async (req, res) => {
       .populate('userId', 'name email phone')
       .populate('astrologerId', 'name email')
       .sort({ createdAt: -1 });
-    
+
     res.json(bookings);
   } catch (error) {
     console.error("Error fetching bookings:", error);
@@ -147,7 +148,7 @@ router.get("/stats", authMiddleware, isAdmin, async (req, res) => {
     const approvedAstrologers = await Astrologer.countDocuments({ approvalStatus: 'approved' });
     const totalBookings = await Booking.countDocuments();
     const completedBookings = await Booking.countDocuments({ bookingStatus: 'completed' });
-    
+
     const totalRevenue = await Booking.aggregate([
       { $match: { paymentStatus: 'paid', bookingStatus: 'completed' } },
       { $group: { _id: null, total: { $sum: '$amount' } } }
@@ -193,7 +194,7 @@ router.post("/settings", authMiddleware, isAdmin, async (req, res) => {
   try {
     const { key, value, description } = req.body;
     let setting = await SystemSetting.findOne({ key });
-    
+
     if (setting) {
       setting.value = value;
       if (description) setting.description = description;
@@ -201,7 +202,7 @@ router.post("/settings", authMiddleware, isAdmin, async (req, res) => {
     } else {
       setting = new SystemSetting({ key, value, description, updatedBy: req.user._id });
     }
-    
+
     await setting.save();
     res.json({ message: "Setting updated", setting });
   } catch (error) {
@@ -213,8 +214,28 @@ router.post("/settings", authMiddleware, isAdmin, async (req, res) => {
 router.post("/broadcast", authMiddleware, isAdmin, async (req, res) => {
   try {
     const { title, message, target } = req.body;
-    console.log(`[BROADCAST] ${target.toUpperCase()}: ${title} - ${message}`);
-    res.json({ message: "Broadcast initiated successfully" });
+
+    if (!title?.trim() || !message?.trim()) {
+      return res.status(400).json({ error: "Title and message are required" });
+    }
+
+    const validTargets = ["all", "users", "astrologers"];
+    if (!validTargets.includes(target)) {
+      return res.status(400).json({ error: "Invalid target audience" });
+    }
+
+    const announcement = await Announcement.create({
+      title: title.trim(),
+      message: message.trim(),
+      target,
+      createdBy: req.user._id,
+    });
+
+    console.log(`[BROADCAST] ${target.toUpperCase()}: ${title}`);
+    res.status(201).json({
+      message: "Broadcast sent successfully",
+      announcement,
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

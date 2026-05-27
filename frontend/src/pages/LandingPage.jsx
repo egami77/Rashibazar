@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Sun, Moon, Star, Sparkles, Orbit, Circle } from "lucide-react";
 import heroImage from "../assets/hero-cosmic.jpg";
+import Layout from "../components/Layout";
 
 const LandingPage = () => {
   const navigate = useNavigate();
@@ -45,7 +46,7 @@ const LandingPage = () => {
   };
 
   return (
-    <div className="min-h-screen w-full flex flex-col overflow-y-auto bg-gradient-to-b from-black via-indigo-950 to-black text-white">
+    <Layout>
       {/* Hero Section */}
       <section
         className="relative flex flex-col items-center justify-center min-h-screen text-center overflow-hidden"
@@ -210,7 +211,8 @@ const LandingPage = () => {
           </motion.div>
         </div>
       </section>
-    </div>
+    {/* </div> */}
+    </Layout>
   );
 };
 

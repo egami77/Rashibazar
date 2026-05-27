@@ -12,6 +12,7 @@ import kundaliRoutes from './routes/kundaliRoutes.js';
 import horoscopeRoutes from './routes/horoscopeRoutes.js';
 import khaltiRoutes from './routes/khaltiRoutes.js';
 import systemRoutes from './routes/systemRoutes.js';
+import announcementRoutes from './routes/announcementRoutes.js';
 
 // Connect to MongoDB
 connectDB();
@@ -54,6 +55,7 @@ app.use('/api/kundali', kundaliRoutes);
 app.use('/api/horoscope', horoscopeRoutes);
 app.use('/api/khalti', khaltiRoutes);
 app.use('/api/system', systemRoutes);
+app.use('/api/announcements', announcementRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

@@ -9,6 +9,7 @@ import {
   Info,
   Shield
 } from "lucide-react";
+import Layout from "../components/Layout";
 
 const NepaliCalendar = () => {
   const [activeTab, setActiveTab] = useState("calendar");
@@ -125,7 +126,7 @@ const NepaliCalendar = () => {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => reloadIframe(calendarIframeRef)}
-                className="px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-lg flex items-center gap-2 text-white font-semibold"
+                className="px-4 py-2 bg-gradient-to-r from-yellow-400 to-pink-500 text-black rounded-full flex items-center gap-2 font-semibold hover:scale-105 transition-all shadow-lg"
               >
                 <RefreshCw className="w-4 h-4" />
                 Reload
@@ -167,9 +168,9 @@ const NepaliCalendar = () => {
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.2 }}
-                  className="bg-black/30 backdrop-blur-lg rounded-xl border-2 border-green-500/30 p-3 transform hover:scale-105 transition-all duration-300 shadow-lg shadow-green-500/20 hover:shadow-green-500/40"
+                  className="bg-black/40 backdrop-blur-sm rounded-xl border border-purple-600/30 p-3 hover:border-purple-500 transition-all duration-300 shadow-lg shadow-purple-500/10 hover:shadow-purple-500/30"
                 >
-                  <h3 className="text-sm font-bold mb-2 text-green-400 flex items-center gap-2">
+                  <h3 className="text-sm font-bold mb-2 text-pink-400 flex items-center gap-2">
                     <Clock className="w-4 h-4" />
                     Nepali Clock
                   </h3>
@@ -194,17 +195,17 @@ const NepaliCalendar = () => {
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.3 }}
-                  className="bg-black/30 backdrop-blur-lg rounded-xl border-2 border-blue-500/30 p-3 transform hover:scale-105 transition-all duration-300 shadow-lg shadow-blue-500/20 flex-1"
+                  className="bg-black/40 backdrop-blur-sm rounded-xl border border-purple-600/30 p-3 hover:border-purple-500 transition-all duration-300 shadow-lg flex-1"
                 >
-                  <h3 className="text-sm font-bold mb-2 text-blue-400">Date & Time</h3>
+                  <h3 className="text-sm font-bold mb-2 text-purple-300">Date & Time</h3>
                   <div className="space-y-2">
-                    <div className="p-2 bg-gradient-to-br from-blue-900/20 to-blue-900/10 rounded-lg border border-blue-500/30">
+                    <div className="p-2 bg-black/40 border border-purple-600/20 rounded-lg">
                       <div className="text-xs text-gray-400">Gregorian</div>
                       <div className="text-xs font-bold text-white truncate">{formatDate(currentDateTime)}</div>
                     </div>
-                    <div className="p-2 bg-gradient-to-br from-green-900/20 to-green-900/10 rounded-lg border border-green-500/30">
+                    <div className="p-2 bg-black/40 border border-pink-500/20 rounded-lg">
                       <div className="text-xs text-gray-400">Time (NPT)</div>
-                      <div className="text-sm font-bold text-green-400">{formatTime(currentDateTime)}</div>
+                      <div className="text-sm font-bold text-pink-400">{formatTime(currentDateTime)}</div>
                     </div>
                   </div>
                 </motion.div>
@@ -225,7 +226,7 @@ const NepaliCalendar = () => {
                 whileHover={{ scale: 1.05, rotate: 180 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => reloadIframe(converterIframeRef)}
-                className="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 rounded-lg flex items-center gap-2 text-white font-semibold shadow-lg shadow-pink-500/50"
+                className="px-4 py-2 bg-gradient-to-r from-yellow-400 to-pink-500 text-black rounded-full flex items-center gap-2 font-semibold shadow-lg hover:scale-105 transition-all"
               >
                 <RefreshCw className="w-4 h-4" />
                 Reload Converter
@@ -306,11 +307,11 @@ const NepaliCalendar = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black via-purple-900 to-black text-white pt-24 px-4 md:px-6 pb-12">
-      <div className="max-w-7xl mx-auto">
+    <Layout>
+      <div className="max-w-7xl mx-auto w-full py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-yellow-400 via-pink-400 to-purple-500 bg-clip-text text-transparent">
+          <h1 className="text-5xl font-extrabold mb-2 bg-gradient-to-r from-pink-400 via-purple-300 to-indigo-300 bg-clip-text text-transparent tracking-wide">
             Nepali Calendar & Date Tools
           </h1>
           <p className="text-gray-300">Complete Nepali calendar system with real-time updates and date conversion</p>
@@ -318,17 +319,17 @@ const NepaliCalendar = () => {
 
         {/* Live Date Display */}
         <div className="grid grid-cols-3 md:grid-cols-3 gap-4 mb-8">
-          <div className="bg-black/30 backdrop-blur-lg rounded-xl border-2 border-blue-500/30 p-4">
+          <div className="bg-black/40 backdrop-blur-sm rounded-xl border border-purple-600/30 p-4 hover:border-purple-500 transition-all">
             <div className="text-sm text-gray-400 mb-2">Current Date</div>
             <div className="text-lg font-bold text-white">{formatDate(currentDateTime)}</div>
           </div>
           
-          <div className="bg-black/30 backdrop-blur-lg rounded-xl border-2 border-green-500/30 p-4">
+          <div className="bg-black/40 backdrop-blur-sm rounded-xl border border-purple-600/30 p-4 hover:border-purple-500 transition-all">
             <div className="text-sm text-gray-400 mb-2">Nepal Time</div>
-            <div className="text-lg font-bold text-green-400">{formatTime(currentDateTime)} NPT</div>
+            <div className="text-lg font-bold text-pink-400">{formatTime(currentDateTime)} NPT</div>
           </div>
           
-          <div className="bg-black/30 backdrop-blur-lg rounded-xl border-2 border-purple-500/30 p-4">
+          <div className="bg-black/40 backdrop-blur-sm rounded-xl border border-purple-600/30 p-4 hover:border-purple-500 transition-all">
             <div className="text-sm text-gray-400 mb-2">Timezone</div>
             <div className="text-lg font-bold text-purple-300">UTC+5:45</div>
           </div>
@@ -345,10 +346,10 @@ const NepaliCalendar = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`px-6 py-3 rounded-lg font-semibold transition-all flex items-center gap-2 ${
+                className={`px-6 py-3 rounded-full font-semibold transition-all flex items-center gap-2 ${
                   activeTab === tab.id
-                    ? 'bg-gradient-to-r from-yellow-400 to-pink-500 text-black'
-                    : 'bg-black/30 border border-purple-500/30 text-gray-300 hover:bg-purple-900/30'
+                    ? 'bg-gradient-to-r from-yellow-400 to-pink-500 text-black shadow-lg'
+                    : 'bg-black/40 border border-purple-600/30 text-gray-300 hover:bg-purple-900/30 hover:border-purple-500'
                 }`}
               >
                 <Icon className="h-5 w-5" />
@@ -375,7 +376,7 @@ const NepaliCalendar = () => {
         <div className="fixed bottom-0 right-0 w-96 h-96 bg-gradient-to-br from-purple-500/10 to-pink-500/10 rounded-full filter blur-3xl pointer-events-none opacity-50"></div>
         <div className="fixed top-0 left-0 w-96 h-96 bg-gradient-to-br from-yellow-500/5 to-purple-500/5 rounded-full filter blur-3xl pointer-events-none opacity-40"></div>
       </div>
-    </div>
+    </Layout>
   );
 };
 

@@ -5,6 +5,7 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { registerUser, registerAstrologer } from "../services/auth";
 import heroImage from "../assets/hero-cosmic.jpg";
 import toast from "react-hot-toast";
+import Layout from "../components/Layout";
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -152,13 +153,9 @@ const Signup = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0a0a1a] via-[#1a0f3a] to-[#000000] text-white relative overflow-hidden py-8">
-      <div
-        className="absolute inset-0 bg-cover bg-center opacity-30"
-        style={{ backgroundImage: `url(${heroImage})` }}
-      ></div>
-
-      <div className="relative bg-white/10 backdrop-blur-md p-8 rounded-2xl shadow-2xl w-full max-w-2xl border border-white/20 max-h-[90vh] overflow-y-auto">
+    <Layout>
+      <div className="flex items-center justify-center min-h-[80vh] relative z-10 w-full px-4 py-8">
+        <div className="relative bg-white/10 backdrop-blur-md p-6 sm:p-8 rounded-2xl shadow-2xl w-full max-w-2xl border border-white/20">
         {/* Header */}
         <div className="text-center mb-6">
           <h2 className="text-3xl font-bold bg-gradient-to-r from-yellow-300 via-pink-400 to-purple-500 text-transparent bg-clip-text">
@@ -491,7 +488,8 @@ const Signup = () => {
           Back to Home
         </button>
       </div>
-    </div>
+      </div>
+    </Layout>
   );
 };
 

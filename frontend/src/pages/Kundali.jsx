@@ -10,6 +10,7 @@ import { generateKundali, getKundaliHistory, deleteKundali } from '../services/k
 import { getCurrentUser } from '../services/auth.js';
 import { BirthDetailsForm } from '../components/VedicKundali/BirthDetailsForm.jsx';
 import { ModernKundaliReport } from '../components/VedicKundali/ModernKundaliReport.jsx';
+import Layout from "../components/Layout";
 
 const Kundali = () => {
   const [activeTab, setActiveTab] = useState('form');
@@ -84,11 +85,12 @@ const Kundali = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white pt-24 pb-12 px-4 relative overflow-hidden">
+    <Layout>
+      <div className="w-full py-8 px-4 relative overflow-hidden">
       {/* Mystical Background elements */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-purple-900/20 rounded-full blur-[120px]"></div>
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-orange-900/20 rounded-full blur-[120px]"></div>
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-indigo-900/20 rounded-full blur-[120px]"></div>
       </div>
 
       <div className="max-w-7xl mx-auto relative z-10">
@@ -97,7 +99,7 @@ const Kundali = () => {
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 text-sm font-medium mb-4"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-500/10 border border-purple-500/30 text-pink-400 text-sm font-semibold mb-4"
           >
             <Sparkles className="h-4 w-4" /> Accurate Vedic Calculations
           </motion.div>
@@ -105,7 +107,7 @@ const Kundali = () => {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-orange-400 via-red-500 to-purple-600 bg-clip-text text-transparent mb-4"
+            className="text-5xl md:text-7xl font-extrabold bg-gradient-to-r from-pink-400 via-purple-300 to-indigo-300 bg-clip-text text-transparent mb-4 tracking-wide"
           >
             Vedic Janma Kundali
           </motion.h1>
@@ -113,7 +115,7 @@ const Kundali = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
-            className="text-gray-400 text-lg max-w-2xl mx-auto"
+            className="text-purple-200 text-lg md:text-xl max-w-2xl mx-auto"
           >
             Discover your destiny through the precise alignment of stars and planets at the moment of your birth.
           </motion.p>
@@ -124,20 +126,20 @@ const Kundali = () => {
           <div className="bg-white/5 backdrop-blur-md p-1.5 rounded-2xl border border-white/10 flex gap-2">
             <button
               onClick={() => setActiveTab('form')}
-              className={`px-8 py-3 rounded-xl font-bold transition-all flex items-center gap-2 ${activeTab === 'form' ? 'bg-gradient-to-r from-orange-500 to-red-600 text-white shadow-lg' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+              className={`px-8 py-3 rounded-full font-bold transition-all flex items-center gap-2 ${activeTab === 'form' ? 'bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-600 text-black shadow-lg hover:scale-105' : 'text-gray-300 hover:text-white hover:bg-white/10'}`}
             >
               <RefreshCw className="h-4 w-4" /> New Kundali
             </button>
             <button
               onClick={() => setActiveTab('results')}
               disabled={!kundaliData}
-              className={`px-8 py-3 rounded-xl font-bold transition-all flex items-center gap-2 ${activeTab === 'results' ? 'bg-gradient-to-r from-orange-500 to-red-600 text-white shadow-lg' : 'text-gray-400 hover:text-white hover:bg-white/5'} ${!kundaliData ? 'opacity-50 cursor-not-allowed' : ''}`}
+              className={`px-8 py-3 rounded-full font-bold transition-all flex items-center gap-2 ${activeTab === 'results' ? 'bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-600 text-black shadow-lg hover:scale-105' : 'text-gray-300 hover:text-white hover:bg-white/10'} ${!kundaliData ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               <Star className="h-4 w-4" /> View Result
             </button>
             <button
               onClick={() => setActiveTab('history')}
-              className={`px-8 py-3 rounded-xl font-bold transition-all flex items-center gap-2 ${activeTab === 'history' ? 'bg-gradient-to-r from-orange-500 to-red-600 text-white shadow-lg' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+              className={`px-8 py-3 rounded-full font-bold transition-all flex items-center gap-2 ${activeTab === 'history' ? 'bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-600 text-black shadow-lg hover:scale-105' : 'text-gray-300 hover:text-white hover:bg-white/10'}`}
             >
               <History className="h-4 w-4" /> History
             </button>
@@ -181,17 +183,17 @@ const Kundali = () => {
               <ModernKundaliReport kundaliData={kundaliData} />
               
               <div className="flex flex-col items-center py-12 border-t border-white/5 mt-12">
-                <div className="bg-orange-500/10 p-8 rounded-[2.5rem] border border-orange-500/20 max-w-2xl text-center backdrop-blur-xl">
-                  <div className="bg-orange-500 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-orange-500/20">
-                    <MessageSquare className="h-8 w-8 text-white" />
+                <div className="bg-white/10 p-8 rounded-xl border border-purple-400/30 max-w-2xl text-center backdrop-blur-md">
+                  <div className="bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-purple-500/30">
+                    <MessageSquare className="h-8 w-8 text-black" />
                   </div>
-                  <h3 className="text-3xl font-black text-white uppercase tracking-tight mb-4 italic">Need Deeper Insights?</h3>
+                  <h3 className="text-3xl font-bold text-yellow-300 mb-4">Need Deeper Insights?</h3>
                   <p className="text-gray-400 mb-8 leading-relaxed">
                     While our automated reports are highly accurate, a personal consultation with a master astrologer can provide specific remedies and guidance tailored for your life path.
                   </p>
                   <Link 
                     to="/booking"
-                    className="inline-flex items-center gap-3 px-10 py-5 bg-gradient-to-r from-orange-500 to-red-600 rounded-2xl font-black text-white uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-orange-500/10 group"
+                    className="inline-flex items-center gap-3 px-8 py-3 bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-600 rounded-full font-semibold text-black hover:scale-105 transition-all shadow-lg group"
                   >
                     Consult with Astrologer
                     <Star className="h-5 w-5 group-hover:rotate-90 transition-transform duration-500" />
@@ -213,11 +215,11 @@ const Kundali = () => {
                     <div
                       key={item._id}
                       onClick={() => handleSelectHistory(item)}
-                      className="group bg-white/5 backdrop-blur-md border border-white/10 p-6 rounded-2xl hover:border-orange-500/50 hover:bg-white/10 transition-all cursor-pointer relative"
+                      className="group bg-black/40 backdrop-blur-sm border border-purple-600/30 p-6 rounded-xl hover:border-purple-500 transition-all duration-300 cursor-pointer relative hover:shadow-[0_20px_25px_-5px_rgba(168,85,247,0.3)]"
                     >
                       <div className="flex items-center justify-between mb-4">
-                        <div className="bg-orange-500/20 p-2 rounded-lg">
-                          <Star className="h-5 w-5 text-orange-400" />
+                        <div className="bg-purple-500/20 p-2 rounded-lg">
+                          <Star className="h-5 w-5 text-yellow-400" />
                         </div>
                         <button
                           onClick={(e) => handleDeleteHistory(item._id, e)}
@@ -226,7 +228,7 @@ const Kundali = () => {
                           <Trash2 className="h-4 w-4" />
                         </button>
                       </div>
-                      <h3 className="text-xl font-bold text-white group-hover:text-orange-400 transition-colors">{item.name}</h3>
+                      <h3 className="text-xl font-semibold text-pink-400 mb-2">{item.name}</h3>
                       <div className="mt-2 space-y-1 text-sm text-gray-400">
                         <p>Born: {new Date(item.birthDate).toLocaleDateString()}</p>
                         <p>Place: {item.birthPlace}</p>
@@ -236,7 +238,7 @@ const Kundali = () => {
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-20 bg-white/5 rounded-3xl border border-white/10">
+                <div className="text-center py-20 bg-black/40 backdrop-blur-sm rounded-xl border border-purple-600/30">
                   <div className="bg-white/5 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
                     <History className="h-10 w-10 text-gray-600" />
                   </div>
@@ -244,7 +246,7 @@ const Kundali = () => {
                   <p className="text-gray-500">Your generated kundalis will appear here.</p>
                   <button
                     onClick={() => setActiveTab('form')}
-                    className="mt-8 px-6 py-2 bg-orange-500/10 border border-orange-500/20 text-orange-400 rounded-lg hover:bg-orange-500/20 transition-all"
+                    className="mt-8 px-8 py-3 bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-600 text-black font-semibold rounded-full hover:scale-105 transition-all shadow-lg"
                   >
                     Generate Your First Kundali
                   </button>
@@ -257,29 +259,23 @@ const Kundali = () => {
         {/* Informational Sections */}
         {activeTab === 'form' && (
           <div className="mt-20 grid md:grid-cols-3 gap-8">
-            <div className="bg-white/5 p-8 rounded-3xl border border-white/10">
-              <div className="bg-blue-500/20 w-12 h-12 rounded-xl flex items-center justify-center mb-6 text-blue-400">
-                <Target className="h-6 w-6" />
-              </div>
-              <h3 className="text-xl font-bold mb-3">High Accuracy</h3>
+            <div className="bg-black/40 backdrop-blur-sm border border-purple-600/30 rounded-xl p-8 hover:border-purple-500 transition-all duration-300">
+              <div className="text-4xl mb-4">🎯</div>
+              <h3 className="text-xl font-semibold text-pink-400 mb-3">High Accuracy</h3>
               <p className="text-gray-400 leading-relaxed text-sm">
                 We use advanced astronomical engines to calculate precise planetary positions based on Lahiri Ayanamsa.
               </p>
             </div>
-            <div className="bg-white/5 p-8 rounded-3xl border border-white/10">
-              <div className="bg-pink-500/20 w-12 h-12 rounded-xl flex items-center justify-center mb-6 text-pink-400">
-                <Shield className="h-6 w-6" />
-              </div>
-              <h3 className="text-xl font-bold mb-3">Traditional Logic</h3>
+            <div className="bg-black/40 backdrop-blur-sm border border-purple-600/30 rounded-xl p-8 hover:border-purple-500 transition-all duration-300">
+              <div className="text-4xl mb-4">🛡️</div>
+              <h3 className="text-xl font-semibold text-pink-400 mb-3">Traditional Logic</h3>
               <p className="text-gray-400 leading-relaxed text-sm">
                 Our system incorporates authentic Vedic principles, including divisional charts and Vimshottari dasha.
               </p>
             </div>
-            <div className="bg-white/5 p-8 rounded-3xl border border-white/10">
-              <div className="bg-orange-500/20 w-12 h-12 rounded-xl flex items-center justify-center mb-6 text-orange-400">
-                <Zap className="h-6 w-6" />
-              </div>
-              <h3 className="text-xl font-bold mb-3">Traditional Report</h3>
+            <div className="bg-black/40 backdrop-blur-sm border border-purple-600/30 rounded-xl p-8 hover:border-purple-500 transition-all duration-300">
+              <div className="text-4xl mb-4">⚡</div>
+              <h3 className="text-xl font-semibold text-pink-400 mb-3">Traditional Report</h3>
               <p className="text-gray-400 leading-relaxed text-sm">
                 Generate a complete birth report with traditional Nepali Sankalpa prose and professional charts.
               </p>
@@ -287,7 +283,8 @@ const Kundali = () => {
           </div>
         )}
       </div>
-    </div>
+      </div>
+    </Layout>
   );
 };
 

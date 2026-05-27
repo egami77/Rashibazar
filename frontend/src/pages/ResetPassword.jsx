@@ -66,7 +66,7 @@ const ResetPassword = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0a0a1a] via-[#1a0f3a] to-[#000000] text-white relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-black via-purple-950 to-black text-white relative overflow-hidden">
       <div
         className="absolute inset-0 bg-cover bg-center opacity-30"
         style={{ backgroundImage: `url(${heroImage})` }}

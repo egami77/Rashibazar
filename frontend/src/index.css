@@ -53,3 +53,14 @@
   50% { transform: translateX(-40px) translateY(-20px) scale(1.02); }
   100% { transform: translateX(0) translateY(0) scale(1); }
 }
+
+/* Hide Google Translate top banner completely */
+body { top: 0px !important; position: static !important; }
+iframe.goog-te-banner-frame { display: none !important; visibility: hidden !important; }
+.goog-te-banner-frame { display: none !important; }
+.skiptranslate > iframe.goog-te-banner-frame { display: none !important; }
+.VIpgJd-ZVi9od-ORHb-OEVmcd { display: none !important; }
+
+/* Hide Google Tooltips */
+#goog-gt-tt, .goog-te-balloon-frame { display: none !important; }
+.goog-text-highlight { background: transparent !important; box-shadow: none !important; }

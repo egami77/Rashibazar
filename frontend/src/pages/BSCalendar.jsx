@@ -37,7 +37,7 @@ const BSCalendar = ({ selectedDate, onSelect }) => {
   if (week.length > 0) weeks.push(week);
   
   return (
-    <div className="bg-black/80 border-2 border-yellow-400/30 rounded-lg p-4">
+    <div className="bg-black/40 backdrop-blur-md border border-purple-600/30 rounded-xl p-4 shadow-lg">
       <div className="flex justify-between items-center mb-4">
         <button
           onClick={() => {
@@ -98,12 +98,12 @@ const BSCalendar = ({ selectedDate, onSelect }) => {
                   month: currentMonth,
                   day: day
                 })}
-                className={`h-8 rounded flex items-center justify-center text-sm transition-all
+                className={`h-8 rounded-lg flex items-center justify-center text-sm transition-all
                   ${selectedDate.year === currentYear && 
                     selectedDate.month === currentMonth && 
                     selectedDate.day === day
-                    ? 'bg-yellow-500 text-black font-bold'
-                    : 'bg-purple-900/30 hover:bg-purple-900/50 text-white'
+                    ? 'bg-gradient-to-r from-yellow-400 to-pink-500 text-black font-bold shadow-md'
+                    : 'bg-white/5 hover:bg-white/10 text-white'
                   }`}
               >
                 {day}
@@ -117,13 +117,13 @@ const BSCalendar = ({ selectedDate, onSelect }) => {
       <div className="flex justify-between mt-4">
         <button
           onClick={() => setCurrentYear(currentYear - 1)}
-          className="px-3 py-1 bg-black/50 rounded text-sm hover:bg-black/70"
+          className="px-3 py-1 bg-white/5 rounded-lg text-sm hover:bg-white/10 transition-colors"
         >
           Previous Year
         </button>
         <button
           onClick={() => setCurrentYear(currentYear + 1)}
-          className="px-3 py-1 bg-black/50 rounded text-sm hover:bg-black/70"
+          className="px-3 py-1 bg-white/5 rounded-lg text-sm hover:bg-white/10 transition-colors"
         >
           Next Year
         </button>

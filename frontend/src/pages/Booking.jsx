@@ -164,7 +164,7 @@ const Booking = () => {
 
   if (loading && step === 1 && id) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-black via-purple-900 to-black pt-24 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-b from-black via-purple-950 to-black pt-24 flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="h-12 w-12 animate-spin text-yellow-400 mx-auto mb-4" />
           <p className="text-gray-300">Loading astrologer details...</p>
@@ -174,7 +174,7 @@ const Booking = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black via-purple-900 to-black text-white pt-24 px-4 pb-12">
+    <div className="min-h-screen bg-gradient-to-b from-black via-purple-950 to-black text-white pt-24 px-4 pb-12">
       <div className="max-w-6xl mx-auto">
         {/* Progress Steps */}
         <div className="mb-12">
@@ -201,12 +201,12 @@ const Booking = () => {
 
         {step === 1 && !id && (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <h1 className="text-3xl md:text-5xl font-black text-center mb-4 bg-gradient-to-r from-yellow-300 via-pink-400 to-purple-500 bg-clip-text text-transparent uppercase italic tracking-tighter">
+            <h1 className="text-5xl md:text-7xl font-extrabold text-center mb-4 bg-gradient-to-r from-pink-400 via-purple-300 to-indigo-300 bg-clip-text text-transparent tracking-wide">
               Choose Your Expert
             </h1>
-            <p className="text-center text-gray-400 mb-12 max-w-2xl mx-auto">Connect with certified Vedic practitioners for profound in-person consultations.</p>
+            <p className="text-center text-purple-200 text-lg md:text-xl mb-12 max-w-2xl mx-auto">Connect with certified Vedic practitioners for profound in-person consultations.</p>
 
-            <div className="bg-black/30 backdrop-blur-3xl rounded-[2rem] border border-white/10 p-8 mb-12 shadow-2xl">
+            <div className="bg-white/10 backdrop-blur-md rounded-xl border border-purple-400/30 p-8 mb-12 shadow-2xl">
               <div className="relative">
                 <User className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-500" />
                 <input
@@ -214,7 +214,7 @@ const Booking = () => {
                   placeholder="Search by expert name..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-14 pr-6 py-5 bg-white/5 border border-white/10 rounded-2xl focus:border-yellow-400/50 focus:ring-0 outline-none text-white transition-all text-lg"
+                  className="w-full pl-14 pr-6 py-4 bg-black/40 border border-purple-600/30 rounded-full focus:border-purple-500 focus:ring-0 outline-none text-white transition-all text-lg"
                 />
               </div>
             </div>
@@ -226,9 +226,9 @@ const Booking = () => {
                   <div
                     key={astrologer._id}
                     onClick={() => handleAstrologerSelect(astrologer)}
-                    className="bg-black/20 backdrop-blur-xl border border-white/10 rounded-[2.5rem] p-8 hover:border-yellow-400/50 transition-all cursor-pointer group relative overflow-hidden"
+                    className="bg-black/40 backdrop-blur-sm border border-purple-600/30 rounded-xl p-8 hover:border-purple-500 transition-all duration-300 cursor-pointer group relative hover:shadow-[0_20px_25px_-5px_rgba(168,85,247,0.3)]"
                   >
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-400/5 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-700"></div>
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-700"></div>
                     
                     <div className="flex items-center gap-6 mb-8 relative">
                       <div className="relative">
@@ -237,13 +237,13 @@ const Booking = () => {
                           alt={astrologer.name}
                           className="w-20 h-20 rounded-[1.5rem] object-cover border-2 border-white/10 group-hover:border-yellow-400/50 transition-all"
                         />
-                        <div className="absolute -bottom-2 -right-2 bg-yellow-400 text-black text-[10px] font-black px-2 py-1 rounded-lg flex items-center gap-1">
+                        <div className="absolute -bottom-2 -right-2 bg-gradient-to-r from-yellow-400 to-pink-500 text-black text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1">
                           <Star className="h-3 w-3 fill-black" /> {astrologer.rating?.toFixed(1) || '5.0'}
                         </div>
                       </div>
                       <div>
-                        <h3 className="text-xl font-black text-white uppercase italic group-hover:text-yellow-400 transition-colors">{astrologer.name}</h3>
-                        <p className="text-xs text-gray-500 font-bold uppercase tracking-widest">{astrologer.experience} Years Exp</p>
+                        <h3 className="text-xl font-semibold text-pink-400 mb-1">{astrologer.name}</h3>
+                        <p className="text-sm text-gray-300">{astrologer.experience} Years Exp</p>
                       </div>
                     </div>
 
@@ -251,10 +251,10 @@ const Booking = () => {
 
                     <div className="flex justify-between items-end pt-6 border-t border-white/5">
                       <div>
-                        <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest mb-1">Session Rate</p>
-                        <span className="text-2xl font-black text-white">Npr {astrologer.pricing?.perSession || 0}</span>
+                        <p className="text-sm text-gray-400 mb-1">Session Rate</p>
+                        <span className="text-2xl font-semibold text-yellow-300">Npr {astrologer.pricing?.perSession || 0}</span>
                       </div>
-                      <button className="h-12 w-12 bg-white/5 rounded-2xl flex items-center justify-center text-white group-hover:bg-yellow-400 group-hover:text-black transition-all">
+                      <button className="h-12 w-12 bg-white/10 rounded-full flex items-center justify-center text-white group-hover:bg-gradient-to-r group-hover:from-yellow-400 group-hover:to-pink-500 group-hover:text-black transition-all">
                         <MapPin className="h-5 w-5" />
                       </button>
                     </div>
@@ -273,7 +273,7 @@ const Booking = () => {
               ← Back to Experts
             </button>
 
-            <div className="bg-black/30 backdrop-blur-3xl rounded-[3rem] border border-white/10 p-10 md:p-14 shadow-2xl relative overflow-hidden">
+            <div className="bg-white/10 backdrop-blur-md rounded-xl border border-purple-400/30 p-10 md:p-14 shadow-2xl relative overflow-hidden">
               <div className="absolute top-0 right-0 p-12 opacity-[0.02]">
                 <Calendar className="h-64 w-64 text-white" />
               </div>
@@ -285,7 +285,7 @@ const Booking = () => {
                   className="w-32 h-32 rounded-[2rem] border-2 border-yellow-400/30 object-cover"
                 />
                 <div className="text-center md:text-left">
-                  <h2 className="text-4xl font-black text-white uppercase italic tracking-tighter mb-4">{selectedAstrologer.name}</h2>
+                  <h2 className="text-4xl font-bold text-yellow-400 mb-4">{selectedAstrologer.name}</h2>
                   <div className="flex flex-wrap justify-center md:justify-start gap-6">
                     <div className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-xl border border-white/10">
                       <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
@@ -385,8 +385,8 @@ const Booking = () => {
 
             <div className="grid md:grid-cols-3 gap-8 relative">
               <div className="md:col-span-2 space-y-8">
-                <div className="bg-black/30 backdrop-blur-3xl rounded-[3rem] border border-white/10 p-10 shadow-2xl">
-                  <h2 className="text-2xl font-black text-white uppercase italic tracking-tighter mb-8">Payment Method</h2>
+                <div className="bg-white/10 backdrop-blur-md rounded-xl border border-purple-400/30 p-10 shadow-2xl">
+                  <h2 className="text-2xl font-semibold text-yellow-300 mb-8">Payment Method</h2>
                   
                   <div className="space-y-4">
                     {paymentMethods.map((method) => (
@@ -429,7 +429,7 @@ const Booking = () => {
                     <button
                       onClick={handleBooking}
                       disabled={!paymentMethod || loading}
-                      className="w-full py-6 bg-gradient-to-r from-yellow-400 to-orange-600 text-black rounded-[2rem] font-black uppercase tracking-[0.2em] shadow-2xl shadow-orange-500/20 hover:scale-[1.01] transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                      className="w-full py-4 bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-600 text-black rounded-full font-semibold shadow-lg hover:scale-105 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
                     >
                       {loading ? <Loader2 className="h-6 w-6 animate-spin mx-auto" /> : 'Confirm In-Person Session'}
                     </button>
@@ -439,8 +439,8 @@ const Booking = () => {
               </div>
 
               <div className="space-y-8">
-                <div className="bg-white/5 border border-white/10 rounded-[2.5rem] p-8">
-                  <h3 className="text-lg font-black text-white uppercase italic mb-6">Booking Summary</h3>
+                <div className="bg-black/40 backdrop-blur-sm border border-purple-600/30 rounded-xl p-8">
+                  <h3 className="text-lg font-semibold text-pink-400 mb-6">Booking Summary</h3>
                   <div className="space-y-6">
                     <div className="flex items-center gap-4 p-4 bg-black/20 rounded-2xl border border-white/5">
                       <div className="h-12 w-12 bg-white/5 rounded-xl flex items-center justify-center">
@@ -483,7 +483,7 @@ const Booking = () => {
 
         {step === 4 && bookingComplete && bookingDetails && (
           <div className="animate-in zoom-in duration-500 max-w-2xl mx-auto">
-            <div className="bg-black/30 backdrop-blur-3xl rounded-[4rem] border border-emerald-500/30 p-12 text-center relative overflow-hidden">
+            <div className="bg-white/10 backdrop-blur-md rounded-xl border border-emerald-500/30 p-12 text-center relative overflow-hidden shadow-2xl">
                <div className="absolute top-0 right-0 p-12 opacity-[0.03]">
                 <CheckCircle className="h-64 w-64 text-emerald-500" />
               </div>
@@ -492,10 +492,10 @@ const Booking = () => {
                 <CheckCircle className="h-12 w-12 text-white" />
               </div>
 
-              <h2 className="text-5xl font-black text-white uppercase italic tracking-tighter mb-4">Confirmed!</h2>
-              <p className="text-gray-400 font-bold uppercase tracking-[0.2em] mb-12">Your in-person session is scheduled.</p>
+              <h2 className="text-5xl font-bold text-emerald-400 mb-4">Confirmed!</h2>
+              <p className="text-emerald-200 text-lg mb-12">Your in-person session is scheduled.</p>
 
-              <div className="bg-white/5 border border-white/10 rounded-[3rem] p-10 mb-12 text-left space-y-6">
+              <div className="bg-black/40 backdrop-blur-sm border border-emerald-500/20 rounded-xl p-10 mb-12 text-left space-y-6">
                 <div className="grid grid-cols-2 gap-y-8">
                   <div>
                     <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest mb-1">Session ID</p>
@@ -532,11 +532,11 @@ const Booking = () => {
               <div className="flex flex-col md:flex-row gap-4 justify-center">
                 <button
                   onClick={() => navigate('/my-bookings')}
-                  className="px-10 py-5 bg-white text-black rounded-2xl font-black uppercase tracking-widest hover:bg-yellow-400 transition-all shadow-xl"
+                  className="px-8 py-3 bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-600 text-black rounded-full font-semibold hover:scale-105 transition-all shadow-lg"
                 >View My Bookings</button>
                 <button
                   onClick={() => window.location.href = '/'}
-                  className="px-10 py-5 bg-white/5 text-white rounded-2xl font-black uppercase tracking-widest hover:bg-white/10 transition-all"
+                  className="px-8 py-3 bg-transparent border border-purple-600 text-purple-200 rounded-full hover:text-yellow-400 hover:border-yellow-400 transition-all"
                 >Back Home</button>
               </div>
             </div>

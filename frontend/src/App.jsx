@@ -44,15 +44,20 @@ function App() {
   }, []);
 
   // Determine if we should show maintenance page
-  // We allow access to login and admin dashboard so maintenance can be turned off
+  // Admins and Astrologers are always exempt — maintenance only affects regular users
   const isAdminPath = location.pathname.startsWith('/admin');
+  const isAstrologerPath = location.pathname.startsWith('/astrologer');
   const isLoginPath = location.pathname === '/login';
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
-  const isAdmin = user.role === 'admin';
+  const isLandingPath = location.pathname === '/';
+  const storedUser = JSON.parse(localStorage.getItem('user') || 'null');
+  const storedAstrologer = JSON.parse(localStorage.getItem('astrologer') || 'null');
+  const isAdmin = storedUser?.role === 'admin';
+  const isAstrologer = storedAstrologer !== null || storedUser?.role === 'astrologer';
 
   if (loading) return null;
 
-  if (maintenanceMode && !isAdmin && !isAdminPath && !isLoginPath) {
+  // Show maintenance page ONLY to regular users (not admins, not astrologers)
+  if (maintenanceMode && !isAdmin && !isAstrologer && !isAdminPath && !isAstrologerPath && !isLoginPath && !isLandingPath) {
     return <MaintenancePage />;
   }
 

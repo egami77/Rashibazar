@@ -146,7 +146,7 @@ const AdminDashboard = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#050505] flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-b from-black via-purple-950 to-black flex items-center justify-center">
         <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1 }}>
           <RefreshCw className="h-10 w-10 text-orange-500" />
         </motion.div>
@@ -155,14 +155,14 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white flex">
+    <div className="min-h-screen bg-gradient-to-b from-black via-purple-950 to-black text-white flex">
       {/* Sidebar */}
-      <aside className="w-72 bg-black/40 backdrop-blur-3xl border-r border-white/5 sticky top-0 h-screen hidden lg:flex flex-col p-8 z-50">
+      <aside className="w-72 bg-black/40 backdrop-blur-md border-r border-purple-600/30 sticky top-0 h-screen hidden lg:flex flex-col p-8 z-50">
         <div className="mb-12">
           <div className="flex items-center gap-3">
-             <Shield className="h-8 w-8 text-orange-500" />
+             <Shield className="h-8 w-8 text-purple-500" />
              <div>
-                <h2 className="text-xl font-black bg-gradient-to-r from-orange-400 to-rose-600 bg-clip-text text-transparent italic tracking-tighter">ADMIN</h2>
+                <h2 className="text-xl font-bold bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent tracking-wide">ADMIN</h2>
                 <p className="text-[9px] text-gray-500 uppercase tracking-widest font-black -mt-1 opacity-50">Core Console v2.0</p>
              </div>
           </div>
@@ -180,7 +180,7 @@ const AdminDashboard = () => {
             <button
               key={item.id}
               onClick={() => setActiveTab(item.id)}
-              className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl transition-all group ${activeTab === item.id ? 'bg-orange-500 text-white shadow-xl shadow-orange-500/20 font-black' : 'text-gray-500 hover:bg-white/5 hover:text-white'}`}
+              className={`w-full flex items-center gap-4 px-6 py-4 rounded-full transition-all group ${activeTab === item.id ? 'bg-gradient-to-r from-yellow-400 to-pink-500 text-black shadow-lg font-bold' : 'text-gray-400 hover:bg-purple-900/30 hover:text-white'}`}
             >
               <item.icon className={`h-4 w-4 ${activeTab === item.id ? 'scale-110' : 'group-hover:scale-110'} transition-transform`} />
               <span className="text-xs uppercase tracking-widest">{item.label}</span>
@@ -206,7 +206,7 @@ const AdminDashboard = () => {
           
           <header className="flex flex-col md:flex-row md:items-center justify-between gap-8">
             <div>
-              <h1 className="text-5xl font-black text-white uppercase tracking-tighter italic">System Console</h1>
+              <h1 className="text-5xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-purple-300 to-indigo-300 tracking-wide">System Console</h1>
               <div className="flex items-center gap-4 mt-2">
                 <span className="flex items-center gap-2 text-emerald-400 text-[10px] font-black uppercase tracking-widest">
                   <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-ping"></span> Live Security Stream
@@ -223,7 +223,7 @@ const AdminDashboard = () => {
                  placeholder="Filter system identifiers..." 
                  value={searchTerm}
                  onChange={(e) => setSearchTerm(e.target.value)}
-                 className="w-full bg-white/5 border border-white/10 rounded-2xl pl-14 pr-6 py-5 text-xs font-bold uppercase tracking-widest outline-none focus:border-orange-500/50 focus:bg-white/[0.08] transition-all"
+                 className="w-full bg-black/40 border border-purple-600/30 rounded-full pl-14 pr-6 py-4 text-sm outline-none focus:border-purple-500 transition-all text-white"
                />
             </div>
           </header>
@@ -238,11 +238,11 @@ const AdminDashboard = () => {
                     { label: 'Pending Access', val: pendingAstrologers.length, icon: Shield, color: 'text-amber-400', bg: 'bg-amber-400/10' },
                     { label: 'Total Revenue', val: `Npr ${stats.totalRevenue.toLocaleString()}`, icon: CreditCard, color: 'text-purple-400', bg: 'bg-purple-400/10' }
                   ].map((stat, i) => (
-                    <div key={i} className="bg-white/5 border border-white/10 p-10 rounded-[3rem] group hover:border-white/20 transition-all relative overflow-hidden">
+                    <div key={i} className="bg-black/40 border border-purple-600/30 p-8 rounded-xl group hover:border-purple-500 transition-all relative overflow-hidden shadow-md">
                       <div className={`absolute -right-4 -top-4 w-20 h-20 ${stat.bg} blur-3xl opacity-0 group-hover:opacity-100 transition-opacity`}></div>
                       <stat.icon className={`h-6 w-6 ${stat.color} mb-6 relative z-10`} />
                       <p className="text-[9px] text-gray-600 font-black uppercase tracking-[0.2em] relative z-10">{stat.label}</p>
-                      <h3 className="text-3xl font-black text-white mt-1 relative z-10">{stat.val}</h3>
+                      <h3 className="text-3xl font-bold text-white mt-2 relative z-10">{stat.val}</h3>
                     </div>
                   ))}
                 </div>
@@ -258,7 +258,7 @@ const AdminDashboard = () => {
 
                       <div className="space-y-4">
                         {todayBookings.length > 0 ? todayBookings.map(booking => (
-                          <div key={booking._id} className="bg-white/5 border border-white/10 p-8 rounded-[2.5rem] flex items-center gap-8 group hover:bg-white/[0.08] transition-all">
+                          <div key={booking._id} className="bg-black/40 border border-purple-600/30 p-6 rounded-xl flex items-center gap-6 group hover:border-purple-500 transition-all shadow-md">
                              <div className="h-16 w-16 bg-white/5 rounded-[1.5rem] flex items-center justify-center shrink-0 border border-white/5">
                                 <Activity className="h-8 w-8 text-orange-500/30 group-hover:text-orange-500 transition-colors" />
                              </div>
@@ -283,17 +283,17 @@ const AdminDashboard = () => {
                              </div>
                           </div>
                         )) : (
-                          <div className="text-center py-24 bg-white/5 border border-dashed border-white/10 rounded-[3rem]">
-                             <p className="text-gray-600 font-black uppercase tracking-[0.3em] text-[10px]">No active data packets detected for today</p>
+                          <div className="text-center py-24 bg-black/40 border border-dashed border-purple-600/30 rounded-xl">
+                             <p className="text-gray-500 font-semibold uppercase tracking-widest text-xs">No active bookings detected for today</p>
                           </div>
                         )}
                       </div>
                    </div>
 
                    <div className="space-y-8">
-                      <div className="bg-gradient-to-br from-orange-500 to-rose-600 p-10 rounded-[3rem] shadow-2xl shadow-orange-500/10 relative overflow-hidden group">
+                       <div className="bg-gradient-to-br from-yellow-400/20 via-pink-500/20 to-purple-600/20 border border-purple-600/30 p-8 rounded-xl shadow-2xl relative overflow-hidden group backdrop-blur-sm">
                          <Shield className="absolute -right-10 -bottom-10 h-40 w-40 text-white/5 group-hover:scale-110 transition-transform duration-700" />
-                         <h4 className="text-xl font-black text-white uppercase italic mb-8 relative z-10">Primary Actions</h4>
+                          <h4 className="text-lg font-bold text-yellow-300 uppercase mb-6 relative z-10">Primary Actions</h4>
                          <div className="space-y-3 relative z-10">
                             {[
                               { label: 'Access Requests', icon: Shield, tab: 'pending', color: 'amber' },
@@ -302,8 +302,8 @@ const AdminDashboard = () => {
                             ].map((btn, idx) => (
                               <button 
                                 key={idx}
-                                onClick={() => btn.modal ? setShowAnnouncementModal(true) : setActiveTab(btn.tab)} 
-                                className="w-full bg-black/20 hover:bg-black/40 text-white p-5 rounded-2xl flex items-center justify-between transition-all group"
+                                onClick={() => btn.modal ? setShowAnnouncementModal(true) : setActiveTab(btn.tab)}                                 
+                                className="w-full bg-black/40 border border-purple-600/30 hover:border-purple-500 text-white p-4 rounded-full flex items-center justify-between transition-all"
                               >
                                 <span className="font-black text-[10px] uppercase tracking-widest">{btn.label}</span>
                                 <btn.icon className={`h-4 w-4 text-${btn.color}-400`} />
@@ -312,8 +312,8 @@ const AdminDashboard = () => {
                          </div>
                       </div>
 
-                      <div className="bg-white/5 border border-white/10 p-10 rounded-[3rem]">
-                        <h4 className="text-lg font-black text-white uppercase italic mb-8 tracking-tighter">System Logs</h4>
+                       <div className="bg-black/40 border border-purple-600/30 p-8 rounded-xl backdrop-blur-sm shadow-md">
+                         <h4 className="text-lg font-bold text-pink-400 uppercase mb-6 tracking-wide">System Logs</h4>
                         <div className="space-y-5">
                            {[
                              { log: 'Database Kernel Optimized', time: '14m' },
@@ -336,7 +336,7 @@ const AdminDashboard = () => {
             {activeTab === 'pending' && (
               <motion.div key="pending" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-10">
                  <header className="flex items-center justify-between px-4">
-                    <h2 className="text-4xl font-black text-white uppercase italic tracking-tighter underline decoration-orange-500 decoration-4 underline-offset-8">Access Requests</h2>
+                     <h2 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-purple-300 to-indigo-300 tracking-wide">Access Requests</h2>
                     <span className="text-[10px] font-black text-amber-500 bg-amber-500/10 px-4 py-2 rounded-full uppercase tracking-[0.2em]">{pendingAstrologers.length} Pending Nodes</span>
                  </header>
 
@@ -344,8 +344,8 @@ const AdminDashboard = () => {
                     {pendingAstrologers.map(astro => (
                       <motion.div 
                         whileHover={{ y: -5 }}
-                        key={astro._id} 
-                        className="bg-white/5 border border-white/10 p-10 rounded-[3.5rem] relative overflow-hidden group"
+                        key={astro._id}                         
+                        className="bg-black/40 border border-purple-600/30 p-8 rounded-xl relative overflow-hidden group hover:border-purple-500 transition-all shadow-md"
                       >
                         <div className="absolute top-0 right-0 w-40 h-40 opacity-[0.03] bg-orange-500 rounded-full -mr-20 -mt-20 group-hover:scale-125 transition-transform duration-700"></div>
                         <div className="flex items-center gap-6 mb-10">
@@ -374,16 +374,16 @@ const AdminDashboard = () => {
                         </div>
 
                         <div className="flex gap-4">
-                           <button onClick={() => handleApproveAstrologer(astro._id, 'approved')} className="flex-1 py-5 bg-emerald-500 text-white rounded-[1.5rem] text-[10px] font-black uppercase tracking-[0.2em] hover:bg-emerald-600 transition-all shadow-xl shadow-emerald-500/10">Grant Access</button>
-                           <button onClick={() => handleApproveAstrologer(astro._id, 'rejected')} className="flex-1 py-5 bg-white/5 text-gray-600 rounded-[1.5rem] text-[10px] font-black uppercase tracking-[0.2em] hover:text-rose-500 hover:bg-rose-500/10 transition-all">Deny</button>
+                            <button onClick={() => handleApproveAstrologer(astro._id, 'approved')} className="flex-1 py-4 bg-gradient-to-r from-yellow-400 to-pink-500 text-black rounded-full text-xs font-bold uppercase tracking-widest hover:scale-105 transition-all shadow-lg">Grant Access</button>
+                            <button onClick={() => handleApproveAstrologer(astro._id, 'rejected')} className="flex-1 py-4 bg-black/40 border border-rose-500/30 text-rose-400 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-rose-500/10 transition-all">Deny</button>
                         </div>
                       </motion.div>
                     ))}
                     {pendingAstrologers.length === 0 && (
-                       <div className="col-span-2 text-center py-40 bg-white/5 border border-dashed border-white/10 rounded-[4rem]">
-                          <Shield className="h-20 w-20 text-gray-800 mx-auto mb-8 opacity-20" />
-                          <p className="text-gray-600 font-black uppercase tracking-[0.4em] text-xs">Security Protocol: No pending node requests</p>
-                       </div>
+                        <div className="col-span-2 text-center py-40 bg-black/40 border border-dashed border-purple-600/30 rounded-xl">
+                           <Shield className="h-20 w-20 text-purple-400 mx-auto mb-8 opacity-30" />
+                           <p className="text-gray-500 font-semibold uppercase tracking-widest text-xs">No pending approval requests</p>
+                        </div>
                     )}
                  </div>
               </motion.div>
@@ -392,7 +392,7 @@ const AdminDashboard = () => {
             {activeTab === 'settings' && (
                <motion.div key="settings" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-10">
                   <header className="flex items-center justify-between px-4">
-                    <h2 className="text-4xl font-black text-white uppercase italic tracking-tighter underline decoration-blue-500 decoration-4 underline-offset-8">Core Configuration</h2>
+                     <h2 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-purple-300 to-indigo-300 tracking-wide">Core Configuration</h2>
                     <div className="flex items-center gap-3">
                        <span className="text-[10px] font-black text-gray-600 uppercase tracking-widest">Global Sync Status:</span>
                        <span className="h-2 w-2 rounded-full bg-emerald-500 shadow-lg shadow-emerald-500/50"></span>
@@ -440,7 +440,7 @@ const AdminDashboard = () => {
                         </div>
 
                         <div className="space-y-6">
-                           <div className="bg-black/20 p-10 rounded-[2.5rem] border border-white/5 flex items-center justify-between group hover:border-rose-500/20 transition-all">
+                            <div className="bg-black/40 border border-purple-600/30 p-6 rounded-xl flex items-center justify-between group hover:border-rose-500/30 transition-all">
                               <div>
                                  <h4 className="text-sm font-black text-white uppercase tracking-tight">Maintenance Mode</h4>
                                  <p className="text-[10px] text-gray-600 mt-2 font-medium">Temporarily offline public access</p>
@@ -450,7 +450,7 @@ const AdminDashboard = () => {
                               </button>
                            </div>
 
-                           <div className="bg-black/20 p-10 rounded-[2.5rem] border border-white/5 flex items-center justify-between opacity-40 cursor-not-allowed">
+                            <div className="bg-black/40 border border-purple-600/20 p-6 rounded-xl flex items-center justify-between opacity-40 cursor-not-allowed">
                               <div>
                                  <h4 className="text-sm font-black text-white uppercase tracking-tight">Auto-Audit Logs</h4>
                                  <p className="text-[10px] text-gray-600 mt-2 font-medium">Independent transaction verification</p>
@@ -472,8 +472,8 @@ const AdminDashboard = () => {
             {(activeTab === 'astrologers' || activeTab === 'users' || activeTab === 'bookings') && (
                <motion.div key="tables" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-10">
                   <header className="flex items-center justify-between px-4">
-                    <h2 className="text-4xl font-black text-white uppercase italic tracking-tighter underline decoration-orange-500 decoration-4 underline-offset-8">
-                       {activeTab === 'astrologers' ? 'Expert Directory' : activeTab === 'users' ? 'Client Nodes' : 'Financial Ledger'}
+                     <h2 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-purple-300 to-indigo-300 tracking-wide">
+                        {activeTab === 'astrologers' ? 'Expert Directory' : activeTab === 'users' ? 'Client Nodes' : 'Financial Ledger'}
                     </h2>
                     <div className="flex items-center gap-3">
                        <button className="h-12 w-12 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center text-gray-600 hover:text-white transition-all"><Download className="h-5 w-5" /></button>
@@ -481,7 +481,7 @@ const AdminDashboard = () => {
                     </div>
                   </header>
 
-                  <div className="bg-white/5 border border-white/10 rounded-[4rem] overflow-hidden backdrop-blur-md shadow-2xl">
+                   <div className="bg-black/40 border border-purple-600/30 rounded-xl overflow-hidden backdrop-blur-sm shadow-2xl">
                     <table className="w-full text-left">
                       <thead>
                         <tr className="bg-white/5 border-b border-white/10">
@@ -607,38 +607,38 @@ const AdminDashboard = () => {
       <AnimatePresence>
         {showAnnouncementModal && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl">
-             <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} className="bg-[#0a0a0e] border border-white/10 w-full max-w-xl rounded-[4rem] p-12 relative shadow-2xl">
+             <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} className="bg-black/80 border border-purple-600/40 w-full max-w-xl rounded-2xl p-12 relative shadow-2xl backdrop-blur-xl">
                 <button onClick={() => setShowAnnouncementModal(false)} className="absolute top-12 right-12 text-gray-700 hover:text-white transition-colors group">
                    <X className="h-10 w-10 group-hover:rotate-90 transition-transform" />
                 </button>
-                <h3 className="text-4xl font-black text-white uppercase italic mb-10 flex items-center gap-5">
-                  <div className="h-14 w-14 bg-orange-500/10 rounded-2xl flex items-center justify-center border border-orange-500/10">
-                     <Megaphone className="h-8 w-8 text-orange-500" />
-                  </div>
-                  Global Broadcast
+                 <h3 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-purple-400 mb-8 flex items-center gap-5">
+                   <div className="h-12 w-12 bg-purple-500/10 rounded-full flex items-center justify-center border border-purple-500/20">
+                      <Megaphone className="h-6 w-6 text-purple-400" />
+                   </div>
+                   Global Broadcast
                 </h3>
                 
                 <form onSubmit={handleSendAnnouncement} className="space-y-8">
                    <div className="space-y-3">
                       <label className="text-[10px] text-gray-600 font-black uppercase tracking-[0.3em] ml-2">Transmission Title</label>
-                      <input type="text" value={announcement.title} onChange={e => setAnnouncement({...announcement, title: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-2xl px-8 py-5 text-white font-bold text-sm outline-none focus:border-orange-500 focus:bg-white/[0.08]" placeholder="Enter broadcast header..." required />
+                       <input type="text" value={announcement.title} onChange={e => setAnnouncement({...announcement, title: e.target.value})} className="w-full bg-black/40 border border-purple-600/30 rounded-full px-6 py-4 text-white text-sm outline-none focus:border-purple-500 transition-all" placeholder="Enter broadcast header..." required />
                    </div>
                    <div className="space-y-3">
                       <label className="text-[10px] text-gray-600 font-black uppercase tracking-[0.3em] ml-2">Data Payload</label>
-                      <textarea value={announcement.message} onChange={e => setAnnouncement({...announcement, message: e.target.value})} className="w-full h-40 bg-white/5 border border-white/10 rounded-3xl px-8 py-6 text-white font-bold text-sm outline-none focus:border-orange-500 focus:bg-white/[0.08] resize-none" placeholder="Transmission content..." required />
+                       <textarea value={announcement.message} onChange={e => setAnnouncement({...announcement, message: e.target.value})} className="w-full h-40 bg-black/40 border border-purple-600/30 rounded-2xl px-6 py-4 text-white text-sm outline-none focus:border-purple-500 transition-all resize-none" placeholder="Transmission content..." required />
                    </div>
                    <div className="grid grid-cols-2 gap-6">
                       <div className="space-y-3">
                          <label className="text-[10px] text-gray-600 font-black uppercase tracking-[0.3em] ml-2">Target Cluster</label>
-                         <select value={announcement.target} onChange={e => setAnnouncement({...announcement, target: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-2xl px-8 py-5 text-white text-[10px] font-black uppercase tracking-widest outline-none focus:border-orange-500 appearance-none cursor-pointer">
+                          <select value={announcement.target} onChange={e => setAnnouncement({...announcement, target: e.target.value})} className="w-full bg-black/40 border border-purple-600/30 rounded-full px-6 py-4 text-white text-sm outline-none focus:border-purple-500 appearance-none cursor-pointer">
                             <option value="all">ALL NODES</option>
                             <option value="users">CLIENTS ONLY</option>
                             <option value="astrologers">EXPERTS ONLY</option>
                          </select>
                       </div>
                       <div className="flex items-end">
-                         <button type="submit" disabled={broadcastLoading} className="w-full h-[64px] bg-orange-500 text-white rounded-2xl font-black uppercase tracking-[0.3em] text-[10px] hover:bg-orange-600 transition-all shadow-2xl shadow-orange-500/20 disabled:opacity-50">
-                           {broadcastLoading ? 'TRANSMITTING...' : 'INITIATE BROADCAST'}
+                          <button type="submit" disabled={broadcastLoading} className="w-full h-[56px] bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-600 text-black rounded-full font-bold uppercase tracking-widest text-sm hover:scale-105 transition-all shadow-lg disabled:opacity-50">
+                            {broadcastLoading ? 'Transmitting...' : 'Send Broadcast'}
                          </button>
                       </div>
                    </div>
@@ -652,7 +652,7 @@ const AdminDashboard = () => {
       <AnimatePresence>
         {selectedExpert && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/95 backdrop-blur-2xl">
-             <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="bg-[#050505] border border-white/10 w-full max-w-4xl rounded-[4rem] overflow-hidden shadow-2xl relative">
+             <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="bg-black/80 border border-purple-600/40 w-full max-w-4xl rounded-2xl overflow-hidden shadow-2xl relative backdrop-blur-xl">
                 <button onClick={() => setSelectedExpert(null)} className="absolute top-12 right-12 z-10 text-gray-600 hover:text-white transition-colors group">
                    <X className="h-10 w-10 group-hover:rotate-90 transition-transform" />
                 </button>
@@ -702,9 +702,9 @@ const AdminDashboard = () => {
                          </div>
                       </div>
 
-                      <div className="flex gap-4 pt-6">
-                         <button onClick={() => handleApproveAstrologer(selectedExpert._id, 'approved')} className="flex-1 py-6 bg-emerald-500 text-white rounded-3xl font-black uppercase tracking-[0.3em] text-[10px] hover:bg-emerald-600 transition-all shadow-2xl shadow-emerald-500/20">Authorize</button>
-                         <button onClick={() => handleApproveAstrologer(selectedExpert._id, 'rejected')} className="flex-1 py-6 bg-white/5 text-gray-600 rounded-3xl font-black uppercase tracking-[0.3em] text-[10px] hover:text-rose-500 hover:bg-rose-500/10 transition-all">Deny Access</button>
+                       <div className="flex gap-4 pt-6">
+                          <button onClick={() => handleApproveAstrologer(selectedExpert._id, 'approved')} className="flex-1 py-4 bg-gradient-to-r from-yellow-400 to-pink-500 text-black rounded-full font-bold uppercase tracking-widest text-sm hover:scale-105 transition-all shadow-lg">Authorize</button>
+                          <button onClick={() => handleApproveAstrologer(selectedExpert._id, 'rejected')} className="flex-1 py-4 bg-black/40 border border-rose-500/30 text-rose-400 rounded-full font-bold uppercase tracking-widest text-sm hover:bg-rose-500/10 transition-all">Deny Access</button>
                       </div>
                    </div>
                 </div>

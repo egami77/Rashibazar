@@ -1,7 +1,9 @@
 // src/pages/HomePage.jsx
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import Layout from "../components/Layout";
 import { motion } from "framer-motion";
+import heroImage from "../assets/hero-cosmic.jpg";
 
 const features = [
   { 
@@ -40,7 +42,12 @@ const HomePage = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen pt-24 px-6 pb-12 bg-gradient-to-b from-black via-purple-950 to-black text-white">
+    <Layout style={{
+      backgroundImage: `url(${heroImage})`,
+      backgroundSize: "cover",
+      backgroundPosition: "center",
+      backgroundAttachment: "fixed",
+    }}>
       <motion.h1 
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -93,7 +100,7 @@ const HomePage = () => {
 
       {/* Decorative bottom gradient */}
       <div className="mt-16 h-1 w-24 mx-auto bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-600 rounded-full"></div>
-    </div>
+    </Layout>
   );
 };
 
