@@ -647,7 +647,7 @@ export const changePassword = async (req, res) => {
     }
 
     let user = null;
-    if (userRole === 'user') {
+    if (userRole === 'user' || userRole === 'admin') {
       user = await User.findById(userId);
     } else if (userRole === 'astrologer') {
       user = await Astrologer.findById(userId);

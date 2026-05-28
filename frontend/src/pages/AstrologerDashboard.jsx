@@ -25,6 +25,7 @@ import {
   deleteHoroscope as deleteHoroscopeService,
   getAllRashis
 } from '../services/horoscope';
+import ChangePasswordForm from '../components/ChangePasswordForm';
 import { format, parseISO, isAfter, isBefore, addMinutes } from 'date-fns';
 import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -956,6 +957,10 @@ const AstrologerDashboard = () => {
                        <button onClick={() => setShowProfileEdit(true)} className="px-8 py-4 bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-600 text-black rounded-full text-sm font-bold uppercase tracking-widest hover:scale-105 transition-all shadow-lg">Edit Public Profile</button>
                     </div>
                   </div>
+                </div>
+
+                <div className="bg-black/40 border border-purple-600/30 rounded-xl p-8 shadow-2xl">
+                  <ChangePasswordForm />
                 </div>
 
                 {showProfileEdit && (

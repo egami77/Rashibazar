@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { X, Calendar, Clock, MapPin, User, DollarSign, Ticket } from "lucide-react";
+import { X, Calendar, Clock, MapPin, User, Ticket,  } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import API from "../services/api";
 
@@ -74,7 +74,7 @@ const BookingTokenModal = ({ bookingId, onClose }) => {
               <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
                 <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest mb-3">Price</p>
                 <div className="flex items-center gap-3 text-sm">
-                  <DollarSign className="h-4 w-4 text-gray-400" />
+                  {/* <IndianRupee className="h-4 w-4 text-gray-400" /> */}
                   <span className="text-yellow-400 font-black">Npr {booking.amount}</span>
                 </div>
                 <p className="text-[10px] text-gray-500 mt-3 uppercase tracking-widest">

@@ -611,6 +611,7 @@ const AdminDashboard = () => {
                             <>
                               <th className="px-10 py-8 text-[10px] font-black text-gray-600 uppercase tracking-[0.3em]">Expert Identity</th>
                               <th className="px-10 py-8 text-[10px] font-black text-gray-600 uppercase tracking-[0.3em]">Stats</th>
+                              {/* <th className="px-10 py-8 text-[10px] font-black text-gray-600 uppercase tracking-[0.3em]">Communication</th> */}
                               <th className="px-10 py-8 text-[10px] font-black text-gray-600 uppercase tracking-[0.3em]">Pricing</th>
                               <th className="px-10 py-8 text-[10px] font-black text-gray-600 uppercase tracking-[0.3em]">Security</th>
                               <th className="px-10 py-8 text-[10px] font-black text-gray-600 uppercase tracking-[0.3em]">Cmd</th>
@@ -641,6 +642,7 @@ const AdminDashboard = () => {
                                   <div>
                                      <p className="font-black text-white uppercase text-sm tracking-tight">{astro.name}</p>
                                      <p className="text-[10px] text-gray-600 font-bold tracking-widest">{astro.email}</p>
+                                     <p className="text-[10px] text-gray-600 font-bold tracking-widest">{astro.phone}</p>
                                   </div>
                                </div>
                             </td>

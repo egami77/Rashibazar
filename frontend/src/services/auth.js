@@ -145,6 +145,22 @@ export const resetPassword = async (token, data) => {
 
 //
 // =========================
+// CHANGE PASSWORD (logged in)
+// =========================
+export const changePassword = async (data) => {
+  try {
+    const response = await API.put("/auth/change-password", data);
+    toast.success("Password changed successfully");
+    return response;
+  } catch (error) {
+    const msg = error.response?.data?.message || "Failed to change password";
+    toast.error(msg);
+    throw error;
+  }
+};
+
+//
+// =========================
 // GET PROFILE FROM API
 // =========================
 export const getUserProfile = async () => {
@@ -293,6 +309,7 @@ export default {
   loginUser,
   forgotPassword,
   resetPassword,
+  changePassword,
   getUserProfile,
   getCurrentUser,
   getCurrentAstrologer,

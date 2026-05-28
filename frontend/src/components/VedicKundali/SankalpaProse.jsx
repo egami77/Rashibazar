@@ -127,9 +127,9 @@ export const SankalpaProse = ({ birth, result, isDark = false }) => {
         <HL isDark={isDark}>{ayana}</HL> अयने <HL isDark={isDark}>{ritu}</HL> ऋतौ अथ चान्द्रमानेन{" "}
         <HL isDark={isDark}>{solarMonth}</HL> मासे <HL isDark={isDark}>{paksha}</HL> पक्षे आगते <HL isDark={isDark}>{vara}</HL>{" "}
         <HL isDark={isDark}>{tithiName}</HL> तिथौ
-      </p>
+      {/* </p> */}
 
-      <p className="mt-6">
+      {/* <p className="mt-6"> */}
         तस्मिन् दिने <HL isDark={isDark}>{nakName}</HL> नक्षत्रे जन्मसमये भुक्ति घटिकादयः{" "}
         <HL isDark={isDark}>{D(moon.pada)}</HL> पाद, चन्द्रमानेन <HL isDark={isDark}>{moonRashiName}</HL> राशौ{" "}
         राशिपति <HL isDark={isDark}>{moonRashiLord}</HL>। पश्चात् सौरमानेन <HL isDark={isDark}>{solarMonth}</HL>{" "}
@@ -139,9 +139,9 @@ export const SankalpaProse = ({ birth, result, isDark = false }) => {
         समये स्थानीयसूर्योदयदृष्ट इष्टघटिकादि, तदा लग्ने{" "}
         <HL isDark={isDark}>{lagnaName}</HL>, नवमांशे <HL isDark={isDark}>{RASHI_NE[result.charts.D9["Lagna"]]}</HL>,{" "}
         चन्द्रराशौ <HL isDark={isDark}>{moonRashiName}</HL>।
-      </p>
+      {/* </p> */}
 
-      <p className="mt-6">
+      {/* <p className="mt-6"> */}
         एवंविधे <HL isDark={isDark}>Nepal</HL> देशे <HL isDark={isDark}>{birth.districtNe || birth.birthPlace}</HL> निवसतः{" "}
         रत्नम् अजीजनत्। अस्य होराशास्त्रप्रमाणेन <HL isDark={isDark}>{nakName}</HL> नक्षत्रस्य{" "}
         <HL isDark={isDark}>{D(moon.pada)}</HL> चरणत्वेन '<HL isDark={isDark}>{akshara}</HL>' काराक्षरं{" "}
