@@ -127,9 +127,10 @@ const Booking = () => {
       const booking = response.data.booking;
 
       if (paymentMethod === 'khalti') {
+        const khaltiTotal = selectedAstrologer.pricing?.perSession || 0;
         const khaltiInitResponse = await API.post('/khalti/initiate', {
           bookingId: booking._id,
-          amount: (selectedAstrologer.pricing?.perSession || 0) + 50,
+          amount: khaltiTotal,
           customerInfo: {
             name: user?.name || 'Customer',
             email: user?.email || '',
@@ -457,14 +458,10 @@ const Booking = () => {
                         <span className="text-gray-500">Consultation</span>
                         <span className="text-white">Npr {selectedAstrologer.pricing?.perSession}</span>
                       </div>
-                      <div className="flex justify-between text-xs font-bold uppercase tracking-widest">
-                        <span className="text-gray-500">Service Fee</span>
-                        <span className="text-white">Npr 50</span>
-                      </div>
                       <div className="pt-4 border-t border-white/10">
                         <div className="flex justify-between items-end">
                           <span className="text-sm font-black text-yellow-400 uppercase italic">Total</span>
-                          <span className="text-3xl font-black text-white tracking-tighter">Npr {(selectedAstrologer.pricing?.perSession || 0) + 50}</span>
+                          <span className="text-3xl font-black text-white tracking-tighter">Npr {(selectedAstrologer.pricing?.perSession || 0)}</span>
                         </div>
                       </div>
                     </div>
@@ -536,7 +533,7 @@ const Booking = () => {
                   </div>
                   <div className="text-right">
                     <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest mb-1">Amount Paid</p>
-                    <p className="text-2xl font-black text-white">Npr {bookingDetails.amount + 50}</p>
+                    <p className="text-2xl font-black text-white">Npr {bookingDetails.amount}</p>
                   </div>
                 </div>
               </div>

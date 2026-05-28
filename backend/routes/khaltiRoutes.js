@@ -110,8 +110,7 @@ router.post('/initiate', authMiddleware, async (req, res) => {
       });
     }
 
-    const PLATFORM_FEE = 50;
-    const expectedAmount = booking.amount + PLATFORM_FEE;
+    const expectedAmount = booking.amount;
 
     // Verify amount matches booking amount including platform fee
     if (amount !== expectedAmount) {
@@ -244,7 +243,7 @@ router.post('/verify', authMiddleware, async (req, res) => {
     // Validate payment with Khalti
     const validation = await validatePayment(
       pidx,
-      (booking.amount + 50) * 100, // Convert rupees to paisa, including platform fee
+      booking.amount * 100,
       booking.bookingId
     );
 
@@ -382,7 +381,7 @@ router.post('/callback', async (req, res) => {
     // Verify with Khalti
     const validation = await validatePayment(
       pidx,
-      (booking.amount + 50) * 100,
+      booking.amount * 100,
       booking.bookingId
     );
 
