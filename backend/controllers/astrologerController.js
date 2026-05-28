@@ -190,6 +190,18 @@ export const getAstrologerDashboard = async (req, res) => {
       .lean();
 
     res.json({
+      profile: {
+        name: astrologer.name,
+        email: astrologer.email,
+        phone: astrologer.phone,
+        experience: astrologer.experience ?? 0,
+        pricing: astrologer.pricing || { perSession: 0 },
+        bio: astrologer.bio || "",
+        profileImage: astrologer.profileImage || "",
+        meetingLink: astrologer.meetingLink || "",
+        location: astrologer.location || { address: "", city: "", district: "", landmark: "" },
+        pendingProfile: astrologer.pendingProfile || { status: "none" },
+      },
       stats: {
         totalBookings,
         upcomingSessions,
@@ -227,43 +239,68 @@ export const getAstrologerDashboard = async (req, res) => {
   }
 };
 
-// Update astrologer profile
+// Update astrologer profile (submitted for admin approval)
 export const updateAstrologerProfile = async (req, res) => {
   try {
     const astrologerId = req.userId;
-    
+
     const astrologer = await Astrologer.findById(astrologerId);
     if (!astrologer) {
       return res.status(404).json({ message: "Astrologer profile not found" });
     }
 
-    const allowedUpdates = ['name', 'phone', 'experience', 'pricing', 'bio', 'profileImage', 'meetingLink'];
-    
-    allowedUpdates.forEach(field => {
-      if (req.body[field] !== undefined) {
-        if (field === 'pricing') {
-          astrologer.pricing = { ...astrologer.pricing, ...req.body.pricing };
-        } else {
-          astrologer[field] = req.body[field];
-        }
+    const changes = {
+      name: astrologer.name,
+      phone: astrologer.phone,
+      experience: astrologer.experience ?? 0,
+      pricing: { perSession: astrologer.pricing?.perSession ?? 0 },
+      bio: astrologer.bio || "",
+      location: {
+        address: astrologer.location?.address || "",
+        city: astrologer.location?.city || "",
+        district: astrologer.location?.district || "",
+        landmark: astrologer.location?.landmark || "",
+      },
+    };
+
+    if (req.body.name?.trim()) changes.name = req.body.name.trim();
+    if (req.body.phone?.trim()) changes.phone = req.body.phone.trim();
+
+    if (req.body.experience !== undefined) {
+      const experience = Number(req.body.experience);
+      if (!Number.isNaN(experience) && experience >= 0) changes.experience = experience;
+    }
+
+    if (req.body.pricing?.perSession !== undefined) {
+      const perSession = Number(req.body.pricing.perSession);
+      if (!Number.isNaN(perSession) && perSession >= 0) {
+        changes.pricing = { perSession };
       }
-    });
+    }
+
+    if (req.body.bio !== undefined) changes.bio = String(req.body.bio).trim();
+
+    if (req.body.location) {
+      changes.location = {
+        address: String(req.body.location.address || "").trim(),
+        city: String(req.body.location.city || "").trim(),
+        district: String(req.body.location.district || "").trim(),
+        landmark: String(req.body.location.landmark || "").trim(),
+      };
+    }
+
+    astrologer.pendingProfile = {
+      status: "pending",
+      submittedAt: new Date(),
+      rejectionReason: "",
+      changes,
+    };
 
     await astrologer.save();
 
-    res.json({ 
-      message: "Profile updated successfully.",
-      astrologer: {
-        id: astrologer._id,
-        name: astrologer.name,
-        email: astrologer.email,
-        phone: astrologer.phone,
-        experience: astrologer.experience,
-        pricing: astrologer.pricing,
-        bio: astrologer.bio,
-        profileImage: astrologer.profileImage,
-        meetingLink: astrologer.meetingLink
-      }
+    res.json({
+      message: "Profile changes submitted for admin approval.",
+      pendingProfile: astrologer.pendingProfile,
     });
   } catch (err) {
     console.error("updateAstrologerProfile error:", err);

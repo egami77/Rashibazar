@@ -76,6 +76,82 @@ router.put("/astrologers/:id/status", authMiddleware, isAdmin, async (req, res) 
   }
 });
 
+// Get astrologers with pending profile changes
+router.get("/astrologers/profile/pending", authMiddleware, isAdmin, async (req, res) => {
+  try {
+    const astrologers = await Astrologer.find({ "pendingProfile.status": "pending" })
+      .select("-password -resetPasswordToken -resetPasswordExpire")
+      .sort({ "pendingProfile.submittedAt": -1, updatedAt: -1 });
+
+    res.json(astrologers);
+  } catch (error) {
+    console.error("Error fetching pending profile updates:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Approve astrologer profile changes (publish to users)
+router.put("/astrologers/:id/profile/approve", authMiddleware, isAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const astrologer = await Astrologer.findById(id);
+    if (!astrologer) return res.status(404).json({ message: "Astrologer not found" });
+
+    if (astrologer.pendingProfile?.status !== "pending" || !astrologer.pendingProfile?.changes) {
+      return res.status(400).json({ message: "No pending profile changes to approve" });
+    }
+
+    const c = astrologer.pendingProfile.changes;
+
+    if (c.name) astrologer.name = c.name;
+    if (c.phone) astrologer.phone = c.phone;
+    if (c.experience !== undefined) astrologer.experience = c.experience;
+    if (c.pricing) astrologer.pricing = { ...astrologer.pricing, ...c.pricing };
+    if (c.bio !== undefined) astrologer.bio = c.bio;
+    if (c.location) astrologer.location = { ...astrologer.location, ...c.location };
+
+    astrologer.pendingProfile = {
+      status: "none",
+      submittedAt: undefined,
+      rejectionReason: "",
+      changes: undefined,
+    };
+
+    await astrologer.save();
+
+    res.json({ message: "Profile changes approved and published.", astrologer });
+  } catch (error) {
+    console.error("Error approving profile changes:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Reject astrologer profile changes
+router.put("/astrologers/:id/profile/reject", authMiddleware, isAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { reason } = req.body;
+
+    const astrologer = await Astrologer.findById(id);
+    if (!astrologer) return res.status(404).json({ message: "Astrologer not found" });
+
+    if (astrologer.pendingProfile?.status !== "pending") {
+      return res.status(400).json({ message: "No pending profile changes to reject" });
+    }
+
+    astrologer.pendingProfile.status = "rejected";
+    astrologer.pendingProfile.rejectionReason = String(reason || "").trim();
+
+    await astrologer.save();
+
+    res.json({ message: "Profile changes rejected.", astrologer });
+  } catch (error) {
+    console.error("Error rejecting profile changes:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Delete astrologer
 router.delete("/astrologers/:id", authMiddleware, isAdmin, async (req, res) => {
   try {

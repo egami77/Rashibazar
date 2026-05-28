@@ -112,18 +112,114 @@ export const createBooking = async (req, res) => {
   }
 };
 
+const recalculateAstrologerRating = async (astrologerId) => {
+  const ratedBookings = await Booking.find({
+    astrologerId,
+    "rating.score": { $exists: true, $ne: null },
+  }).select("rating.score");
+
+  const astrologer = await Astrologer.findById(astrologerId);
+  if (!astrologer) return;
+
+  if (ratedBookings.length === 0) {
+    astrologer.rating = 0;
+    astrologer.totalReviews = 0;
+  } else {
+    const total = ratedBookings.reduce((sum, b) => sum + b.rating.score, 0);
+    astrologer.rating = Math.round((total / ratedBookings.length) * 10) / 10;
+    astrologer.totalReviews = ratedBookings.length;
+  }
+
+  await astrologer.save();
+};
+
 // Get user's bookings
 export const getUserBookings = async (req, res) => {
   try {
     const userId = req.userId;
-    
+
     const bookings = await Booking.find({ userId })
-      .populate('astrologerId', 'name email profileImage experience rating pricing')
-      .sort({ date: -1, time: -1 });
-    
+      .populate(
+        "astrologerId",
+        "name email profileImage experience rating totalReviews pricing location"
+      )
+      .sort({ createdAt: -1 });
+
     res.json(bookings);
   } catch (error) {
     console.error("getUserBookings error:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Get single booking details (booking token)
+export const getUserBookingById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.userId;
+
+    const booking = await Booking.findOne({ _id: id, userId })
+      .populate(
+        "astrologerId",
+        "name email phone profileImage experience rating totalReviews pricing location"
+      );
+
+    if (!booking) {
+      return res.status(404).json({ message: "Booking not found" });
+    }
+
+    res.json(booking);
+  } catch (error) {
+    console.error("getUserBookingById error:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Rate astrologer after completed consultation
+export const rateBooking = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { score, comment } = req.body;
+    const userId = req.userId;
+
+    const ratingScore = Number(score);
+    if (!ratingScore || ratingScore < 1 || ratingScore > 5) {
+      return res.status(400).json({ message: "Rating must be between 1 and 5" });
+    }
+
+    const booking = await Booking.findOne({ _id: id, userId });
+    if (!booking) {
+      return res.status(404).json({ message: "Booking not found" });
+    }
+
+    if (booking.bookingStatus !== "completed") {
+      return res.status(400).json({ message: "You can only rate completed consultations" });
+    }
+
+    if (booking.rating?.score) {
+      return res.status(400).json({ message: "You have already rated this consultation" });
+    }
+
+    booking.rating = {
+      score: ratingScore,
+      comment: comment?.trim() || "",
+      ratedAt: new Date(),
+    };
+    await booking.save();
+
+    await recalculateAstrologerRating(booking.astrologerId);
+
+    const updated = await Booking.findById(booking._id).populate(
+      "astrologerId",
+      "name rating totalReviews location pricing"
+    );
+
+    res.json({
+      message: "Thank you for your rating",
+      booking: updated,
+    });
+  } catch (error) {
+    console.error("rateBooking error:", error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -165,10 +261,17 @@ export const updateBookingStatus = async (req, res) => {
       // Handle booking status updates
       booking.bookingStatus = status;
       if (reason) booking.cancellationReason = reason;
+
+      if (status === "completed") {
+        booking.completedAt = new Date();
+        if (booking.paymentMethod === "pay_on_visit") {
+          booking.paymentStatus = "paid";
+        }
+      }
     }
-    
+
     // If booking is completed, update astrologer earnings
-    if (status === 'completed' && booking.paymentStatus === 'paid') {
+    if (status === "completed" && booking.paymentStatus === "paid") {
       const astrologer = await Astrologer.findById(astrologerId);
       if (astrologer) {
         astrologer.totalEarnings = (astrologer.totalEarnings || 0) + booking.amount;

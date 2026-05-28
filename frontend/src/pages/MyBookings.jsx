@@ -6,12 +6,15 @@ import { Calendar, Clock, User, XCircle, Loader2, Star, Phone, MapPin } from 'lu
 import toast from 'react-hot-toast';
 import API from '../services/api';
 import AnnouncementPanel from '../components/AnnouncementPanel';
+import BookingTokenModal from '../components/BookingTokenModal';
 
 const MyBookings = () => {
   const navigate = useNavigate();
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
+  const [tokenBookingId, setTokenBookingId] = useState(null);
+  const [ratingDraft, setRatingDraft] = useState({});
 
   useEffect(() => {
     loadBookings();
@@ -41,6 +44,28 @@ const MyBookings = () => {
       loadBookings();
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to cancel booking");
+    }
+  };
+
+  const setDraft = (bookingId, patch) => {
+    setRatingDraft((prev) => ({
+      ...prev,
+      [bookingId]: { ...(prev[bookingId] || {}), ...patch },
+    }));
+  };
+
+  const submitRating = async (bookingId) => {
+    const draft = ratingDraft[bookingId] || {};
+    try {
+      await API.post(`/bookings/${bookingId}/rate`, {
+        score: draft.score,
+        comment: draft.comment || "",
+      });
+      toast.success("Rating submitted.");
+      setRatingDraft((prev) => ({ ...prev, [bookingId]: {} }));
+      loadBookings();
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to submit rating");
     }
   };
 
@@ -154,6 +179,18 @@ const MyBookings = () => {
                   </span>
                 </div>
 
+                <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+                  <div className="text-xs text-gray-400 font-bold uppercase tracking-widest">
+                    Token: <span className="text-purple-300">{booking.bookingId}</span>
+                  </div>
+                  <button
+                    onClick={() => setTokenBookingId(booking._id)}
+                    className="px-4 py-2 bg-purple-500/10 border border-purple-500/30 rounded-full text-xs font-bold uppercase tracking-widest text-purple-300 hover:bg-purple-500/20 transition-colors"
+                  >
+                    Open Token
+                  </button>
+                </div>
+
                 <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
                   <div className="bg-black/50 p-3 rounded-lg">
                     <div className="flex items-center gap-2 text-xs text-gray-400 mb-1">
@@ -199,6 +236,54 @@ const MyBookings = () => {
                   </div>
                 </div>
 
+                {booking.bookingStatus === 'completed' && !booking.rating?.score && (
+                  <div className="mb-6 p-4 bg-white/5 border border-white/10 rounded-xl">
+                    <p className="text-xs text-gray-400 font-bold uppercase tracking-widest mb-3">
+                      Rate this consultation
+                    </p>
+                    <div className="flex items-center gap-2 mb-3">
+                      {[1, 2, 3, 4, 5].map((n) => (
+                        <button
+                          key={n}
+                          type="button"
+                          onClick={() => setDraft(booking._id, { score: n })}
+                          className="p-2 rounded-full hover:bg-white/5 transition-colors"
+                          aria-label={`Rate ${n} stars`}
+                        >
+                          <Star className={`h-5 w-5 ${((ratingDraft[booking._id]?.score || 0) >= n) ? 'text-yellow-400 fill-yellow-400' : 'text-gray-600'}`} />
+                        </button>
+                      ))}
+                    </div>
+                    <textarea
+                      value={ratingDraft[booking._id]?.comment || ""}
+                      onChange={(e) => setDraft(booking._id, { comment: e.target.value })}
+                      className="w-full h-24 bg-black/40 border border-purple-600/30 rounded-xl px-4 py-3 text-white text-sm outline-none focus:border-purple-500 transition-all resize-none"
+                      placeholder="Optional feedback..."
+                    />
+                    <div className="flex justify-end mt-3">
+                      <button
+                        type="button"
+                        disabled={!ratingDraft[booking._id]?.score}
+                        onClick={() => submitRating(booking._id)}
+                        className="px-6 py-2 bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-600 text-black rounded-full text-xs font-bold uppercase tracking-widest hover:scale-105 transition-all shadow-lg disabled:opacity-50"
+                      >
+                        Submit Rating
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {booking.rating?.score && (
+                  <div className="mb-6 p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
+                    <p className="text-xs text-emerald-400 font-bold uppercase tracking-widest mb-2">
+                      Your rating: {booking.rating.score}/5
+                    </p>
+                    {booking.rating.comment && (
+                      <p className="text-sm text-gray-300">{booking.rating.comment}</p>
+                    )}
+                  </div>
+                )}
+
                 {booking.notes && (
                   <div className="mb-4 p-3 bg-black/30 rounded-lg">
                     <p className="text-sm text-gray-400 mb-1">Your Notes:</p>
@@ -229,6 +314,10 @@ const MyBookings = () => {
           </div>
         )}
       </div>
+
+      {tokenBookingId && (
+        <BookingTokenModal bookingId={tokenBookingId} onClose={() => setTokenBookingId(null)} />
+      )}
     </div>
   );
 };

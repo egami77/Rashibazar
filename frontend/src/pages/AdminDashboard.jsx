@@ -23,6 +23,7 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState(null);
   const [pendingAstrologers, setPendingAstrologers] = useState([]);
+  const [pendingProfileUpdates, setPendingProfileUpdates] = useState([]);
   const [allAstrologers, setAllAstrologers] = useState([]);
   const [allUsers, setAllUsers] = useState([]);
   const [allBookings, setAllBookings] = useState([]);
@@ -43,9 +44,10 @@ const AdminDashboard = () => {
   const loadDashboardData = async () => {
     setLoading(true);
     try {
-      const [statsRes, pendingRes, astrologersRes, usersRes, bookingsRes, settingsRes] = await Promise.all([
+      const [statsRes, pendingRes, pendingProfileRes, astrologersRes, usersRes, bookingsRes, settingsRes] = await Promise.all([
         API.get('/admin/stats'),
         API.get('/admin/astrologers/pending'),
+        API.get('/admin/astrologers/profile/pending'),
         API.get('/admin/astrologers'),
         API.get('/admin/users'),
         API.get('/admin/bookings'),
@@ -54,6 +56,7 @@ const AdminDashboard = () => {
 
       setStats(statsRes.data.stats || statsRes.data);
       setPendingAstrologers(pendingRes.data);
+      setPendingProfileUpdates(pendingProfileRes.data);
       setAllAstrologers(astrologersRes.data);
       setAllUsers(usersRes.data);
       setAllBookings(bookingsRes.data);
@@ -73,6 +76,29 @@ const AdminDashboard = () => {
       setSelectedExpert(null);
     } catch (error) {
       toast.error("Permission update failed");
+    }
+  };
+
+  const handleApproveProfileUpdate = async (astrologerId) => {
+    try {
+      await API.put(`/admin/astrologers/${astrologerId}/profile/approve`);
+      toast.success("Profile changes published.");
+      loadDashboardData();
+      setSelectedExpert(null);
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to approve profile changes");
+    }
+  };
+
+  const handleRejectProfileUpdate = async (astrologerId) => {
+    const reason = prompt("Reason for rejecting profile update (optional):") || "";
+    try {
+      await API.put(`/admin/astrologers/${astrologerId}/profile/reject`, { reason });
+      toast.success("Profile changes rejected.");
+      loadDashboardData();
+      setSelectedExpert(null);
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to reject profile changes");
     }
   };
 
@@ -171,7 +197,12 @@ const AdminDashboard = () => {
         <nav className="flex-1 space-y-1.5 overflow-y-auto pr-2 custom-scrollbar">
           {[
             { id: 'overview', label: 'Command Center', icon: LayoutDashboard },
-            { id: 'pending', label: 'Approvals', icon: UserX, count: pendingAstrologers.length },
+            {
+              id: 'pending',
+              label: 'Approvals',
+              icon: UserX,
+              count: pendingAstrologers.length + pendingProfileUpdates.length
+            },
             { id: 'astrologers', label: 'Experts', icon: Briefcase },
             { id: 'users', label: 'Client Nodes', icon: Users },
             { id: 'bookings', label: 'Financial Ledger', icon: CreditCard },
@@ -336,55 +367,146 @@ const AdminDashboard = () => {
             {activeTab === 'pending' && (
               <motion.div key="pending" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-10">
                  <header className="flex items-center justify-between px-4">
-                     <h2 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-purple-300 to-indigo-300 tracking-wide">Access Requests</h2>
-                    <span className="text-[10px] font-black text-amber-500 bg-amber-500/10 px-4 py-2 rounded-full uppercase tracking-[0.2em]">{pendingAstrologers.length} Pending Nodes</span>
+                    <h2 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-purple-300 to-indigo-300 tracking-wide">
+                      Approvals
+                    </h2>
+                    <span className="text-[10px] font-black text-amber-500 bg-amber-500/10 px-4 py-2 rounded-full uppercase tracking-[0.2em]">
+                      {(pendingAstrologers.length + pendingProfileUpdates.length)} Pending Nodes
+                    </span>
                  </header>
 
-                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    {pendingAstrologers.map(astro => (
-                      <motion.div 
-                        whileHover={{ y: -5 }}
-                        key={astro._id}                         
-                        className="bg-black/40 border border-purple-600/30 p-8 rounded-xl relative overflow-hidden group hover:border-purple-500 transition-all shadow-md"
-                      >
-                        <div className="absolute top-0 right-0 w-40 h-40 opacity-[0.03] bg-orange-500 rounded-full -mr-20 -mt-20 group-hover:scale-125 transition-transform duration-700"></div>
-                        <div className="flex items-center gap-6 mb-10">
-                          <img src={astro.profileImage || `https://ui-avatars.com/api/?name=${astro.name}&background=8B5CF6&color=fff`} className="h-20 w-20 rounded-[2rem] border-2 border-white/10 object-cover" alt="" />
-                          <div>
-                            <h4 className="text-2xl font-black text-white uppercase tracking-tight">{astro.name}</h4>
-                            <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1">{astro.email}</p>
-                          </div>
-                        </div>
+                 <div className="space-y-14">
+                   <div>
+                     <div className="flex items-center justify-between px-4 mb-8">
+                       <h3 className="text-xl font-black text-white uppercase tracking-tight">Access Requests</h3>
+                       <span className="text-[10px] font-black text-amber-500 bg-amber-500/10 px-4 py-2 rounded-full uppercase tracking-[0.2em]">
+                         {pendingAstrologers.length} Pending
+                       </span>
+                     </div>
 
-                        <div className="grid grid-cols-3 gap-4 mb-10">
-                          <div className="bg-black/20 p-5 rounded-3xl border border-white/5 text-center">
-                             <p className="text-[8px] text-gray-600 font-black uppercase tracking-widest mb-1">Experience</p>
-                             <p className="text-lg font-black text-white">{astro.experience}Y</p>
-                          </div>
-                          <div className="bg-black/20 p-5 rounded-3xl border border-white/5 text-center">
-                             <p className="text-[8px] text-gray-600 font-black uppercase tracking-widest mb-1">Price</p>
-                             <p className="text-lg font-black text-orange-500">{astro.pricing?.perSession}</p>
-                          </div>
-                          <div className="bg-black/20 p-5 rounded-3xl border border-white/5 text-center flex flex-col justify-center">
-                             <p className="text-[8px] text-gray-600 font-black uppercase tracking-widest mb-1">Action</p>
-                             <button onClick={() => setSelectedExpert(astro)} className="text-[9px] font-black text-blue-400 uppercase flex items-center justify-center gap-1 hover:text-blue-300">
-                               Details <ExternalLink className="h-2.5 w-2.5" />
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                       {pendingAstrologers.map(astro => (
+                         <motion.div 
+                           whileHover={{ y: -5 }}
+                           key={astro._id}                         
+                           className="bg-black/40 border border-purple-600/30 p-8 rounded-xl relative overflow-hidden group hover:border-purple-500 transition-all shadow-md"
+                         >
+                           <div className="absolute top-0 right-0 w-40 h-40 opacity-[0.03] bg-orange-500 rounded-full -mr-20 -mt-20 group-hover:scale-125 transition-transform duration-700"></div>
+                           <div className="flex items-center gap-6 mb-10">
+                             <img src={astro.profileImage || `https://ui-avatars.com/api/?name=${astro.name}&background=8B5CF6&color=fff`} className="h-20 w-20 rounded-[2rem] border-2 border-white/10 object-cover" alt="" />
+                             <div>
+                               <h4 className="text-2xl font-black text-white uppercase tracking-tight">{astro.name}</h4>
+                               <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1">{astro.email}</p>
+                             </div>
+                           </div>
+
+                           <div className="grid grid-cols-3 gap-4 mb-10">
+                             <div className="bg-black/20 p-5 rounded-3xl border border-white/5 text-center">
+                               <p className="text-[8px] text-gray-600 font-black uppercase tracking-widest mb-1">Experience</p>
+                               <p className="text-lg font-black text-white">{astro.experience}Y</p>
+                             </div>
+                             <div className="bg-black/20 p-5 rounded-3xl border border-white/5 text-center">
+                               <p className="text-[8px] text-gray-600 font-black uppercase tracking-widest mb-1">Price</p>
+                               <p className="text-lg font-black text-orange-500">{astro.pricing?.perSession}</p>
+                             </div>
+                             <div className="bg-black/20 p-5 rounded-3xl border border-white/5 text-center flex flex-col justify-center">
+                               <p className="text-[8px] text-gray-600 font-black uppercase tracking-widest mb-1">Action</p>
+                               <button onClick={() => setSelectedExpert(astro)} className="text-[9px] font-black text-blue-400 uppercase flex items-center justify-center gap-1 hover:text-blue-300">
+                                 Details <ExternalLink className="h-2.5 w-2.5" />
+                               </button>
+                             </div>
+                           </div>
+
+                           <div className="flex gap-4">
+                             <button
+                               onClick={() => handleApproveAstrologer(astro._id, 'approved')}
+                               className="flex-1 py-4 bg-gradient-to-r from-yellow-400 to-pink-500 text-black rounded-full text-xs font-bold uppercase tracking-widest hover:scale-105 transition-all shadow-lg"
+                             >
+                               Grant Access
                              </button>
-                          </div>
-                        </div>
-
-                        <div className="flex gap-4">
-                            <button onClick={() => handleApproveAstrologer(astro._id, 'approved')} className="flex-1 py-4 bg-gradient-to-r from-yellow-400 to-pink-500 text-black rounded-full text-xs font-bold uppercase tracking-widest hover:scale-105 transition-all shadow-lg">Grant Access</button>
-                            <button onClick={() => handleApproveAstrologer(astro._id, 'rejected')} className="flex-1 py-4 bg-black/40 border border-rose-500/30 text-rose-400 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-rose-500/10 transition-all">Deny</button>
-                        </div>
-                      </motion.div>
-                    ))}
-                    {pendingAstrologers.length === 0 && (
-                        <div className="col-span-2 text-center py-40 bg-black/40 border border-dashed border-purple-600/30 rounded-xl">
+                             <button
+                               onClick={() => handleApproveAstrologer(astro._id, 'rejected')}
+                               className="flex-1 py-4 bg-black/40 border border-rose-500/30 text-rose-400 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-rose-500/10 transition-all"
+                             >
+                               Deny
+                             </button>
+                           </div>
+                         </motion.div>
+                       ))}
+                       {pendingAstrologers.length === 0 && (
+                         <div className="col-span-2 text-center py-40 bg-black/40 border border-dashed border-purple-600/30 rounded-xl">
                            <Shield className="h-20 w-20 text-purple-400 mx-auto mb-8 opacity-30" />
                            <p className="text-gray-500 font-semibold uppercase tracking-widest text-xs">No pending approval requests</p>
-                        </div>
-                    )}
+                         </div>
+                       )}
+                     </div>
+                   </div>
+
+                   <div>
+                     <div className="flex items-center justify-between px-4 mb-8">
+                       <h3 className="text-xl font-black text-white uppercase tracking-tight">Profile Updates</h3>
+                       <span className="text-[10px] font-black text-emerald-400 bg-emerald-500/10 px-4 py-2 rounded-full uppercase tracking-[0.2em]">
+                         {pendingProfileUpdates.length} Pending
+                       </span>
+                     </div>
+
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                       {pendingProfileUpdates.map(astro => (
+                         <motion.div 
+                           whileHover={{ y: -5 }}
+                           key={astro._id}                         
+                           className="bg-black/40 border border-purple-600/30 p-8 rounded-xl relative overflow-hidden group hover:border-purple-500 transition-all shadow-md"
+                         >
+                           <div className="absolute top-0 right-0 w-40 h-40 opacity-[0.03] bg-emerald-500 rounded-full -mr-20 -mt-20 group-hover:scale-125 transition-transform duration-700"></div>
+                           <div className="flex items-center gap-6 mb-10">
+                             <img src={astro.profileImage || `https://ui-avatars.com/api/?name=${astro.name}&background=8B5CF6&color=fff`} className="h-20 w-20 rounded-[2rem] border-2 border-white/10 object-cover" alt="" />
+                             <div>
+                               <h4 className="text-2xl font-black text-white uppercase tracking-tight">{astro.pendingProfile?.changes?.name || astro.name}</h4>
+                               <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1">{astro.email}</p>
+                             </div>
+                           </div>
+
+                           <div className="grid grid-cols-3 gap-4 mb-10">
+                             <div className="bg-black/20 p-5 rounded-3xl border border-white/5 text-center">
+                               <p className="text-[8px] text-gray-600 font-black uppercase tracking-widest mb-1">Experience</p>
+                               <p className="text-lg font-black text-white">{astro.pendingProfile?.changes?.experience ?? astro.experience}Y</p>
+                             </div>
+                             <div className="bg-black/20 p-5 rounded-3xl border border-white/5 text-center">
+                               <p className="text-[8px] text-gray-600 font-black uppercase tracking-widest mb-1">Price</p>
+                               <p className="text-lg font-black text-orange-500">{astro.pendingProfile?.changes?.pricing?.perSession ?? astro.pricing?.perSession}</p>
+                             </div>
+                             <div className="bg-black/20 p-5 rounded-3xl border border-white/5 text-center flex flex-col justify-center">
+                               <p className="text-[8px] text-gray-600 font-black uppercase tracking-widest mb-1">Action</p>
+                               <button onClick={() => setSelectedExpert(astro)} className="text-[9px] font-black text-blue-400 uppercase flex items-center justify-center gap-1 hover:text-blue-300">
+                                 Details <ExternalLink className="h-2.5 w-2.5" />
+                               </button>
+                             </div>
+                           </div>
+
+                           <div className="flex gap-4">
+                             <button
+                               onClick={() => handleApproveProfileUpdate(astro._id)}
+                               className="flex-1 py-4 bg-gradient-to-r from-emerald-400 to-emerald-600 text-black rounded-full text-xs font-bold uppercase tracking-widest hover:scale-105 transition-all shadow-lg"
+                             >
+                               Publish Profile
+                             </button>
+                             <button
+                               onClick={() => handleRejectProfileUpdate(astro._id)}
+                               className="flex-1 py-4 bg-black/40 border border-rose-500/30 text-rose-400 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-rose-500/10 transition-all"
+                             >
+                               Reject
+                             </button>
+                           </div>
+                         </motion.div>
+                       ))}
+                       {pendingProfileUpdates.length === 0 && (
+                         <div className="col-span-2 text-center py-40 bg-black/40 border border-dashed border-purple-600/30 rounded-xl">
+                           <Shield className="h-20 w-20 text-purple-400 mx-auto mb-8 opacity-30" />
+                           <p className="text-gray-500 font-semibold uppercase tracking-widest text-xs">No profile updates awaiting approval</p>
+                         </div>
+                       )}
+                     </div>
+                   </div>
                  </div>
               </motion.div>
             )}
@@ -701,6 +823,35 @@ const AdminDashboard = () => {
                             </p>
                          </div>
                       </div>
+
+                      {selectedExpert.pendingProfile?.status === 'pending' && (
+                        <div className="space-y-4">
+                          <p className="text-[10px] text-amber-500 font-black uppercase tracking-[0.2em] flex items-center gap-2">
+                            <Bell className="h-3.5 w-3.5" /> Pending Profile Update
+                          </p>
+                          <div className="bg-amber-500/10 border border-amber-500/20 p-8 rounded-3xl space-y-2">
+                            <p className="text-sm text-gray-300">
+                              This expert has submitted profile changes. Approve to publish to the user side.
+                            </p>
+                            <div className="text-xs text-gray-400 space-y-1">
+                              <div><span className="text-gray-500">Name:</span> {selectedExpert.pendingProfile?.changes?.name || '—'}</div>
+                              <div><span className="text-gray-500">Phone:</span> {selectedExpert.pendingProfile?.changes?.phone || '—'}</div>
+                              <div><span className="text-gray-500">Experience:</span> {selectedExpert.pendingProfile?.changes?.experience ?? '—'}</div>
+                              <div><span className="text-gray-500">Rate:</span> Npr {selectedExpert.pendingProfile?.changes?.pricing?.perSession ?? '—'}</div>
+                              <div><span className="text-gray-500">Location:</span> {selectedExpert.pendingProfile?.changes?.location?.address || '—'}</div>
+                            </div>
+                          </div>
+
+                          <div className="flex gap-4">
+                            <button onClick={() => handleApproveProfileUpdate(selectedExpert._id)} className="flex-1 py-4 bg-gradient-to-r from-emerald-400 to-emerald-600 text-black rounded-full font-bold uppercase tracking-widest text-sm hover:scale-105 transition-all shadow-lg">
+                              Publish Profile
+                            </button>
+                            <button onClick={() => handleRejectProfileUpdate(selectedExpert._id)} className="flex-1 py-4 bg-black/40 border border-rose-500/30 text-rose-400 rounded-full font-bold uppercase tracking-widest text-sm hover:bg-rose-500/10 transition-all">
+                              Reject Update
+                            </button>
+                          </div>
+                        </div>
+                      )}
 
                        <div className="flex gap-4 pt-6">
                           <button onClick={() => handleApproveAstrologer(selectedExpert._id, 'approved')} className="flex-1 py-4 bg-gradient-to-r from-yellow-400 to-pink-500 text-black rounded-full font-bold uppercase tracking-widest text-sm hover:scale-105 transition-all shadow-lg">Authorize</button>

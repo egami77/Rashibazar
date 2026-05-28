@@ -5,6 +5,8 @@ import { isUser, isAstrologer } from "../middleware/roleMiddleware.js";
 import {
   createBooking,
   getUserBookings,
+  getUserBookingById,
+  rateBooking,
   getAstrologerBookings,
   updateBookingStatus,
   cancelBooking,
@@ -16,6 +18,8 @@ const router = express.Router();
 // User routes
 router.post("/", authMiddleware, isUser, createBooking);
 router.get("/my-bookings", authMiddleware, isUser, getUserBookings);
+router.get("/my-bookings/:id", authMiddleware, isUser, getUserBookingById);
+router.post("/:id/rate", authMiddleware, isUser, rateBooking);
 router.put("/:id/cancel", authMiddleware, isUser, cancelBooking);
 router.put("/:id/payment", authMiddleware, isUser, updatePaymentStatus);
 

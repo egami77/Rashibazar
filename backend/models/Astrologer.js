@@ -13,6 +13,34 @@ const astrologerSchema = new mongoose.Schema({
   },
   bio: { type: String, maxlength: 500, default: "" },
   profileImage: { type: String, default: "" },
+  location: {
+    address: { type: String, default: "" },
+    city: { type: String, default: "" },
+    district: { type: String, default: "" },
+    landmark: { type: String, default: "" },
+  },
+  pendingProfile: {
+    status: {
+      type: String,
+      enum: ["none", "pending", "rejected"],
+      default: "none",
+    },
+    submittedAt: { type: Date },
+    rejectionReason: { type: String, default: "" },
+    changes: {
+      name: String,
+      phone: String,
+      experience: Number,
+      pricing: { perSession: Number },
+      bio: String,
+      location: {
+        address: String,
+        city: String,
+        district: String,
+        landmark: String,
+      },
+    },
+  },
   rating: { type: Number, default: 0 },
   totalReviews: { type: Number, default: 0 },
   approvalStatus: {

@@ -57,6 +57,12 @@ const bookingSchema = new mongoose.Schema({
     gender: String
   },
   cancellationReason: { type: String },
+  completedAt: { type: Date },
+  rating: {
+    score: { type: Number, min: 1, max: 5 },
+    comment: { type: String, maxlength: 500, default: "" },
+    ratedAt: { type: Date },
+  },
   createdAt: { type: Date, default: Date.now }
 });
 

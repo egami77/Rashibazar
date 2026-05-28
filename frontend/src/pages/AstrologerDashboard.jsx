@@ -75,7 +75,8 @@ const AstrologerDashboard = () => {
     phone: '',
     experience: 0,
     pricing: { perSession: 0 },
-    bio: ''
+    bio: '',
+    location: { address: '', city: '', district: '', landmark: '' }
   });
 
   // Countdown for next session
@@ -133,14 +134,21 @@ const AstrologerDashboard = () => {
       setHoroscopes(horoscopesRes.data);
       setRashis(rashisRes.rashis);
 
-      // Initialize profile form
-      if (dashboardRes.data.stats) {
+      // Initialize profile form from dashboard profile
+      if (dashboardRes.data.profile) {
+        const p = dashboardRes.data.profile;
         setProfileForm({
-          name: dashboardRes.data.profile?.name || '',
-          phone: dashboardRes.data.profile?.phone || '',
-          experience: dashboardRes.data.profile?.experience || 0,
-          pricing: dashboardRes.data.profile?.pricing || { perSession: 0 },
-          bio: dashboardRes.data.profile?.bio || ''
+          name: p.name || '',
+          phone: p.phone || '',
+          experience: p.experience ?? 0,
+          pricing: { perSession: p.pricing?.perSession ?? 0 },
+          bio: p.bio || '',
+          location: {
+            address: p.location?.address || '',
+            city: p.location?.city || '',
+            district: p.location?.district || '',
+            landmark: p.location?.landmark || '',
+          }
         });
       }
     } catch (error) {
@@ -151,15 +159,36 @@ const AstrologerDashboard = () => {
     }
   };
 
+  const parseNumberInput = (value, fallback = 0) => {
+    const parsed = parseInt(value, 10);
+    return Number.isNaN(parsed) ? fallback : Math.max(0, parsed);
+  };
+
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
     try {
-      await updateAstrologerProfile(profileForm);
-      toast.success("Profile updated successfully!");
+      const payload = {
+        experience: parseNumberInput(profileForm.experience, 0),
+        pricing: {
+          perSession: parseNumberInput(profileForm.pricing?.perSession, 0),
+        },
+        bio: profileForm.bio?.trim() || "",
+        location: {
+          address: profileForm.location?.address?.trim() || "",
+          city: profileForm.location?.city?.trim() || "",
+          district: profileForm.location?.district?.trim() || "",
+          landmark: profileForm.location?.landmark?.trim() || "",
+        },
+      };
+      if (profileForm.name?.trim()) payload.name = profileForm.name.trim();
+      if (profileForm.phone?.trim()) payload.phone = profileForm.phone.trim();
+
+      await updateAstrologerProfile(payload);
+      toast.success("Profile changes sent for admin approval.");
       setShowProfileEdit(false);
       loadDashboardData();
     } catch (error) {
-      toast.error("Failed to update profile");
+      toast.error(error.response?.data?.error || error.response?.data?.message || "Failed to update profile");
     }
   };
 
@@ -853,6 +882,24 @@ const AstrologerDashboard = () => {
                 exit={{ opacity: 0, y: -20 }}
                 className="max-w-4xl mx-auto space-y-8"
               >
+                {dashboardData?.profile?.pendingProfile?.status === 'pending' && (
+                  <div className="bg-amber-500/10 border border-amber-500/30 p-6 rounded-xl">
+                    <p className="text-amber-400 font-bold uppercase tracking-widest text-xs mb-1">Profile update pending</p>
+                    <p className="text-gray-300 text-sm">
+                      Your recent profile changes are waiting for admin approval. Until approved, users will see your previous profile.
+                    </p>
+                  </div>
+                )}
+
+                {dashboardData?.profile?.pendingProfile?.status === 'rejected' && (
+                  <div className="bg-rose-500/10 border border-rose-500/30 p-6 rounded-xl">
+                    <p className="text-rose-400 font-bold uppercase tracking-widest text-xs mb-1">Profile update rejected</p>
+                    <p className="text-gray-300 text-sm">
+                      Reason: {dashboardData.profile.pendingProfile.rejectionReason || 'No reason provided.'}
+                    </p>
+                  </div>
+                )}
+
                  <div className="bg-black/40 border border-purple-600/30 rounded-xl p-12 relative overflow-hidden shadow-2xl">
                   <div className="absolute top-0 right-0 p-12 opacity-[0.03]">
                     <Settings className="h-64 w-64 text-white" />
@@ -892,8 +939,17 @@ const AstrologerDashboard = () => {
                           <MapPin className="h-5 w-5 text-white" />
                         </div>
                         <div>
-                          <p className="text-[9px] text-gray-500 font-black uppercase tracking-widest">Consultation Type</p>
-                          <p className="text-xs font-bold text-white uppercase">In-Person physical visits only</p>
+                          <p className="text-[9px] text-gray-500 font-black uppercase tracking-widest">Location</p>
+                          <p className="text-xs font-bold text-white uppercase">
+                            {dashboardData?.profile?.location?.address || dashboardData?.profile?.location?.city || dashboardData?.profile?.location?.district
+                              ? `${dashboardData?.profile?.location?.address || ''}${dashboardData?.profile?.location?.address ? ', ' : ''}${dashboardData?.profile?.location?.city || ''}${dashboardData?.profile?.location?.city ? ', ' : ''}${dashboardData?.profile?.location?.district || ''}`.replace(/,\s*$/, '')
+                              : 'Not set'}
+                          </p>
+                          {dashboardData?.profile?.location?.landmark && (
+                            <p className="text-[10px] text-gray-400 font-bold mt-1 uppercase tracking-widest">
+                              Landmark: {dashboardData.profile.location.landmark}
+                            </p>
+                          )}
                         </div>
                       </div>
 
@@ -914,8 +970,12 @@ const AstrologerDashboard = () => {
                             <label className="text-[10px] text-gray-500 font-black uppercase tracking-widest ml-1">Session Rate (Npr)</label>
                             <input 
                               type="number"
-                              value={profileForm.pricing.perSession}
-                              onChange={(e) => setProfileForm({ ...profileForm, pricing: { perSession: parseInt(e.target.value) } })}
+                              min="0"
+                              value={profileForm.pricing?.perSession ?? 0}
+                              onChange={(e) => setProfileForm({
+                                ...profileForm,
+                                pricing: { perSession: parseNumberInput(e.target.value, profileForm.pricing?.perSession ?? 0) },
+                              })}
                               className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white text-sm outline-none focus:border-orange-500 transition-all"
                             />
                           </div>
@@ -923,12 +983,60 @@ const AstrologerDashboard = () => {
                             <label className="text-[10px] text-gray-500 font-black uppercase tracking-widest ml-1">Exp (Years)</label>
                             <input 
                               type="number"
-                              value={profileForm.experience}
-                              onChange={(e) => setProfileForm({ ...profileForm, experience: parseInt(e.target.value) })}
+                              min="0"
+                              value={profileForm.experience ?? 0}
+                              onChange={(e) => setProfileForm({
+                                ...profileForm,
+                                experience: parseNumberInput(e.target.value, profileForm.experience ?? 0),
+                              })}
                               className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white text-sm outline-none focus:border-orange-500 transition-all"
                             />
                           </div>
                         </div>
+
+                        <div className="space-y-2">
+                          <label className="text-[10px] text-gray-500 font-black uppercase tracking-widest ml-1">Location Address</label>
+                          <input
+                            type="text"
+                            value={profileForm.location?.address || ''}
+                            onChange={(e) => setProfileForm({ ...profileForm, location: { ...(profileForm.location || {}), address: e.target.value } })}
+                            className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white text-sm outline-none focus:border-orange-500 transition-all"
+                            placeholder="Street / area"
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <label className="text-[10px] text-gray-500 font-black uppercase tracking-widest ml-1">City</label>
+                            <input
+                              type="text"
+                              value={profileForm.location?.city || ''}
+                              onChange={(e) => setProfileForm({ ...profileForm, location: { ...(profileForm.location || {}), city: e.target.value } })}
+                              className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white text-sm outline-none focus:border-orange-500 transition-all"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <label className="text-[10px] text-gray-500 font-black uppercase tracking-widest ml-1">District</label>
+                            <input
+                              type="text"
+                              value={profileForm.location?.district || ''}
+                              onChange={(e) => setProfileForm({ ...profileForm, location: { ...(profileForm.location || {}), district: e.target.value } })}
+                              className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white text-sm outline-none focus:border-orange-500 transition-all"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <label className="text-[10px] text-gray-500 font-black uppercase tracking-widest ml-1">Landmark (optional)</label>
+                          <input
+                            type="text"
+                            value={profileForm.location?.landmark || ''}
+                            onChange={(e) => setProfileForm({ ...profileForm, location: { ...(profileForm.location || {}), landmark: e.target.value } })}
+                            className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white text-sm outline-none focus:border-orange-500 transition-all"
+                            placeholder="Near..."
+                          />
+                        </div>
+
                         <div className="space-y-2">
                           <label className="text-[10px] text-gray-500 font-black uppercase tracking-widest ml-1">Professional Bio</label>
                           <textarea 

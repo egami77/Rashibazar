@@ -474,7 +474,19 @@ const Booking = () => {
                 <div className="bg-orange-500/10 border border-orange-500/20 rounded-[2rem] p-6 text-center">
                    <MapPin className="h-6 w-6 text-orange-400 mx-auto mb-4" />
                    <p className="text-xs font-bold text-orange-400 uppercase tracking-widest">Physical Visit</p>
-                   <p className="text-[10px] text-gray-500 mt-2 font-medium leading-relaxed">This is an in-person session. Please arrive at the astrologer's location 10 minutes early.</p>
+                   <p className="text-[10px] text-gray-500 mt-2 font-medium leading-relaxed">
+                    {selectedAstrologer?.location?.address || selectedAstrologer?.location?.city || selectedAstrologer?.location?.district
+                      ? `Location: ${selectedAstrologer?.location?.address || ''}${selectedAstrologer?.location?.address ? ', ' : ''}${selectedAstrologer?.location?.city || ''}${selectedAstrologer?.location?.city ? ', ' : ''}${selectedAstrologer?.location?.district || ''}`.replace(/,\s*$/, '')
+                      : "Location will be shared by the astrologer."}
+                   </p>
+                   {selectedAstrologer?.location?.landmark && (
+                    <p className="text-[10px] text-gray-500 mt-2 font-medium leading-relaxed">
+                      Landmark: {selectedAstrologer.location.landmark}
+                    </p>
+                   )}
+                   <p className="text-[10px] text-gray-500 mt-2 font-medium leading-relaxed">
+                    Please arrive 10 minutes early.
+                   </p>
                 </div>
               </div>
             </div>
