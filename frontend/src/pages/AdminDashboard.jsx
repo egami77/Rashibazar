@@ -259,9 +259,9 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black via-purple-950 to-black text-white flex">
+    <div className="min-h-screen bg-gradient-to-b from-black via-purple-950 to-black text-white flex pt-20">
       {/* Sidebar */}
-      <aside className="w-72 bg-black/40 backdrop-blur-md border-r border-purple-600/30 sticky top-0 h-screen hidden lg:flex flex-col p-8 z-50">
+      <aside className="w-72 bg-black/40 backdrop-blur-md border-r border-purple-600/30 sticky top-20 h-[calc(100vh-5rem)] hidden lg:flex flex-col p-8 z-50">
         <div className="mb-12">
           <div className="flex items-center gap-3">
              <Shield className="h-8 w-8 text-purple-500" />
@@ -310,7 +310,7 @@ const AdminDashboard = () => {
         </div>
       </aside>
 
-      <main className="flex-1 p-6 md:p-12 overflow-y-auto pt-24 lg:pt-12">
+      <main className="flex-1 p-6 md:p-12 overflow-y-auto ">
         <div className="max-w-6xl mx-auto space-y-12">
           
           <header className="flex flex-col md:flex-row md:items-center justify-between gap-8">
@@ -634,7 +634,7 @@ const AdminDashboard = () => {
                      <div className="bg-white/5 border border-white/10 p-12 rounded-[4rem] space-y-10">
                         <div className="flex items-center gap-6">
                            <div className="h-16 w-16 bg-rose-500/10 rounded-3xl flex items-center justify-center border border-rose-500/10">
-                              <Shield className="h-8 w-8 text-rose-500" />
+                              {/* <Shield className="h-8 w-8 text-rose-500" /> */}
                            </div>
                            <h3 className="text-2xl font-black text-white uppercase italic tracking-tight">System Status</h3>
                         </div>

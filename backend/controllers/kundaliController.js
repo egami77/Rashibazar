@@ -189,9 +189,9 @@ export const checkCompatibility = async (req, res) => {
     };
     let verdict = "Challenging Match 🔴", vColor = "text-red-400";
     const s = matchingResult.totalObtained;
-    if (s >= 28) { verdict = "Excellent Match! 🎉"; vColor = "text-green-400"; }
-    else if (s >= 21) { verdict = "Good Match ✨"; vColor = "text-yellow-400"; }
-    else if (s >= 18) { verdict = "Average Match ⚖️"; vColor = "text-orange-400"; }
+    if (s >= 28) { verdict = "Excellent Match! "; vColor = "text-green-400"; }
+    else if (s >= 21) { verdict = "Good Match "; vColor = "text-yellow-400"; }
+    else if (s >= 18) { verdict = "Average Match "; vColor = "text-orange-400"; }
     res.json({
       score: s, maxScore: 36, percentage: matchingResult.percentage,
       verdict, verdictColor: vColor, koots: matchingResult.koots,

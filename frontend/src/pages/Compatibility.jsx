@@ -230,8 +230,8 @@ const Compatibility = () => {
             </div>
 
             <div className="grid lg:grid-cols-2 gap-8 items-stretch">
-              <PartnerInput label="Partner 1 (Groom)" icon={<User className="w-6 h-6 text-white"/>} value={partner1} onChange={setPartner1} colorTheme="blue" />
-              <PartnerInput label="Partner 2 (Bride)" icon={<User className="w-6 h-6 text-white"/>} value={partner2} onChange={setPartner2} colorTheme="pink" />
+              <PartnerInput label="Partner 1 (Groom)"  value={partner1} onChange={setPartner1} colorTheme="blue" />
+              <PartnerInput label="Partner 2 (Bride)"  value={partner2} onChange={setPartner2} colorTheme="pink" />
             </div>
 
             <div className="flex justify-center">
@@ -245,7 +245,7 @@ const Compatibility = () => {
                     <div className="h-6 w-6 border-4 border-black/20 border-t-black rounded-full animate-spin" />
                   ) : (
                     <>
-                      <Heart className="w-6 h-6 fill-black" />
+                      {/* <Heart className="w-6 h-6 fill-black" /> */}
                       Check Compatibility
                     </>
                   )}
@@ -257,7 +257,8 @@ const Compatibility = () => {
           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="space-y-8">
             <div className="flex items-center justify-between mb-4">
               <button onClick={() => setResult(null)} className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors py-2 px-4 rounded-xl bg-white/5 border border-white/10 text-xs font-bold uppercase tracking-widest">
-                <RotateCcw className="w-4 h-4" /> Reset
+                {/* <RotateCcw className="w-4 h-4" /> */}
+                 Reset
               </button>
               <div className="flex bg-black/40 p-1 rounded-full border border-purple-600/30">
                 <button onClick={() => setActiveTab("results")} className={`px-6 py-2 rounded-full text-xs font-bold uppercase tracking-widest transition-all ${activeTab === 'results' ? 'bg-gradient-to-r from-yellow-400 to-pink-500 text-black' : 'text-gray-400'}`}>Score</button>
@@ -280,7 +281,7 @@ const Compatibility = () => {
                       
                       <div className="flex items-center gap-5 relative z-10">
                         <div className={`w-16 h-16 rounded-full bg-gradient-to-br ${idx === 0 ? 'from-blue-400 to-indigo-600' : 'from-pink-400 to-rose-600'} flex items-center justify-center text-3xl shadow-lg`}>
-                          {idx === 0 ? '🤵' : '👰'}
+                          {idx === 0 ? 'G' : 'B'}
                         </div>
                         <div>
                           <p className="text-[10px] text-gray-500 font-black uppercase tracking-[0.3em] mb-1">
@@ -303,7 +304,7 @@ const Compatibility = () => {
                         </div>
                         <div className="col-span-2 mt-2">
                            <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl border ${p.mangalDosha ? 'bg-rose-500/10 border-rose-500/20 text-rose-400' : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'} text-xs font-black uppercase tracking-widest`}>
-                              {p.mangalDosha ? <AlertCircle className="w-4 h-4" /> : <ShieldCheck className="w-4 h-4" />}
+                              {p.mangalDosha ? '❌' : '✅'}
                               Mangal Dosha: {p.mangalDosha ? 'Present' : 'Absent'}
                            </div>
                         </div>
@@ -366,9 +367,9 @@ const Compatibility = () => {
             ) : (
               <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="p-8 md:p-12 rounded-xl bg-black/40 border border-purple-600/30 backdrop-blur-sm space-y-8">
                 <div className="flex items-center gap-4 border-b border-white/10 pb-6">
-                  <div className="h-14 w-14 bg-gradient-to-r from-yellow-400 to-pink-500 rounded-full flex items-center justify-center shadow-lg">
-                    <ShieldCheck className="w-8 h-8 text-white" />
-                  </div>
+                  {/* <div className="h-14 w-14 bg-gradient-to-r from-yellow-400 to-pink-500 rounded-full flex items-center justify-center shadow-lg"> */}
+                    {/* <ShieldCheck className="w-8 h-8 text-white" /> */}
+                  {/* </div> */}
                   <div>
                     <h2 className="text-3xl font-bold text-yellow-300 tracking-tight">Divine Remedies</h2>
                     <p className="text-sm text-gray-400 font-bold uppercase tracking-widest">Spiritual corrections for harmony</p>
@@ -378,7 +379,7 @@ const Compatibility = () => {
                 <div className="grid gap-6">
                   {result.doshas.nadi && (
                     <div className="flex gap-6 p-6 rounded-xl bg-rose-500/10 border border-rose-500/30">
-                       <AlertCircle className="w-8 h-8 text-rose-500 shrink-0" />
+                       {/* <AlertCircle className="w-8 h-8 text-rose-500 shrink-0" /> */}
                        <div className="space-y-2">
                          <h4 className="text-xl font-bold text-rose-400 tracking-tight">Nadi Dosha Remedy</h4>
                          <p className="text-gray-400 font-medium leading-relaxed">Perform Mahamrityunjaya Mantra Jaap (11,000 times) and donate gold, cloth, and grains to a qualified Brahmin to mitigate health risks for future progeny.</p>
@@ -395,7 +396,7 @@ const Compatibility = () => {
                     </div>
                   )}
                   <div className="flex gap-6 p-6 rounded-xl bg-blue-500/10 border border-blue-500/30">
-                     <Heart className="w-8 h-8 text-blue-500 shrink-0" />
+                     {/* <Heart className="w-8 h-8 text-blue-500 shrink-0" /> */}
                      <div className="space-y-2">
                        <h4 className="text-xl font-bold text-blue-400 tracking-tight">General Marital Harmony</h4>
                        <p className="text-gray-400 font-medium leading-relaxed">Regularly recite the Vishnu Sahasranama and perform Gauri-Shankar Puja together to strengthen the bond and ensure a long, happy life together.</p>

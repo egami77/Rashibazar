@@ -33,7 +33,7 @@ const NepaliCalendar = () => {
         return (
           <div className="space-y-6">
             <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-              <CalendarDays className="w-6 h-6" />
+              {/* <CalendarDays className="w-6 h-6" /> */}
               Monthly Calendar
             </h2>
 
@@ -50,7 +50,7 @@ const NepaliCalendar = () => {
                     border: "none",
                     display: "block",
                   }}
-                  scrolling="auto"
+                  // scrolling="auto"
                 />
               </div>
 
@@ -75,7 +75,7 @@ const NepaliCalendar = () => {
                     title="Today Nepali Date"
                     style={{
                       width: "100%",
-                      height: "300px",
+                      height: "350px",
                       border: "none",
                       display: "block",
                     }}
@@ -118,7 +118,7 @@ const NepaliCalendar = () => {
         return (
           <div className="space-y-6">
             <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-              <RefreshCw className="w-6 h-6" />
+              {/* <RefreshCw className="w-6 h-6" /> */}
               Date Converter
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

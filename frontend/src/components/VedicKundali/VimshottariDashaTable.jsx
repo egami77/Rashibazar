@@ -26,7 +26,7 @@ export const VimshottariDashaTable = ({ result, isDark = false }) => {
   return (
     <div className={`${styles.bg} rounded-[2rem] shadow-2xl border ${styles.border} p-6 backdrop-blur-md h-full`}>
       <h3 className={`text-2xl font-bold ${styles.title} mb-6 flex items-center gap-3`}>
-        <span className="text-3xl">⏳</span>
+        {/* <span className="text-3xl">⏳</span> */}
         विंशोत्तरी महादशा — Maha Dasha
       </h3>
       <div className="overflow-x-auto rounded-2xl overflow-hidden border border-white/5">

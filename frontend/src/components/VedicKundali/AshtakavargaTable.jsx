@@ -26,7 +26,7 @@ export const AshtakavargaTable = ({ result, isDark = false }) => {
   return (
     <div className={`${styles.bg} rounded-[2rem] shadow-2xl border ${styles.border} p-6 backdrop-blur-md h-full`}>
       <h3 className={`text-2xl font-bold ${styles.title} mb-6 flex items-center gap-3`}>
-        <span className="text-3xl">💠</span>
+        {/* <span className="text-3xl"></span> */}
         अष्टकवर्ग — Ashtakavarga (SAV)
       </h3>
       <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3">

@@ -1,6 +1,6 @@
 // frontend/src/components/VedicKundali/BirthDetailsForm.jsx
 import React, { useMemo, useState } from "react";
-import { Sparkles, MapPin, Calendar, Clock } from "lucide-react";
+// import { Sparkles, MapPin, Calendar, Clock } from "lucide-react";
 import { DISTRICTS } from "../../lib/vedic/districts";
 import { adToBs, bsToAd, BS_MONTHS_NE } from "../../lib/vedic/bs-date";
 import { toDevanagariNum } from "../../lib/vedic/constants";
@@ -76,9 +76,9 @@ export const BirthDetailsForm = ({ onSubmit, loading }) => {
         <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-indigo-500/20 blur-[80px] rounded-full"></div>
 
         <div className="flex flex-col md:flex-row md:items-center gap-6 border-b border-white/10 pb-8">
-          <div className="h-20 w-20 bg-gradient-to-br from-yellow-400 to-amber-600 rounded-[2rem] flex items-center justify-center shadow-[0_0_30px_rgba(245,158,11,0.3)] shrink-0">
-            <Sparkles className="h-10 w-10 text-white animate-pulse" />
-          </div>
+          {/* <div className="h-20 w-20 bg-gradient-to-br from-yellow-400 to-amber-600 rounded-[2rem] flex items-center justify-center shadow-[0_0_30px_rgba(245,158,11,0.3)] shrink-0"> */}
+            {/* <Sparkles className="h-10 w-10 text-white animate-pulse" /> */}
+          {/* </div> */}
           <div>
             <h2 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 via-yellow-500 to-yellow-200 uppercase tracking-tighter">
               जन्म विवरण
@@ -176,7 +176,8 @@ export const BirthDetailsForm = ({ onSubmit, loading }) => {
           <div className="grid md:grid-cols-2 gap-8">
             <div className="space-y-3">
               <label className="text-yellow-500/80 text-xs font-black uppercase tracking-[0.2em] flex items-center gap-2">
-                <Clock className="h-3 w-3" /> जन्म समय / Birth Time
+                {/* <Clock className="h-3 w-3" />  */}
+                जन्म समय / Birth Time
               </label>
               <div className="grid grid-cols-2 gap-3">
                 <select value={hour} onChange={(e) => setHour(e.target.value)} className="bg-white/5 border border-white/10 rounded-2xl px-4 py-4 text-white outline-none focus:border-yellow-500 appearance-none cursor-pointer">
@@ -190,7 +191,8 @@ export const BirthDetailsForm = ({ onSubmit, loading }) => {
 
             <div className="space-y-3">
               <label className="text-yellow-500/80 text-xs font-black uppercase tracking-[0.2em] flex items-center gap-2">
-                <MapPin className="h-3 w-3" /> जन्म स्थान / Birth District
+                {/* {/* <MapPin className="h-3 w-3" />  */}
+                जन्म स्थान / Birth District 
               </label>
               <select 
                 value={districtName} 
@@ -214,7 +216,7 @@ export const BirthDetailsForm = ({ onSubmit, loading }) => {
               <div className="h-8 w-8 border-4 border-yellow-500/30 border-t-yellow-500 rounded-full animate-spin"></div>
             ) : (
               <>
-                <Sparkles className="h-7 w-7 text-yellow-500 group-hover:text-white transition-colors" />
+                {/* <Sparkles className="h-7 w-7 text-yellow-500 group-hover:text-white transition-colors" /> */}
                 <span className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 to-yellow-500 group-hover:from-white group-hover:to-white uppercase tracking-tighter">
                   Generate My Kundali
                 </span>

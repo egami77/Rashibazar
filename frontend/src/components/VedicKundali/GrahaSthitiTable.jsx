@@ -31,7 +31,7 @@ export const GrahaSthitiTable = ({ result, isDark = false }) => {
   return (
     <div className={`${styles.bg} rounded-[2rem] shadow-2xl border ${styles.border} p-6 backdrop-blur-md`}>
       <h3 className={`text-2xl font-bold ${styles.title} mb-6 flex items-center gap-3`}>
-        <span className="text-3xl">🔭</span>
+        {/* <span className="text-3xl">🔭</span> */}
         ग्रह स्थिति तालिका — Planetary Positions
       </h3>
       <div className="overflow-x-auto rounded-2xl overflow-hidden border border-white/5">

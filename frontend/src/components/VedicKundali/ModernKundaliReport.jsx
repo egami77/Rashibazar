@@ -6,7 +6,7 @@ import { VimshottariDashaTable } from "./VimshottariDashaTable";
 import { AshtakavargaTable } from "./AshtakavargaTable";
 import { SankalpaProse } from "./SankalpaProse";
 import { RASHI_NE, NAKSHATRA_NE, toDevanagariNum, degToDMS } from "../../lib/vedic/constants";
-import { Download, Printer } from "lucide-react";
+// import { Download, Printer } from "lucide-react";
 
 export const ModernKundaliReport = ({ kundaliData }) => {
   const result = kundaliData.chartData;
@@ -69,13 +69,15 @@ export const ModernKundaliReport = ({ kundaliData }) => {
           onClick={handlePrint} 
           className="flex items-center gap-2 px-6 py-2.5 bg-white/10 hover:bg-white/20 text-white rounded-xl transition-all font-medium border border-white/10"
         >
-          <Printer className="h-4 w-4" /> Print Report
+          {/* <Printer className="h-4 w-4" />  */}
+          Print Report
         </button>
         <button 
           onClick={handlePdf} 
           className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-yellow-500 via-orange-500 to-red-500 hover:from-yellow-400 hover:to-red-400 text-black font-bold rounded-xl transition-all shadow-lg shadow-yellow-500/20"
         >
-          <Download className="h-4 w-4" /> Download Premium PDF
+          {/* <Download className="h-4 w-4" />  */}
+          Download Premium PDF
         </button>
       </div>
 

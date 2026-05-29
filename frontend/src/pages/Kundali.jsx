@@ -106,7 +106,8 @@ const Kundali = () => {
             animate={{ opacity: 1, y: 0 }}
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-500/10 border border-purple-500/30 text-pink-400 text-sm font-semibold mb-4"
           >
-            <Sparkles className="h-4 w-4" /> Accurate Vedic Calculations
+            {/* <Sparkles className="h-4 w-4" /> */}
+             Accurate Vedic Calculations
           </motion.div>
           <motion.h1
             initial={{ opacity: 0, y: -20 }}
@@ -133,20 +134,23 @@ const Kundali = () => {
               onClick={() => setActiveTab('form')}
               className={`px-8 py-3 rounded-full font-bold transition-all flex items-center gap-2 ${activeTab === 'form' ? 'bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-600 text-black shadow-lg hover:scale-105' : 'text-gray-300 hover:text-white hover:bg-white/10'}`}
             >
-              <RefreshCw className="h-4 w-4" /> New Kundali
+              {/* <RefreshCw className="h-4 w-4" />  */}
+              New Kundali
             </button>
             <button
               onClick={() => setActiveTab('results')}
               disabled={!kundaliData}
               className={`px-8 py-3 rounded-full font-bold transition-all flex items-center gap-2 ${activeTab === 'results' ? 'bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-600 text-black shadow-lg hover:scale-105' : 'text-gray-300 hover:text-white hover:bg-white/10'} ${!kundaliData ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
-              <Star className="h-4 w-4" /> View Result
+              {/* <Star className="h-4 w-4" /> */}
+               View Result
             </button>
             <button
               onClick={() => setActiveTab('history')}
               className={`px-8 py-3 rounded-full font-bold transition-all flex items-center gap-2 ${activeTab === 'history' ? 'bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-600 text-black shadow-lg hover:scale-105' : 'text-gray-300 hover:text-white hover:bg-white/10'}`}
             >
-              <History className="h-4 w-4" /> History
+              {/* <History className="h-4 w-4" /> */}
+               History
             </button>
           </div>
         </div>
@@ -189,9 +193,9 @@ const Kundali = () => {
               
               <div className="flex flex-col items-center py-12 border-t border-white/5 mt-12">
                 <div className="bg-white/10 p-8 rounded-xl border border-purple-400/30 max-w-2xl text-center backdrop-blur-md">
-                  <div className="bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-purple-500/30">
-                    <MessageSquare className="h-8 w-8 text-black" />
-                  </div>
+                  {/* <div className="bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-purple-500/30"> */}
+                    {/* <MessageSquare className="h-8 w-8 text-black" /> */}
+                  {/* </div> */}
                   <h3 className="text-3xl font-bold text-yellow-300 mb-4">Need Deeper Insights?</h3>
                   <p className="text-gray-400 mb-8 leading-relaxed">
                     While our automated reports are highly accurate, a personal consultation with a master astrologer can provide specific remedies and guidance tailored for your life path.
@@ -201,7 +205,7 @@ const Kundali = () => {
                     className="inline-flex items-center gap-3 px-8 py-3 bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-600 rounded-full font-semibold text-black hover:scale-105 transition-all shadow-lg group"
                   >
                     Consult with Astrologer
-                    <Star className="h-5 w-5 group-hover:rotate-90 transition-transform duration-500" />
+                    {/* <Star className="h-5 w-5 group-hover:rotate-90 transition-transform duration-500" /> */}
                   </Link>
                 </div>
               </div>
@@ -265,21 +269,21 @@ const Kundali = () => {
         {activeTab === 'form' && (
           <div className="mt-20 grid md:grid-cols-3 gap-8">
             <div className="bg-black/40 backdrop-blur-sm border border-purple-600/30 rounded-xl p-8 hover:border-purple-500 transition-all duration-300">
-              <div className="text-4xl mb-4">🎯</div>
+              <div className="text-4xl mb-4"></div>
               <h3 className="text-xl font-semibold text-pink-400 mb-3">High Accuracy</h3>
               <p className="text-gray-400 leading-relaxed text-sm">
                 We use advanced astronomical engines to calculate precise planetary positions based on Lahiri Ayanamsa.
               </p>
             </div>
             <div className="bg-black/40 backdrop-blur-sm border border-purple-600/30 rounded-xl p-8 hover:border-purple-500 transition-all duration-300">
-              <div className="text-4xl mb-4">🛡️</div>
+              <div className="text-4xl mb-4"></div>
               <h3 className="text-xl font-semibold text-pink-400 mb-3">Traditional Logic</h3>
               <p className="text-gray-400 leading-relaxed text-sm">
                 Our system incorporates authentic Vedic principles, including divisional charts and Vimshottari dasha.
               </p>
             </div>
             <div className="bg-black/40 backdrop-blur-sm border border-purple-600/30 rounded-xl p-8 hover:border-purple-500 transition-all duration-300">
-              <div className="text-4xl mb-4">⚡</div>
+              <div className="text-4xl mb-4"></div>
               <h3 className="text-xl font-semibold text-pink-400 mb-3">Traditional Report</h3>
               <p className="text-gray-400 leading-relaxed text-sm">
                 Generate a complete birth report with traditional Nepali Sankalpa prose and professional charts.
