@@ -92,9 +92,9 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="fixed top-0 w-full bg-black/80 backdrop-blur-lg z-50 border-b border-purple-500/30">
+    <nav className="fixed top-0 w-full bg-white-900/80 backdrop-blur-lg z-50 border-b border-purple-500/30">
       <div className="max-w-7xl mx-auto px-4">
-        <div className="flex justify-between items-center h-16">
+        <div className="flex justify-between items-center h-20">
 
           {/* LOGO */}
           <Link

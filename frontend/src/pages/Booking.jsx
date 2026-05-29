@@ -253,7 +253,9 @@ const Booking = () => {
                     <div className="flex justify-between items-end pt-6 border-t border-white/5">
                       <div>
                         <p className="text-sm text-gray-400 mb-1">Session Rate</p>
+                        
                         <span className="text-2xl font-semibold text-yellow-300">Npr {astrologer.pricing?.perSession || 0}</span>
+                        <p className="text-sm text-gray-400 mb-1">Meeting Time :30 min</p>
                       </div>
                       <button className="h-12 w-12 bg-white/10 rounded-full flex items-center justify-center text-white group-hover:bg-gradient-to-r group-hover:from-yellow-400 group-hover:to-pink-500 group-hover:text-black transition-all">
                         <MapPin className="h-5 w-5" />

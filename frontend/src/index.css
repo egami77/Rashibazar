@@ -3,12 +3,25 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Enable scrolling on html and body */
+html,
+body {
+  height: auto !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+#root {
+  min-height: 100vh;
+  overflow-y: visible !important;
+}
+
 .starfield {
-  position: absolute;
+  position: fixed;
   inset: 0;
   background: radial-gradient(ellipse at center, rgba(255,255,255,0.02) 0%, rgba(0,0,0,0) 40%),
               linear-gradient(180deg, rgba(8,5,23,0.55), rgba(0,0,0,0.6));
-  overflow: hidden;
+  pointer-events: none;
   z-index: 0;
 }
 

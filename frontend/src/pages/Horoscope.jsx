@@ -322,7 +322,7 @@ ${new Date().toLocaleDateString()}
   );
 };
 
-// Main Horoscope Component (Existing logic preserved, but visual updated to premium)
+// Main Horoscope Component 
 const Horoscope = () => {
   const [selectedRashi, setSelectedRashi] = useState(null);
   const [selectedPeriod, setSelectedPeriod] = useState('daily');

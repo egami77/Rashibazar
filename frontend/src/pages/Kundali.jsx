@@ -19,6 +19,7 @@ const Kundali = () => {
   const [kundaliData, setKundaliData] = useState(null);
   const [user, setUser] = useState(null);
   const [error, setError] = useState('');
+  const [deleteModal, setDeleteModal] = useState({ isOpen: false, kundaliId: null });
 
   useEffect(() => {
     const currentUser = getCurrentUser();
@@ -68,11 +69,15 @@ const Kundali = () => {
 
   const handleDeleteHistory = async (id, e) => {
     e.stopPropagation();
-    if (!window.confirm("Are you sure you want to delete this kundali?")) return;
-    
+    setDeleteModal({ isOpen: true, kundaliId: id });
+  };
+
+  const handleConfirmDelete = async () => {
+    const { kundaliId } = deleteModal;
     try {
-      await deleteKundali(id);
-      setKundaliHistory(prev => prev.filter(k => k._id !== id));
+      await deleteKundali(kundaliId);
+      setKundaliHistory(prev => prev.filter(k => k._id !== kundaliId));
+      setDeleteModal({ isOpen: false, kundaliId: null });
     } catch (error) {
       console.error("Error deleting kundali:", error);
     }
@@ -88,10 +93,10 @@ const Kundali = () => {
     <Layout>
       <div className="w-full py-8 px-4 relative overflow-hidden">
       {/* Mystical Background elements */}
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
+      {/* <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-purple-900/20 rounded-full blur-[120px]"></div>
         <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-indigo-900/20 rounded-full blur-[120px]"></div>
-      </div>
+      </div> */}
 
       <div className="max-w-7xl mx-auto relative z-10">
         {/* Header */}
@@ -284,6 +289,36 @@ const Kundali = () => {
         )}
       </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {deleteModal.isOpen && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-black border-2 border-red-500/50 rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl">
+            <div className="text-center mb-6">
+              <div className="bg-red-500/20 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Trash2 className="h-8 w-8 text-red-400" />
+              </div>
+              <h2 className="text-2xl font-bold text-white mb-2">Delete Kundali?</h2>
+              <p className="text-gray-400">This action cannot be undone. Are you sure you want to permanently delete this kundali?</p>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setDeleteModal({ isOpen: false, kundaliId: null })}
+                className="flex-1 px-4 py-3 bg-gray-700/50 border border-gray-600/30 rounded-xl text-gray-300 hover:bg-gray-700 transition-all font-semibold"
+              >
+                Keep Kundali
+              </button>
+              <button
+                onClick={handleConfirmDelete}
+                className="flex-1 px-4 py-3 bg-gradient-to-r from-red-500 to-red-600 rounded-xl text-white hover:from-red-600 hover:to-red-700 transition-all font-semibold shadow-lg"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </Layout>
   );
 };

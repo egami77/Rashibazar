@@ -15,6 +15,8 @@ const MyBookings = () => {
   const [filter, setFilter] = useState('all');
   const [tokenBookingId, setTokenBookingId] = useState(null);
   const [ratingDraft, setRatingDraft] = useState({});
+  const [cancelModal, setCancelModal] = useState({ isOpen: false, bookingId: null });
+  const [cancellationReason, setCancellationReason] = useState('');
 
   useEffect(() => {
     loadBookings();
@@ -33,18 +35,26 @@ const MyBookings = () => {
     }
   };
 
-  const handleCancel = async (bookingId) => {
-    if (!window.confirm("Are you sure you want to cancel this booking?")) return;
+  const handleCancelClick = (bookingId) => {
+    setCancelModal({ isOpen: true, bookingId });
+    setCancellationReason('');
+  };
 
-    const reason = prompt("Please provide a reason for cancellation (optional):");
-
+  const handleConfirmCancel = async () => {
+    const { bookingId } = cancelModal;
     try {
-      await API.put(`/bookings/${bookingId}/cancel`, { reason });
+      await API.put(`/bookings/${bookingId}/cancel`, { reason: cancellationReason || null });
       toast.success("Booking cancelled successfully");
+      setCancelModal({ isOpen: false, bookingId: null });
+      setCancellationReason('');
       loadBookings();
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to cancel booking");
     }
+  };
+
+  const handleCancel = (bookingId) => {
+    handleCancelClick(bookingId);
   };
 
   const setDraft = (bookingId, patch) => {
@@ -301,7 +311,7 @@ const MyBookings = () => {
                 {canCancel(booking) && (
                   <div className="flex justify-end">
                     <button
-                      onClick={() => handleCancel(booking._id)}
+                      onClick={() => handleCancelClick(booking._id)}
                       className="flex items-center gap-2 px-6 py-2 bg-rose-500/10 border border-rose-500/30 rounded-full text-rose-400 hover:bg-rose-500/20 transition-colors"
                     >
                       <XCircle className="h-4 w-4" />
@@ -317,6 +327,49 @@ const MyBookings = () => {
 
       {tokenBookingId && (
         <BookingTokenModal bookingId={tokenBookingId} onClose={() => setTokenBookingId(null)} />
+      )}
+
+      {/* Cancellation Modal */}
+      {cancelModal.isOpen && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-black border-2 border-purple-500/50 rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl">
+            <div className="text-center mb-6">
+              <div className="bg-rose-500/20 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <XCircle className="h-8 w-8 text-rose-400" />
+              </div>
+              <h2 className="text-2xl font-bold text-white mb-2">Cancel Booking?</h2>
+              <p className="text-gray-400">Are you sure you want to cancel this booking?</p>
+            </div>
+
+            <div className="mb-6">
+              <label className="block text-sm font-semibold text-gray-300 mb-3">Reason for cancellation (optional)</label>
+              <textarea
+                value={cancellationReason}
+                onChange={(e) => setCancellationReason(e.target.value)}
+                placeholder="Tell us why you're cancelling..."
+                className="w-full h-24 bg-white/5 border border-purple-600/30 rounded-xl px-4 py-3 text-white text-sm outline-none focus:border-purple-500 focus:bg-white/10 transition-all resize-none"
+              />
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setCancelModal({ isOpen: false, bookingId: null });
+                  setCancellationReason('');
+                }}
+                className="flex-1 px-4 py-3 bg-gray-700/50 border border-gray-600/30 rounded-xl text-gray-300 hover:bg-gray-700 transition-all font-semibold"
+              >
+                Keep Booking
+              </button>
+              <button
+                onClick={handleConfirmCancel}
+                className="flex-1 px-4 py-3 bg-gradient-to-r from-rose-500 to-red-600 rounded-xl text-white hover:from-rose-600 hover:to-red-700 transition-all font-semibold shadow-lg"
+              >
+                Cancel Booking
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

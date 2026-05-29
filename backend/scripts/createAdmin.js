@@ -1,4 +1,12 @@
 // backend/scripts/createAdmin.js
+// Create one or more admin users (role: 'admin' in Users collection).
+//
+// Usage:
+//   cd backend
+//   node scripts/createAdmin.js
+
+
+
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
@@ -6,68 +14,88 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import User from '../models/User.js';
 
-// Get the directory name properly in ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Load env file from parent directory (backend folder)
 dotenv.config({ path: path.join(__dirname, '..', '.env') });
 
-console.log('MongoDB URI:', process.env.MONGO_URI); // Debug line
+/** Edit this list to create multiple admins in one run */
+const ADMINS_TO_CREATE = [
+  {
+    name: 'Super Admin',
+    email: 'admin@rashibazar.com',
+    password: 'Admin@123',
+    phone: '9800000000',
+    role: 'admin',
+  },
+  // Example second admin — uncomment and change values:
+  // {
+  //   name: 'Operations Admin',
+  //   email: 'ops@rashibazar.com',
+  //   password: 'Ops@12345',
+  //   phone: '9800000001',
+  //   role: 'admin',
+  // },
+];
 
-const createAdmin = async () => {
+const createAdmins = async () => {
   try {
-    // Check if MONGO_URI exists
     if (!process.env.MONGO_URI) {
       throw new Error('MONGO_URI is not defined in .env file');
     }
 
-    // Connect to MongoDB
     await mongoose.connect(process.env.MONGO_URI);
-    console.log('✅ Connected to MongoDB');
+    console.log('✅ Connected to MongoDB\n');
 
-    const adminData = {
-      name: 'Super Admin',
-      email: 'admin@rashibazar.com',
-      password: 'Admin@123', // This will be hashed
-      phone: '9800000000',
-      role: 'admin'
-    };
-
-    // Check if admin already exists
-    const existingAdmin = await User.findOne({ email: adminData.email });
-    if (existingAdmin) {
-      console.log('❌ Admin already exists!');
-      console.log('Email:', adminData.email);
-      console.log('Try logging in with your existing admin account.');
-      process.exit(0);
+    if (ADMINS_TO_CREATE.length === 0) {
+      console.log('No admins defined in ADMINS_TO_CREATE.');
+      return;
     }
 
-    // Hash password
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(adminData.password, salt);
+    let created = 0;
+    let skipped = 0;
 
-    // Create admin
-    const admin = new User({
-      name: adminData.name,
-      email: adminData.email,
-      password: hashedPassword,
-      phone: adminData.phone,
-      role: adminData.role
-    });
+    for (const adminData of ADMINS_TO_CREATE) {
+      const { name, email, password, phone, role = 'admin' } = adminData;
 
-    await admin.save();
-    console.log('✅ Admin created successfully!');
-    console.log('📧 Email:', adminData.email);
-    console.log('🔑 Password:', adminData.password);
-    console.log('👤 Role:', admin.role);
-    console.log('\nYou can now login at: http://localhost:5173/login');
+      if (!name || !email || !password) {
+        console.log(`⚠️  Skipped invalid entry (name, email, password required): ${email || '(no email)'}`);
+        skipped++;
+        continue;
+      }
 
+      const existing = await User.findOne({ email: email.toLowerCase().trim() });
+      if (existing) {
+        console.log(`⏭️  Already exists (${existing.role}): ${email}`);
+        skipped++;
+        continue;
+      }
+
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      const admin = new User({
+        name,
+        email: email.toLowerCase().trim(),
+        password: hashedPassword,
+        phone: phone || '',
+        role,
+      });
+
+      await admin.save();
+      created++;
+      console.log(`✅ Created: ${name} <${email}> (role: ${role})`);
+      console.log(`   Temporary password: ${password}\n`);
+    }
+
+    console.log('---');
+    console.log(`Done. Created: ${created}, Skipped: ${skipped}`);
+    if (created > 0) {
+      console.log('Login at: http://localhost:5173/login → choose User tab → use admin email/password');
+    }
   } catch (error) {
-    console.error('❌ Error creating admin:', error.message);
+    console.error('❌ Error:', error.message);
     if (error.message.includes('MONGO_URI')) {
-      console.log('\n💡 Solution: Make sure you have a .env file in the backend folder with:');
-      console.log('MONGO_URI=mongodb://localhost:27017/rashibazar');
+      console.log('\nAdd to backend/.env:\nMONGO_URI=mongodb://localhost:27017/rashibazar');
     }
   } finally {
     await mongoose.disconnect();
@@ -76,4 +104,4 @@ const createAdmin = async () => {
   }
 };
 
-createAdmin();
+createAdmins();
