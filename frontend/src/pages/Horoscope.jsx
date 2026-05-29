@@ -205,13 +205,13 @@ ${new Date().toLocaleDateString()}
               {/* Highlights Section (Replaces Detailed Prediction) */}
               <div className="bg-black/40 backdrop-blur-sm p-10 rounded-xl border border-purple-600/30 relative overflow-hidden group hover:border-purple-500 transition-all duration-300 shadow-2xl">
                 <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:scale-110 transition-transform duration-700">
-                  <Zap className="h-40 w-40 text-yellow-400" />
+                  {/* <Zap className="h-40 w-40 text-yellow-400" /> */}
                 </div>
                 
                 <div className="flex items-center gap-4 mb-8">
-                  <div className="h-12 w-12 bg-purple-500/20 rounded-full flex items-center justify-center border border-purple-500/30">
+                  {/* <div className="h-12 w-12 bg-purple-500/20 rounded-full flex items-center justify-center border border-purple-500/30">
                     <Zap className="h-6 w-6 text-yellow-400" />
-                  </div>
+                  </div> */}
                   <h3 className="text-2xl font-semibold text-pink-400">Key Highlights</h3>
                 </div>
                 
@@ -221,9 +221,9 @@ ${new Date().toLocaleDateString()}
                   </p>
                   
                   <div className="mt-10 pt-8 border-t border-white/5 flex items-start gap-4">
-                    <div className="h-10 w-10 bg-yellow-400/20 rounded-full flex items-center justify-center shrink-0 border border-yellow-400/30">
+                    {/* <div className="h-10 w-10 bg-yellow-400/20 rounded-full flex items-center justify-center shrink-0 border border-yellow-400/30">
                       <ShieldCheck className="h-5 w-5 text-emerald-400" />
-                    </div>
+                    </div> */}
                     <div>
                       <p className="text-sm text-yellow-300 font-semibold uppercase tracking-widest mb-1">Expert Advice</p>
                       <p className="text-gray-300 text-sm leading-relaxed">{data.data.advice}</p>
@@ -235,9 +235,9 @@ ${new Date().toLocaleDateString()}
               {/* Rashi Info Section (Expanded) */}
               <div className="bg-black/40 backdrop-blur-sm p-10 rounded-xl border border-purple-600/30 hover:border-purple-500 transition-all duration-300">
                 <div className="flex items-center gap-4 mb-8">
-                  <div className="h-12 w-12 bg-purple-500/20 rounded-full flex items-center justify-center border border-purple-500/30">
+                  {/* <div className="h-12 w-12 bg-purple-500/20 rounded-full flex items-center justify-center border border-purple-500/30">
                     <Compass className="h-6 w-6 text-blue-400" />
-                  </div>
+                  </div> */}
                   <h3 className="text-2xl font-semibold text-pink-400">Rashi Information</h3>
                 </div>
                 

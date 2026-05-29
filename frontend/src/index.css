@@ -4,7 +4,7 @@
 @tailwind utilities;
 
 /* Enable scrolling on html and body */
-html,
+/* html,
 body {
   height: auto !important;
   overflow-y: auto !important;
@@ -23,49 +23,49 @@ body {
               linear-gradient(180deg, rgba(8,5,23,0.55), rgba(0,0,0,0.6));
   pointer-events: none;
   z-index: 0;
-}
+} */
 
 /* small stars layer */
-.starfield::before,
+/* .starfield::before,
 .starfield::after {
   content: "";
   position: absolute;
   inset: 0;
   background-repeat: repeat;
   pointer-events: none;
-}
+} */
 
 /* many tiny stars */
-.starfield::before {
+/* .starfield::before {
   background-image: radial-gradient(white 0.8px, rgba(255,255,255,0) 1px);
   background-size: 3px 3px;
   opacity: 0.5;
   transform: scale(1.2);
   animation: twinkle 6s linear infinite;
-}
+} */
 
 /* bigger twinkling stars */
-.starfield::after {
+/* .starfield::after {
   background-image: radial-gradient(white 1.2px, rgba(255,255,255,0) 1.5px);
   background-size: 50px 50px;
   opacity: 0.15;
   transform: translateZ(0);
   animation: drift 20s linear infinite;
-}
+} */
 
 /* subtle twinkle */
-@keyframes twinkle {
+/* @keyframes twinkle {
   0% { opacity: 0.45; transform: translateY(0) scale(1.2); }
   50% { opacity: 0.25; transform: translateY(-10px) scale(1.15); }
   100% { opacity: 0.45; transform: translateY(0) scale(1.2); }
-}
+} */
 
 /* slow drift to create depth */
-@keyframes drift {
+/* @keyframes drift {
   0% { transform: translateX(0) translateY(0) scale(1); }
   50% { transform: translateX(-40px) translateY(-20px) scale(1.02); }
   100% { transform: translateX(0) translateY(0) scale(1); }
-}
+} */
 
 /* Hide Google Translate top banner completely */
 body { top: 0px !important; position: static !important; }

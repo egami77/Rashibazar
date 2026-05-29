@@ -10,31 +10,31 @@ const features = [
     title: "Kundali Generation", 
     desc: "Create your personal birth chart based on Vedic astrology.", 
     path: "/kundali",
-    icon: "🪐"
+    icon: ""
   },
   { 
     title: "Zodiac Compatibility", 
     desc: "Check compatibility with partners, friends, and family.", 
     path: "/compatibility",
-    icon: "💫"
+    icon: ""
   },
   { 
     title: "Daily/Weekly Horoscope", 
     desc: "Receive personalized horoscope insights every day.", 
     path: "/horoscope",
-    icon: "🔮"
+    icon: ""
   },
   { 
     title: "Book Astrology Sessions", 
     desc: "Schedule sessions with our expert astrologers.", 
     path: "/booking",
-    icon: "📅"
+    icon: ""
   },
   { 
     title: "BS Calendar", 
     desc: "Check Vedic lunar calendar and important dates.", 
     path: "/calendar",
-    icon: "🗓️"
+    icon: ""
   },
 ];
 
