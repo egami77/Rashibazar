@@ -201,6 +201,7 @@ export const getAstrologerDashboard = async (req, res) => {
         meetingLink: astrologer.meetingLink || "",
         location: astrologer.location || { address: "", city: "", district: "", landmark: "" },
         pendingProfile: astrologer.pendingProfile || { status: "none" },
+        canUpdateHoroscope: astrologer.canUpdateHoroscope || false,
       },
       stats: {
         totalBookings,

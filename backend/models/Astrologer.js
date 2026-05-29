@@ -55,6 +55,7 @@ const astrologerSchema = new mongoose.Schema({
   completedSessions: { type: Number, default: 0 },
   resetPasswordToken: { type: String },
   resetPasswordExpire: { type: Date },
+  canUpdateHoroscope: { type: Boolean, default: false },
 }, { timestamps: true });
 
 export default mongoose.model("Astrologer", astrologerSchema);

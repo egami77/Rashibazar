@@ -1,5 +1,6 @@
 // backend/routes/adminRoutes.js
 import express from "express";
+import bcrypt from "bcryptjs";
 import User from "../models/User.js";
 import Astrologer from "../models/Astrologer.js";
 import Booking from "../models/Booking.js";
@@ -72,6 +73,34 @@ router.put("/astrologers/:id/status", authMiddleware, isAdmin, async (req, res) 
     });
   } catch (error) {
     console.error("Error updating astrologer status:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Assign/revoke horoscope update permission
+router.put("/astrologers/:id/assign-horoscope", authMiddleware, isAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { canUpdateHoroscope } = req.body;
+
+    const astrologer = await Astrologer.findById(id);
+    if (!astrologer) {
+      return res.status(404).json({ message: 'Astrologer not found' });
+    }
+
+    astrologer.canUpdateHoroscope = !!canUpdateHoroscope;
+    await astrologer.save();
+
+    res.json({
+      message: `Horoscope update access ${canUpdateHoroscope ? 'granted' : 'revoked'} successfully`,
+      astrologer: {
+        id: astrologer._id,
+        name: astrologer.name,
+        canUpdateHoroscope: astrologer.canUpdateHoroscope
+      }
+    });
+  } catch (error) {
+    console.error("Error updating horoscope access:", error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -313,6 +342,104 @@ router.post("/broadcast", authMiddleware, isAdmin, async (req, res) => {
       announcement,
     });
   } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Reset astrologer password by admin (without requiring current password)
+router.put("/astrologers/:id/reset-password", authMiddleware, isAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { newPassword } = req.body;
+
+    if (!newPassword || newPassword.trim() === "") {
+      return res.status(400).json({ message: "New password is required" });
+    }
+
+    // Password strength validation
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    if (!passwordRegex.test(newPassword)) {
+      return res.status(400).json({
+        message: "Password must be at least 8 characters, include one letter, one number, and one special character (@$!%*?&)"
+      });
+    }
+
+    const astrologer = await Astrologer.findById(id);
+    if (!astrologer) {
+      return res.status(404).json({ message: "Astrologer not found" });
+    }
+
+    // Hash the new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    
+    // Update password and clear any reset tokens
+    astrologer.password = hashedPassword;
+    astrologer.resetPasswordToken = undefined;
+    astrologer.resetPasswordExpire = undefined;
+    
+    await astrologer.save();
+
+    console.log(`Admin reset password for astrologer: ${astrologer.name}`);
+
+    res.json({
+      message: "Astrologer password reset successfully by admin",
+      astrologer: {
+        id: astrologer._id,
+        name: astrologer.name,
+        email: astrologer.email
+      }
+    });
+  } catch (error) {
+    console.error("Error resetting astrologer password:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Reset user password by admin (without requiring current password)
+router.put("/users/:id/reset-password", authMiddleware, isAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { newPassword } = req.body;
+
+    if (!newPassword || newPassword.trim() === "") {
+      return res.status(400).json({ message: "New password is required" });
+    }
+
+    // Password strength validation
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    if (!passwordRegex.test(newPassword)) {
+      return res.status(400).json({
+        message: "Password must be at least 8 characters, include one letter, one number, and one special character (@$!%*?&)"
+      });
+    }
+
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Hash the new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    
+    // Update password and clear any reset tokens
+    user.password = hashedPassword;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+    
+    await user.save();
+
+    console.log(`Admin reset password for user: ${user.name}`);
+
+    res.json({
+      message: "User password reset successfully by admin",
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email
+      }
+    });
+  } catch (error) {
+    console.error("Error resetting user password:", error);
     res.status(500).json({ error: error.message });
   }
 });

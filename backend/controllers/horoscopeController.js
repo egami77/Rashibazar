@@ -610,9 +610,15 @@ function getSymbolForRashi(rashi) {
   return symbols[rashi];
 }
 
-// Update or create horoscope prediction (Astrologer)
 export const updateHoroscope = async (req, res) => {
   try {
+    // Check permission
+    if (req.userRole !== 'admin') {
+      if (req.userRole !== 'astrologer' || !req.astrologer?.canUpdateHoroscope) {
+        return res.status(403).json({ message: "You don't have permission to update horoscopes" });
+      }
+    }
+
     const { rashi, period, date } = req.params;
     const { prediction, advice, luckyNumber, luckyColor, compatibility, additionalInfo, categoryPredictions } = req.body;
 
@@ -745,7 +751,6 @@ export const updateHoroscope = async (req, res) => {
   }
 };
 
-// Get horoscopes for astrologer management
 export const getAstrologerHoroscopes = async (req, res) => {
   try {
     const period = req.query.period || null;
@@ -773,9 +778,15 @@ export const getAstrologerHoroscopes = async (req, res) => {
   }
 };
 
-// Delete horoscope
 export const deleteHoroscope = async (req, res) => {
   try {
+    // Check permission
+    if (req.userRole !== 'admin') {
+      if (req.userRole !== 'astrologer' || !req.astrologer?.canUpdateHoroscope) {
+        return res.status(403).json({ message: "You don't have permission to delete horoscopes" });
+      }
+    }
+
     const { horoscopeId } = req.params;
 
     const horoscope = await Horoscope.findByIdAndDelete(horoscopeId);

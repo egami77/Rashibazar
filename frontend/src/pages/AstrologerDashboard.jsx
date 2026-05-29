@@ -83,6 +83,13 @@ const AstrologerDashboard = () => {
   // Countdown for next session
   const [nextSessionCountdown, setNextSessionCountdown] = useState(null);
 
+  // Confirmation Modal for Deleting Slot
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [confirmAction, setConfirmAction] = useState(null);
+
+  // Permission Modal for Publishing Horoscope
+  const [showPermissionModal, setShowPermissionModal] = useState(false);
+
   useEffect(() => {
     loadDashboardData();
   }, []);
@@ -211,8 +218,15 @@ const AstrologerDashboard = () => {
     }
   };
 
-  const handleDeleteSlot = async (id) => {
-    if (!window.confirm("Delete this slot?")) return;
+  const handleDeleteSlot = (id) => {
+    setConfirmAction({ action: 'deleteSlot', id });
+    setShowConfirmModal(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!confirmAction) return;
+    const { id } = confirmAction;
+    setShowConfirmModal(false);
     try {
       await deleteAvailability(id);
       toast.success("Slot deleted");
@@ -234,6 +248,10 @@ const AstrologerDashboard = () => {
 
   const handleAddOrUpdateHoroscope = async (e) => {
     e.preventDefault();
+    if (!dashboardData?.profile?.canUpdateHoroscope) {
+      setShowPermissionModal(true);
+      return;
+    }
     try {
       // Map form fields to backend structure
       const payload = {
@@ -482,7 +500,7 @@ const AstrologerDashboard = () => {
                      <div className="bg-gradient-to-br from-yellow-400/20 via-pink-500/20 to-purple-600/20 border border-purple-600/30 p-8 rounded-xl shadow-xl backdrop-blur-sm">
                        <h4 className="text-lg font-bold text-yellow-300 uppercase mb-6">Expert Actions</h4>
                       <div className="space-y-3">
-                         <button onClick={() => setActiveTab('horoscope')} className="w-full bg-black/40 border border-purple-600/30 hover:border-purple-500 text-white p-4 rounded-full flex items-center justify-between transition-all group">
+                        <button onClick={() => setActiveTab('horoscope')} className="w-full bg-black/40 border border-purple-600/30 hover:border-purple-500 text-white p-4 rounded-full flex items-center justify-between transition-all group">
                           <span className="font-bold text-sm">Update Predictions</span>
                           <Sparkles className="h-4 w-4 group-hover:rotate-12 transition-transform" />
                         </button>
@@ -649,6 +667,7 @@ const AstrologerDashboard = () => {
                    <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} className="bg-black/40 border border-purple-600/30 p-10 rounded-xl relative overflow-hidden">
                     <button onClick={() => setShowAddSlot(false)} className="absolute top-8 right-8 text-gray-500 hover:text-white transition-colors"><X className="h-6 w-6" /></button>
                     <h4 className="text-xl font-black text-white uppercase italic mb-8">Define Office Time</h4>
+                    <h4 className="text-s font-black text-white   mb-8">Must be on 30 min format </h4>
                     
                     <form onSubmit={handleAddSlot} className="grid grid-cols-1 md:grid-cols-4 gap-6">
                       <div className="space-y-2">
@@ -1060,9 +1079,77 @@ const AstrologerDashboard = () => {
           </AnimatePresence>
         </div>
       </main>
-      </div>
-    </Layout>
-  );
+
+      {/* Confirmation Modal */}
+      <AnimatePresence>
+        {showConfirmModal && confirmAction && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/95 backdrop-blur-2xl">
+            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="bg-black/80 border border-red-600/40 w-full max-w-md rounded-2xl overflow-hidden shadow-2xl backdrop-blur-xl p-8 space-y-6">
+              <div className="flex items-center justify-center w-12 h-12 rounded-full bg-red-500/20 border border-red-500/50 mx-auto">
+                <Trash2 className="h-6 w-6 text-red-500" />
+              </div>
+
+              <div className="text-center">
+                <h3 className="text-2xl font-black text-white uppercase tracking-tight">Confirm Deletion</h3>
+                <p className="text-sm text-gray-400 mt-3">Permanently wipe this office hour slot?</p>
+              </div>
+
+              <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4">
+                <p className="text-xs text-red-400 font-semibold">⚠️ This action cannot be undone</p>
+              </div>
+
+              <div className="flex gap-4">
+                <button 
+                  onClick={() => setShowConfirmModal(false)}
+                  className="flex-1 py-3 bg-black/40 border border-gray-600/30 text-gray-400 rounded-lg font-bold uppercase tracking-widest text-sm hover:bg-gray-500/10 transition-all"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={confirmDelete}
+                  className="flex-1 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-lg font-bold uppercase tracking-widest text-sm hover:scale-105 transition-all"
+                >
+                  Delete
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Permission Modal */}
+      <AnimatePresence>
+        {showPermissionModal && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/95 backdrop-blur-2xl">
+            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="bg-black/80 border border-orange-500/40 w-full max-w-md rounded-2xl overflow-hidden shadow-2xl backdrop-blur-xl p-8 space-y-6">
+              <div className="flex items-center justify-center w-12 h-12 rounded-full bg-orange-500/20 border border-orange-500/50 mx-auto">
+                <Sparkles className="h-6 w-6 text-orange-400" />
+              </div>
+
+              <div className="text-center">
+                <h3 className="text-2xl font-black text-white uppercase tracking-tight">Access Denied</h3>
+                <p className="text-sm text-gray-400 mt-3">You are not currently assigned to update daily predictions.</p>
+              </div>
+
+              <div className="bg-orange-500/10 border border-orange-500/20 rounded-lg p-4 text-center">
+                <p className="text-xs text-orange-400 font-semibold">Please contact the admin to request permission.</p>
+              </div>
+
+              <div className="flex justify-center mt-4">
+                <button 
+                  onClick={() => setShowPermissionModal(false)}
+                  className="w-full py-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-black rounded-lg font-bold uppercase tracking-widest text-sm hover:scale-105 transition-all"
+                >
+                  Okay
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  </Layout>
+);
 };
 
 export default AstrologerDashboard;

@@ -170,32 +170,49 @@ export default function Login() {
               </div>
 
               {/* PASSWORD */}
-              <div className="mb-4">
-                <label className="block text-sm text-gray-300 mb-2">
-                  Password
-                </label>
-                <div className="relative">
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    name="password"
-                    value={form.password}
-                    onChange={handleChange}
-                    placeholder="Enter your password"
-                    className="border border-purple-400 bg-transparent p-3 w-full rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-yellow-400 outline-none"
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-yellow-400"
-                  >
-                    {showPassword ? "🙈" : "👁️"}
-                  </button>
-                </div>
-              </div>
+              {/* PASSWORD */}
+<div className="mb-5">
+  <label className="block text-sm font-medium text-gray-300 mb-2">
+    Password
+  </label>
 
+  <div className="relative">
+    <input
+      type={showPassword ? "text" : "password"}
+      name="password"
+      value={form.password}
+      onChange={handleChange}
+      placeholder="Enter your password"
+      className="w-full rounded-xl border border-purple-400/60 bg-white/5 px-4 py-3 pr-14 text-white placeholder-gray-400 outline-none transition focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/40"
+      required
+    />
+
+    <button
+      type="button"
+      onClick={() => setShowPassword(!showPassword)}
+      className="absolute right-4 top-1/2 -translate-y-1/2 text-lg text-gray-400 transition hover:text-yellow-400"
+    >
+      {showPassword ? "🙈" : "👁️"}
+    </button>
+  </div>
+
+  {/* Help Text */}
+  <div className="mt-3 rounded-lg border border-yellow-400/20 bg-yellow-400/10 p-3">
+    <p className="text-sm text-gray-300">
+      Forgot your password?
+    </p>
+
+    <p className="text-sm text-yellow-300 font-medium mt-1">
+      Contact admin to reset your password
+    </p>
+
+    <p className="text-sm text-white mt-1">
+      📞 9800000000
+    </p>
+  </div>
+</div>
               {/* FORGOT */}
-              <div className="text-right mb-6">
+              {/* <div className="text-right mb-6">
                 <button
                   type="button"
                   onClick={() => setShowForgot(true)}
@@ -203,7 +220,7 @@ export default function Login() {
                 >
                   Forgot Password?
                 </button>
-              </div>
+              </div> */}
 
               {/* SUBMIT */}
               <button

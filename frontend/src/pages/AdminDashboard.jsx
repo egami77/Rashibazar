@@ -33,6 +33,19 @@ const AdminDashboard = () => {
   // Modals
   const [showAnnouncementModal, setShowAnnouncementModal] = useState(false);
   const [selectedExpert, setSelectedExpert] = useState(null);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [showPasswordResetModal, setShowPasswordResetModal] = useState(false);
+  const [resetPassword, setResetPassword] = useState('');
+  const [resetPasswordLoading, setResetPasswordLoading] = useState(false);
+  const [resetType, setResetType] = useState('expert'); // 'expert' or 'user'
+  
+  // Confirmation Modal
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [confirmAction, setConfirmAction] = useState(null);
+  
+  // Horoscope Assignment
+  const [showHoroscopeAssignModal, setShowHoroscopeAssignModal] = useState(false);
+  const [horoscopeAssign, setHoroscopeAssign] = useState(false);
   
   const [announcement, setAnnouncement] = useState({ title: '', message: '', target: 'all' });
   const [broadcastLoading, setBroadcastLoading] = useState(false);
@@ -102,8 +115,60 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleResetAstrologerPassword = async () => {
+    if (!resetPassword.trim()) {
+      toast.error("Please enter a new password");
+      return;
+    }
+
+    setResetPasswordLoading(true);
+    try {
+      await API.put(`/admin/astrologers/${selectedExpert._id}/reset-password`, {
+        newPassword: resetPassword
+      });
+      toast.success("Astrologer password reset successfully!");
+      setShowPasswordResetModal(false);
+      setResetPassword('');
+      setSelectedExpert(null);
+      loadDashboardData();
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to reset password");
+    } finally {
+      setResetPasswordLoading(false);
+    }
+  };
+
+  const handleResetUserPassword = async () => {
+    if (!resetPassword.trim()) {
+      toast.error("Please enter a new password");
+      return;
+    }
+
+    setResetPasswordLoading(true);
+    try {
+      await API.put(`/admin/users/${selectedUser._id}/reset-password`, {
+        newPassword: resetPassword
+      });
+      toast.success("User password reset successfully!");
+      setShowPasswordResetModal(false);
+      setResetPassword('');
+      setSelectedUser(null);
+      loadDashboardData();
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to reset password");
+    } finally {
+      setResetPasswordLoading(false);
+    }
+  };
+
   const handleDeleteUser = async (userId, type = 'user') => {
-    if (!window.confirm(`Permanently wipe this ${type} record?`)) return;
+    setConfirmAction({ action: 'delete', userId, type });
+    setShowConfirmModal(true);
+  };
+
+  const confirmDelete = async () => {
+    const { userId, type } = confirmAction;
+    setShowConfirmModal(false);
     try {
       const endpoint = type === 'astrologer' ? `/admin/astrologers/${userId}` : `/admin/users/${userId}`;
       await API.delete(endpoint);
@@ -137,6 +202,19 @@ const AdminDashboard = () => {
       setSystemSettings(updated.data);
     } catch (error) {
       toast.error("Config sync failed.");
+    }
+  };
+
+  const handleAssignHoroscope = async () => {
+    try {
+      await API.put(`/admin/astrologers/${selectedExpert._id}/assign-horoscope`, {
+        canUpdateHoroscope: horoscopeAssign
+      });
+      toast.success(`Horoscope access ${horoscopeAssign ? 'granted' : 'revoked'}.`);
+      setShowHoroscopeAssignModal(false);
+      loadDashboardData();
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to update horoscope access");
     }
   };
 
@@ -663,9 +741,33 @@ const AdminDashboard = () => {
                                </span>
                             </td>
                             <td className="px-10 py-8">
-                               <button onClick={() => handleDeleteUser(astro._id, 'astrologer')} className="p-3 text-gray-700 hover:text-rose-500 hover:bg-rose-500/10 rounded-xl transition-all">
-                                  <Trash2 className="h-4 w-4" />
-                               </button>
+                               <div className="flex items-center gap-2">
+                                  <button 
+                                    onClick={() => {
+                                      setSelectedExpert(astro);
+                                      setResetType('expert');
+                                      setShowPasswordResetModal(true);
+                                    }} 
+                                    className="p-3 text-gray-700 hover:text-blue-400 hover:bg-blue-500/10 rounded-xl transition-all"
+                                    title="Reset Password"
+                                  >
+                                     <RefreshCw className="h-4 w-4" />
+                                  </button>
+                                  <button 
+                                    onClick={() => {
+                                      setSelectedExpert(astro);
+                                      setHoroscopeAssign(astro.canUpdateHoroscope || false);
+                                      setShowHoroscopeAssignModal(true);
+                                    }} 
+                                    className="p-3 text-gray-700 hover:text-purple-400 hover:bg-purple-500/10 rounded-xl transition-all"
+                                    title="Assign Horoscope"
+                                  >
+                                     <BookOpen className="h-4 w-4" />
+                                  </button>
+                                  <button onClick={() => handleDeleteUser(astro._id, 'astrologer')} className="p-3 text-gray-700 hover:text-rose-500 hover:bg-rose-500/10 rounded-xl transition-all">
+                                     <Trash2 className="h-4 w-4" />
+                                  </button>
+                               </div>
                             </td>
                           </tr>
                         ))}
@@ -685,9 +787,22 @@ const AdminDashboard = () => {
                             <td className="px-10 py-8 text-xs text-gray-500 font-black uppercase tracking-[0.1em]">{user.phone || 'NONE_SPECIFIED'}</td>
                             <td className="px-10 py-8 text-[10px] text-gray-700 font-black uppercase tracking-widest">{format(new Date(user.createdAt), 'MMM dd, yyyy')}</td>
                             <td className="px-10 py-8">
-                               <button onClick={() => handleDeleteUser(user._id)} className="p-3 text-gray-700 hover:text-rose-500 hover:bg-rose-500/10 rounded-xl transition-all">
-                                  <Trash2 className="h-4 w-4" />
-                               </button>
+                               <div className="flex items-center gap-2">
+                                  <button 
+                                    onClick={() => {
+                                      setSelectedUser(user);
+                                      setResetType('user');
+                                      setShowPasswordResetModal(true);
+                                    }} 
+                                    className="p-3 text-gray-700 hover:text-blue-400 hover:bg-blue-500/10 rounded-xl transition-all"
+                                    title="Reset Password"
+                                  >
+                                     <RefreshCw className="h-4 w-4" />
+                                  </button>
+                                  <button onClick={() => handleDeleteUser(user._id)} className="p-3 text-gray-700 hover:text-rose-500 hover:bg-rose-500/10 rounded-xl transition-all">
+                                     <Trash2 className="h-4 w-4" />
+                                  </button>
+                               </div>
                             </td>
                           </tr>
                         ))}
@@ -858,10 +973,172 @@ const AdminDashboard = () => {
                        <div className="flex gap-4 pt-6">
                           <button onClick={() => handleApproveAstrologer(selectedExpert._id, 'approved')} className="flex-1 py-4 bg-gradient-to-r from-yellow-400 to-pink-500 text-black rounded-full font-bold uppercase tracking-widest text-sm hover:scale-105 transition-all shadow-lg">Authorize</button>
                           <button onClick={() => handleApproveAstrologer(selectedExpert._id, 'rejected')} className="flex-1 py-4 bg-black/40 border border-rose-500/30 text-rose-400 rounded-full font-bold uppercase tracking-widest text-sm hover:bg-rose-500/10 transition-all">Deny Access</button>
+                          <button onClick={() => {
+                            setResetType('expert');
+                            setShowPasswordResetModal(true);
+                          }} className="flex-1 py-4 bg-black/40 border border-blue-500/30 text-blue-400 rounded-full font-bold uppercase tracking-widest text-sm hover:bg-blue-500/10 transition-all">Reset Password</button>
                       </div>
                    </div>
                 </div>
              </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Password Reset Modal */}
+      <AnimatePresence>
+        {showPasswordResetModal && (selectedExpert || selectedUser) && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/95 backdrop-blur-2xl">
+            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="bg-black/80 border border-blue-600/40 w-full max-w-md rounded-2xl overflow-hidden shadow-2xl relative backdrop-blur-xl p-8 space-y-6">
+              <button onClick={() => {
+                setShowPasswordResetModal(false);
+                setResetPassword('');
+                setSelectedExpert(null);
+                setSelectedUser(null);
+              }} className="absolute top-4 right-4 text-gray-600 hover:text-white transition-colors">
+                <X className="h-6 w-6" />
+              </button>
+
+              <div>
+                <h3 className="text-2xl font-black text-white uppercase tracking-tight">Reset Password</h3>
+                <p className="text-sm text-gray-400 mt-2">
+                  For: <span className="text-blue-400 font-bold">{selectedExpert?.name || selectedUser?.name}</span>
+                  {resetType === 'user' && <span className="text-xs text-gray-600 ml-2">(User)</span>}
+                  {resetType === 'expert' && <span className="text-xs text-gray-600 ml-2">(Expert)</span>}
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-xs text-gray-500 font-black uppercase tracking-widest">New Password</label>
+                <input
+                  type="password"
+                  value={resetPassword}
+                  onChange={(e) => setResetPassword(e.target.value)}
+                  placeholder="Enter new password (8+ chars, letter, number, special char)"
+                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 focus:bg-white/15 transition-all"
+                />
+                <p className="text-xs text-gray-500">Password must contain: letters, numbers, and special characters (@$!%*?&)</p>
+              </div>
+
+              <div className="flex gap-4">
+                <button 
+                  onClick={() => {
+                    setShowPasswordResetModal(false);
+                    setResetPassword('');
+                    setSelectedExpert(null);
+                    setSelectedUser(null);
+                  }}
+                  className="flex-1 py-3 bg-black/40 border border-gray-600/30 text-gray-400 rounded-lg font-bold uppercase tracking-widest text-sm hover:bg-gray-500/10 transition-all"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={resetType === 'expert' ? handleResetAstrologerPassword : handleResetUserPassword}
+                  disabled={resetPasswordLoading}
+                  className="flex-1 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg font-bold uppercase tracking-widest text-sm hover:scale-105 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {resetPasswordLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Reset'}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Confirmation Modal */}
+      <AnimatePresence>
+        {showConfirmModal && confirmAction && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/95 backdrop-blur-2xl">
+            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="bg-black/80 border border-red-600/40 w-full max-w-md rounded-2xl overflow-hidden shadow-2xl backdrop-blur-xl p-8 space-y-6">
+              <div className="flex items-center justify-center w-12 h-12 rounded-full bg-red-500/20 border border-red-500/50 mx-auto">
+                <Trash2 className="h-6 w-6 text-red-500" />
+              </div>
+
+              <div className="text-center">
+                <h3 className="text-2xl font-black text-white uppercase tracking-tight">Confirm Deletion</h3>
+                <p className="text-sm text-gray-400 mt-3">Permanently wipe this {confirmAction.type} record?</p>
+              </div>
+
+              <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4">
+                <p className="text-xs text-red-400 font-semibold">⚠️ This action cannot be undone</p>
+              </div>
+
+              <div className="flex gap-4">
+                <button 
+                  onClick={() => setShowConfirmModal(false)}
+                  className="flex-1 py-3 bg-black/40 border border-gray-600/30 text-gray-400 rounded-lg font-bold uppercase tracking-widest text-sm hover:bg-gray-500/10 transition-all"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={confirmDelete}
+                  className="flex-1 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-lg font-bold uppercase tracking-widest text-sm hover:scale-105 transition-all"
+                >
+                  Delete
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Horoscope Assignment Modal */}
+      <AnimatePresence>
+        {showHoroscopeAssignModal && selectedExpert && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/95 backdrop-blur-2xl">
+            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="bg-black/80 border border-purple-600/40 w-full max-w-md rounded-2xl overflow-hidden shadow-2xl backdrop-blur-xl p-8 space-y-6">
+              <button onClick={() => setShowHoroscopeAssignModal(false)} className="absolute top-4 right-4 text-gray-600 hover:text-white transition-colors">
+                <X className="h-6 w-6" />
+              </button>
+
+              <div>
+                <h3 className="text-2xl font-black text-white uppercase tracking-tight">Assign Horoscope</h3>
+                <p className="text-sm text-gray-400 mt-2">Expert: <span className="text-purple-400 font-bold">{selectedExpert.name}</span></p>
+              </div>
+
+              <div className="space-y-4">
+                <label className="flex items-center gap-3 p-4 rounded-lg border border-purple-500/30 hover:bg-purple-500/10 cursor-pointer transition-all">
+                  <input
+                    type="radio"
+                    checked={horoscopeAssign}
+                    onChange={() => setHoroscopeAssign(true)}
+                    className="w-4 h-4"
+                  />
+                  <div>
+                    <p className="text-sm font-bold text-white">Assign</p>
+                    <p className="text-xs text-gray-500">This expert will update horoscopes</p>
+                  </div>
+                </label>
+
+                <label className="flex items-center gap-3 p-4 rounded-lg border border-gray-600/30 hover:bg-gray-500/10 cursor-pointer transition-all">
+                  <input
+                    type="radio"
+                    checked={!horoscopeAssign}
+                    onChange={() => setHoroscopeAssign(false)}
+                    className="w-4 h-4"
+                  />
+                  <div>
+                    <p className="text-sm font-bold text-white">Remove</p>
+                    <p className="text-xs text-gray-500">Revoke horoscope update access</p>
+                  </div>
+                </label>
+              </div>
+
+              <div className="flex gap-4">
+                <button 
+                  onClick={() => setShowHoroscopeAssignModal(false)}
+                  className="flex-1 py-3 bg-black/40 border border-gray-600/30 text-gray-400 rounded-lg font-bold uppercase tracking-widest text-sm hover:bg-gray-500/10 transition-all"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={handleAssignHoroscope}
+                  className="flex-1 py-3 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg font-bold uppercase tracking-widest text-sm hover:scale-105 transition-all"
+                >
+                  {horoscopeAssign ? 'Assign' : 'Remove'}
+                </button>
+              </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
