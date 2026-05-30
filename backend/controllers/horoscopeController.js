@@ -7,7 +7,7 @@ export const getHoroscope = async (req, res) => {
     const { rashi, period } = req.params;
     const { date } = req.query;
 
-    console.log(`📅 Fetching ${period} horoscope for ${rashi}`);
+    console.log(` Fetching ${period} horoscope for ${rashi}`);
 
     // Validate inputs
     const validRashis = [

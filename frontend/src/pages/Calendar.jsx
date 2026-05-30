@@ -114,51 +114,51 @@ const NepaliCalendar = () => {
           </div>
         );
 
-      case "converter":
-        return (
-          <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-              {/* <RefreshCw className="w-6 h-6" /> */}
-              Date Converter
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {[
-                {
-                  icon: CalendarDays,
-                  title: "BS to AD",
-                  desc: "Convert Nepali Bikram Sambat dates to Gregorian Calendar dates seamlessly",
-                  color: "blue",
-                },
-                {
-                  icon: RefreshCw,
-                  title: "AD to BS",
-                  desc: "Convert Gregorian Calendar dates to Nepali Bikram Sambat with precision",
-                  color: "purple",
-                },
-                {
-                  icon: Clock,
-                  title: "Today's Date",
-                  desc: "See today's date in both Nepali and Gregorian calendar systems instantly",
-                  color: "pink",
-                },
-              ].map(({ icon: Icon, title, desc, color }) => (
-                <motion.div
-                  key={title}
-                  whileHover={{ y: -5, scale: 1.02 }}
-                  className={`p-6 bg-gradient-to-br from-${color}-900/30 to-${color}-900/10 rounded-xl border-2 border-${color}-500/40 hover:border-${color}-400/60 transition-all shadow-lg cursor-pointer group`}
-                >
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className={`p-2 bg-${color}-500/20 rounded-lg group-hover:bg-${color}-500/40 transition-all`}>
-                      <Icon className={`w-5 h-5 text-${color}-400`} />
-                    </div>
-                    <h4 className={`font-bold text-${color}-300 text-lg`}>{title}</h4>
-                  </div>
-                  <p className="text-sm text-gray-300">{desc}</p>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        );
+      // case "converter":
+        // return (
+        //   <div className="space-y-6">
+        //     <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+        //       {/* <RefreshCw className="w-6 h-6" /> */}
+        //       Date Converter
+        //     </h2>
+        //     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        //       {[
+        //         {
+        //           icon: CalendarDays,
+        //           title: "BS to AD",
+        //           desc: "Convert Nepali Bikram Sambat dates to Gregorian Calendar dates seamlessly",
+        //           color: "blue",
+        //         },
+        //         {
+        //           icon: RefreshCw,
+        //           title: "AD to BS",
+        //           desc: "Convert Gregorian Calendar dates to Nepali Bikram Sambat with precision",
+        //           color: "purple",
+        //         },
+        //         {
+        //           icon: Clock,
+        //           title: "Today's Date",
+        //           desc: "See today's date in both Nepali and Gregorian calendar systems instantly",
+        //           color: "pink",
+        //         },
+        //       ].map(({ icon: Icon, title, desc, color }) => (
+        //         <motion.div
+        //           key={title}
+        //           whileHover={{ y: -5, scale: 1.02 }}
+        //           className={`p-6 bg-gradient-to-br from-${color}-900/30 to-${color}-900/10 rounded-xl border-2 border-${color}-500/40 hover:border-${color}-400/60 transition-all shadow-lg cursor-pointer group`}
+        //         >
+        //           <div className="flex items-center gap-3 mb-3">
+        //             <div className={`p-2 bg-${color}-500/20 rounded-lg group-hover:bg-${color}-500/40 transition-all`}>
+        //               <Icon className={`w-5 h-5 text-${color}-400`} />
+        //             </div>
+        //             <h4 className={`font-bold text-${color}-300 text-lg`}>{title}</h4>
+        //           </div>
+        //           <p className="text-sm text-gray-300">{desc}</p>
+        //         </motion.div>
+        //       ))}
+        //     </div>
+        //   </div>
+        // );
 
       default:
         return null;
@@ -200,7 +200,7 @@ const NepaliCalendar = () => {
         <div className="flex flex-wrap gap-2 mb-8 border-b border-purple-500/30 pb-4">
           {[
             { id: "calendar",  label: "Monthly Calendar", icon: CalendarDays },
-            { id: "converter", label: "Date Converter",   icon: RefreshCw },
+            // { id: "converter", label: "Date Converter",   icon: RefreshCw },
           ].map(({ id, label, icon: Icon }) => (
             <button
               key={id}

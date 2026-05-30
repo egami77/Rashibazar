@@ -27,7 +27,7 @@ API.interceptors.request.use(
     }
 
     if (import.meta.env.DEV) {
-      console.log(`📤 ${config.method.toUpperCase()} ${config.url}`, config.data || '');
+      console.log(`   ${config.method.toUpperCase()} ${config.url}`, config.data || '');
     }
 
     return config;
