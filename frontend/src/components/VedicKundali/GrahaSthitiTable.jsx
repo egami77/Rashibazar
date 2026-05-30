@@ -34,43 +34,43 @@ export const GrahaSthitiTable = ({ result, isDark = false }) => {
         {/* <span className="text-3xl">🔭</span> */}
         ग्रह स्थिति तालिका — Planetary Positions
       </h3>
-      <div className="overflow-x-auto rounded-2xl overflow-hidden border border-white/5">
-        <table className="w-full text-sm text-left border-collapse">
+      <div className="overflow-hidden rounded-2xl border border-white/5">
+        <table className="w-full text-[10px] md:text-sm text-left border-collapse">
           <thead>
             <tr className={`${styles.header} font-bold`}>
-              <th className="p-4">ग्रह (Planet)</th>
-              <th className="p-4">राशि (Rashi)</th>
-              <th className="p-4">अंश (Deg)</th>
-              <th className="p-4">नक्षत्र (Nakshatra)</th>
-              <th className="p-4">पाद</th>
-              <th className="p-4">भाव</th>
-              <th className="p-4">राशिपति</th>
+              <th className="p-2 md:p-4">ग्रह</th>
+              <th className="p-2 md:p-4">राशि</th>
+              <th className="p-2 md:p-4">अंश</th>
+              <th className="p-2 md:p-4">नक्षत्र</th>
+              <th className="p-2 md:p-4 hidden sm:table-cell">पाद</th>
+              <th className="p-2 md:p-4">भाव</th>
+              <th className="p-2 md:p-4 hidden md:table-cell">राशिपति</th>
             </tr>
           </thead>
           <tbody>
             <tr className={`${styles.row} font-medium bg-white/5`}>
-              <td className="p-4 font-bold text-yellow-500">{PLANETS_NE.Lagna}</td>
-              <td className="p-4">{RASHI_NE[result.lagnaRashi]}</td>
-              <td className="p-4 font-mono text-xs">{degToDMS(result.lagnaDegInRashi)}</td>
-              <td className="p-4">{NAKSHATRA_NE[result.lagnaNakshatra]}</td>
-              <td className="p-4">{toDevanagariNum(result.lagnaPada)}</td>
-              <td className="p-4">{toDevanagariNum(1)}</td>
-              <td className="p-4">{RASHI_LORD_NE[result.lagnaRashi]}</td>
+              <td className="p-2 md:p-4 font-bold text-yellow-500">{PLANETS_NE.Lagna}</td>
+              <td className="p-2 md:p-4">{RASHI_NE[result.lagnaRashi]}</td>
+              <td className="p-2 md:p-4 font-mono text-[9px] md:text-xs tracking-tighter">{degToDMS(result.lagnaDegInRashi)}</td>
+              <td className="p-2 md:p-4">{NAKSHATRA_NE[result.lagnaNakshatra]}</td>
+              <td className="p-2 md:p-4 hidden sm:table-cell">{toDevanagariNum(result.lagnaPada)}</td>
+              <td className="p-2 md:p-4">{toDevanagariNum(1)}</td>
+              <td className="p-2 md:p-4 hidden md:table-cell">{RASHI_LORD_NE[result.lagnaRashi]}</td>
             </tr>
             {result.planets.map((p) => (
               <tr key={p.key} className={`${styles.row} border-t`}>
-                <td className="p-4 font-bold">
+                <td className="p-2 md:p-4 font-bold">
                   {PLANETS_NE[p.key]}
                   {p.retrograde && p.key !== "Rahu" && p.key !== "Ketu" && (
-                    <span className="text-red-400 ml-2 text-xs font-black">(व)</span>
+                    <span className="text-red-400 ml-1 md:ml-2 text-[9px] md:text-xs font-black">(व)</span>
                   )}
                 </td>
-                <td className="p-4">{RASHI_NE[p.rashi]}</td>
-                <td className="p-4 font-mono text-xs">{degToDMS(p.degInRashi)}</td>
-                <td className="p-4">{NAKSHATRA_NE[p.nakshatra]}</td>
-                <td className="p-4">{toDevanagariNum(p.pada)}</td>
-                <td className="p-4">{toDevanagariNum(p.house)}</td>
-                <td className="p-4">{RASHI_LORD_NE[p.rashi]}</td>
+                <td className="p-2 md:p-4">{RASHI_NE[p.rashi]}</td>
+                <td className="p-2 md:p-4 font-mono text-[9px] md:text-xs tracking-tighter">{degToDMS(p.degInRashi)}</td>
+                <td className="p-2 md:p-4">{NAKSHATRA_NE[p.nakshatra]}</td>
+                <td className="p-2 md:p-4 hidden sm:table-cell">{toDevanagariNum(p.pada)}</td>
+                <td className="p-2 md:p-4">{toDevanagariNum(p.house)}</td>
+                <td className="p-2 md:p-4 hidden md:table-cell">{RASHI_LORD_NE[p.rashi]}</td>
               </tr>
             ))}
           </tbody>

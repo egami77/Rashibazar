@@ -310,7 +310,38 @@ const AdminDashboard = () => {
         </div>
       </aside>
 
-      <main className="flex-1 p-6 md:p-12 overflow-y-auto ">
+      <main className="flex-1 p-4 md:p-6 lg:p-12 overflow-y-auto w-full">
+        {/* Mobile Navigation */}
+        <div className="lg:hidden flex overflow-x-auto pb-4 mb-6 space-x-2 snap-x hide-scrollbar">
+          {[
+            { id: 'overview', label: 'Command Center', icon: LayoutDashboard },
+            {
+              id: 'pending',
+              label: 'Approvals',
+              icon: UserX,
+              count: pendingAstrologers.length + pendingProfileUpdates.length
+            },
+            { id: 'astrologers', label: 'Experts', icon: Briefcase },
+            { id: 'users', label: 'Client Nodes', icon: Users },
+            { id: 'bookings', label: 'Financial Ledger', icon: CreditCard },
+            { id: 'settings', label: 'Core Config', icon: Settings }
+          ].map(item => (
+            <button
+              key={item.id}
+              onClick={() => setActiveTab(item.id)}
+              className={`flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-full transition-all snap-center ${activeTab === item.id ? 'bg-gradient-to-r from-yellow-400 to-pink-500 text-black font-bold shadow-lg' : 'bg-black/40 border border-purple-600/30 text-gray-300'}`}
+            >
+              <item.icon className="h-4 w-4" />
+              <span className="text-xs whitespace-nowrap">{item.label}</span>
+              {item.count > 0 && <span className="ml-1 bg-white/20 px-2 py-0.5 rounded-full text-[9px] font-black">{item.count}</span>}
+            </button>
+          ))}
+          <button onClick={() => setShowAnnouncementModal(true)} className="flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 snap-center">
+             <Megaphone className="h-4 w-4" />
+             <span className="text-xs whitespace-nowrap uppercase tracking-widest">Broadcast</span>
+          </button>
+        </div>
+
         <div className="max-w-6xl mx-auto space-y-12">
           
           <header className="flex flex-col md:flex-row md:items-center justify-between gap-8">
@@ -681,8 +712,8 @@ const AdminDashboard = () => {
                     </div>
                   </header>
 
-                   <div className="bg-black/40 border border-purple-600/30 rounded-xl overflow-hidden backdrop-blur-sm shadow-2xl">
-                    <table className="w-full text-left">
+                   <div className="bg-black/40 border border-purple-600/30 rounded-xl overflow-x-auto backdrop-blur-sm shadow-2xl">
+                    <table className="w-full text-left min-w-[800px]">
                       <thead>
                         <tr className="bg-white/5 border-b border-white/10">
                           {activeTab === 'astrologers' ? (

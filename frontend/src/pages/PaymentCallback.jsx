@@ -162,11 +162,14 @@ const PaymentCallback = () => {
 
             <div className="flex gap-4">
               <button
+              onClick={() => navigate('/booking')}
                 className="flex-1 px-8 py-3 bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-600 text-black rounded-full font-semibold hover:scale-105 transition-all shadow-lg"
               >
+                
                 Try Again
               </button>
               <button
+              onClick={() => navigate('/home')}
                 className="flex-1 px-8 py-3 bg-transparent border border-purple-600 text-purple-200 rounded-full hover:text-yellow-400 hover:border-yellow-400 transition-all"
               >
                 Go Home

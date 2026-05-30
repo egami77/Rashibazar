@@ -106,7 +106,14 @@ const MyBookings = () => {
     return isBefore(new Date(), bookingDateTime);
   };
 
-  const filteredBookings = bookings.filter(booking => {
+  const processedBookings = bookings.map(booking => {
+    if (booking.paymentMethod === 'khalti' && (booking.paymentStatus === 'pending' || booking.paymentStatus === 'failed')) {
+      return { ...booking, bookingStatus: 'cancelled', cancellationReason: booking.cancellationReason || 'Khalti Payment Failed/Pending' };
+    }
+    return booking;
+  });
+
+  const filteredBookings = processedBookings.filter(booking => {
     if (filter === 'all') return true;
     return booking.bookingStatus === filter;
   });

@@ -89,6 +89,9 @@ const AstrologerDashboard = () => {
 
   // Permission Modal for Publishing Horoscope
   const [showPermissionModal, setShowPermissionModal] = useState(false);
+  const [cancelBookingModal, setCancelBookingModal] = useState({ isOpen: false, bookingId: null });
+  const [cancelReason, setCancelReason] = useState('');
+  const [queueTab, setQueueTab] = useState('today');
 
   useEffect(() => {
     loadDashboardData();
@@ -278,21 +281,41 @@ const AstrologerDashboard = () => {
 
   // Group bookings by date
   const groupedBookings = useMemo(() => {
+    const validBookings = bookings.filter(booking => {
+      if (booking.paymentMethod === 'khalti' && (booking.paymentStatus === 'pending' || booking.paymentStatus === 'failed')) {
+        return false;
+      }
+      return true;
+    });
+
+    const todayStr = format(new Date(), 'yyyy-MM-dd');
+    const today = new Date();
+    today.setHours(0,0,0,0);
+
+    const filteredForTab = validBookings.filter(b => {
+      const bDate = new Date(b.date);
+      bDate.setHours(0,0,0,0);
+      const bDateStr = format(bDate, 'yyyy-MM-dd');
+      if (queueTab === 'today') return bDateStr === todayStr;
+      if (queueTab === 'upcoming') return bDate > today;
+      if (queueTab === 'previous') return bDate < today;
+      return true;
+    });
+
     const groups = {};
-    bookings.forEach(booking => {
+    filteredForTab.forEach(booking => {
       const dateKey = format(parseISO(booking.date), 'yyyy-MM-dd');
       if (!groups[dateKey]) groups[dateKey] = [];
       groups[dateKey].push(booking);
     });
     
-    // Sort groups by date descending
     return Object.keys(groups)
-      .sort((a, b) => b.localeCompare(a))
+      .sort((a, b) => queueTab === 'upcoming' ? a.localeCompare(b) : b.localeCompare(a))
       .map(date => ({
         date,
         sessions: groups[date].sort((a, b) => a.time.localeCompare(b.time))
       }));
-  }, [bookings]);
+  }, [bookings, queueTab]);
 
   const getStatusBadge = (status) => {
     const badges = {
@@ -550,8 +573,17 @@ const AstrologerDashboard = () => {
                 exit={{ opacity: 0, x: -20 }}
                 className="space-y-12"
               >
-                <div className="flex items-center justify-between px-2">
+                <div className="flex flex-col md:flex-row items-center justify-between px-2 gap-4">
                   <h2 className="text-3xl font-black text-white uppercase italic tracking-tighter">Physical Visit Queue</h2>
+                  <div className="flex bg-black/40 p-1 rounded-full border border-purple-600/30">
+                    {['previous', 'today', 'upcoming'].map(tab => (
+                      <button 
+                        key={tab} 
+                        onClick={() => setQueueTab(tab)}
+                        className={`px-6 py-2 rounded-full text-xs font-bold uppercase tracking-widest transition-all ${queueTab === tab ? 'bg-gradient-to-r from-yellow-400 to-pink-500 text-black' : 'text-gray-500 hover:text-white'}`}
+                      >{tab}</button>
+                    ))}
+                  </div>
                 </div>
 
                 <div className="space-y-16">
@@ -619,10 +651,7 @@ const AstrologerDashboard = () => {
                                     className="flex-1 px-6 py-4 bg-gradient-to-r from-yellow-400 to-pink-500 text-black rounded-full text-xs font-bold uppercase tracking-widest hover:scale-105 transition-all"
                                   >Confirm Visit</button>
                                   <button 
-                                    onClick={() => {
-                                      const reason = window.prompt("Reason for cancellation?");
-                                      if (reason) handleUpdateBookingStatus(booking._id, 'cancelled', reason);
-                                    }}
+                                    onClick={() => setCancelBookingModal({ isOpen: true, bookingId: booking._id })}
                                     className="px-6 py-4 bg-black/40 border border-rose-500/30 text-rose-400 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-rose-500/10 transition-all"
                                   >Decline</button>
                                 </div>
@@ -1147,6 +1176,54 @@ const AstrologerDashboard = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
+        {/* Cancellation Modal */}
+        {cancelBookingModal.isOpen && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[60]">
+            <div className="bg-black border-2 border-purple-500/50 rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/10 rounded-full blur-3xl -mr-10 -mt-10"></div>
+              
+              <div className="text-center mb-6">
+                <div className="bg-rose-500/20 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 border border-rose-500/30">
+                  <XCircle className="h-8 w-8 text-rose-400" />
+                </div>
+                <h2 className="text-2xl font-black text-white uppercase italic tracking-tight mb-2">Cancel Meeting?</h2>
+                <p className="text-xs text-gray-400 font-bold uppercase tracking-widest">Provide a reason for the client</p>
+              </div>
+
+              <div className="mb-6">
+                <textarea
+                  value={cancelReason}
+                  onChange={(e) => setCancelReason(e.target.value)}
+                  placeholder="e.g. Unexpected emergency..."
+                  className="w-full h-24 bg-white/5 border border-purple-600/30 rounded-xl px-4 py-3 text-white text-sm outline-none focus:border-rose-500 transition-all resize-none"
+                />
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => {
+                    setCancelBookingModal({ isOpen: false, bookingId: null });
+                    setCancelReason('');
+                  }}
+                  className="flex-1 px-4 py-3 bg-gray-700/50 border border-gray-600/30 rounded-xl text-gray-300 hover:bg-gray-700 transition-all font-semibold uppercase tracking-widest text-xs"
+                >
+                  Keep Meeting
+                </button>
+                <button
+                  onClick={() => {
+                    handleUpdateBookingStatus(cancelBookingModal.bookingId, 'cancelled', cancelReason);
+                    setCancelBookingModal({ isOpen: false, bookingId: null });
+                    setCancelReason('');
+                  }}
+                  className="flex-1 px-4 py-3 bg-gradient-to-r from-rose-500 to-red-600 rounded-xl text-white hover:from-rose-600 hover:to-red-700 transition-all font-black shadow-lg uppercase tracking-widest text-xs"
+                >
+                  Confirm Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
     </div>
   </Layout>
 );

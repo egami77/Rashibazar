@@ -546,7 +546,7 @@ const Booking = () => {
                   className="px-8 py-3 bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-600 text-black rounded-full font-semibold hover:scale-105 transition-all shadow-lg"
                 >View My Bookings</button>
                 <button
-                  onClick={() => window.location.href = '/'}
+                  onClick={() => window.location.href = '/home'}
                   className="px-8 py-3 bg-transparent border border-purple-600 text-purple-200 rounded-full hover:text-yellow-400 hover:border-yellow-400 transition-all"
                 >Back Home</button>
               </div>

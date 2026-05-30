@@ -29,14 +29,14 @@ export const VimshottariDashaTable = ({ result, isDark = false }) => {
         {/* <span className="text-3xl">⏳</span> */}
         विंशोत्तरी महादशा — Maha Dasha
       </h3>
-      <div className="overflow-x-auto rounded-2xl overflow-hidden border border-white/5">
-        <table className="w-full text-sm text-left border-collapse">
+      <div className="overflow-hidden rounded-2xl border border-white/5">
+        <table className="w-full text-[10px] md:text-sm text-left border-collapse">
           <thead>
             <tr className={`${styles.header} font-bold`}>
-              <th className="p-4">स्वामी (Lord)</th>
-              <th className="p-4">सुरुवात (Starts)</th>
-              <th className="p-4">अन्त्य (Ends)</th>
-              <th className="p-4">अवस्था</th>
+              <th className="p-2 md:p-4">स्वामी (Lord)</th>
+              <th className="p-2 md:p-4">सुरुवात (Starts)</th>
+              <th className="p-2 md:p-4">अन्त्य (Ends)</th>
+              <th className="p-2 md:p-4 hidden sm:table-cell">अवस्था</th>
             </tr>
           </thead>
           <tbody>
@@ -44,12 +44,12 @@ export const VimshottariDashaTable = ({ result, isDark = false }) => {
               const isCurrent = new Date() >= new Date(d.startDate) && new Date() < new Date(d.endDate);
               return (
                 <tr key={i} className={`${styles.row} border-t ${isCurrent ? styles.current : ''}`}>
-                  <td className="p-4">{d.lordNe} <span className="opacity-50 text-xs ml-1">({d.lord})</span></td>
-                  <td className="p-4 font-mono text-xs">{new Date(d.startDate).toLocaleDateString()}</td>
-                  <td className="p-4 font-mono text-xs">{new Date(d.endDate).toLocaleDateString()}</td>
-                  <td className="p-4">
+                  <td className="p-2 md:p-4">{d.lordNe} <span className="opacity-50 text-[8px] md:text-xs ml-1 block md:inline">({d.lord})</span></td>
+                  <td className="p-2 md:p-4 font-mono text-[9px] md:text-xs">{new Date(d.startDate).toLocaleDateString()}</td>
+                  <td className="p-2 md:p-4 font-mono text-[9px] md:text-xs">{new Date(d.endDate).toLocaleDateString()}</td>
+                  <td className="p-2 md:p-4 hidden sm:table-cell">
                     {isCurrent ? (
-                      <span className="flex items-center gap-1.5 text-xs">
+                      <span className="flex items-center gap-1.5 text-[9px] md:text-xs">
                         <span className="h-2 w-2 rounded-full bg-yellow-400 animate-pulse"></span>
                         सक्रिय (Active)
                       </span>

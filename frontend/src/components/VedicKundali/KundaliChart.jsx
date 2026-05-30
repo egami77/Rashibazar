@@ -63,10 +63,8 @@ export const KundaliChart = ({ title, titleEn, positions, lagnaSign, size = 320,
       </div>
       <svg
         viewBox={`0 0 ${s} ${s}`}
-        width={s}
-        height={s}
-        className={`${colors.svgBg} rounded-xl overflow-hidden`}
-        style={{ shapeRendering: "geometricPrecision" }}
+        className={`w-full aspect-square ${colors.svgBg} rounded-xl overflow-hidden mx-auto`}
+        style={{ maxWidth: s, shapeRendering: "geometricPrecision" }}
       >
         {/* Outer Border */}
         <rect x="0" y="0" width={s} height={s} fill="none" stroke={colors.stroke} strokeWidth="3" />

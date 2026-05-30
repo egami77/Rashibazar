@@ -29,11 +29,11 @@ export const AshtakavargaTable = ({ result, isDark = false }) => {
         {/* <span className="text-3xl"></span> */}
         अष्टकवर्ग — Ashtakavarga (SAV)
       </h3>
-      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3">
+      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2 sm:gap-3">
         {sav.map((points, i) => (
-          <div key={i} className={`flex flex-col items-center p-3 ${styles.itemBg} border rounded-2xl transition-transform hover:scale-105`}>
-            <span className={`text-[10px] uppercase tracking-tighter ${styles.textRashi} mb-1`}>{RASHI_NE[i]}</span>
-            <span className={`text-2xl font-black ${styles.textPoints}`}>{toDevanagariNum(points)}</span>
+          <div key={i} className={`flex flex-col items-center p-2 sm:p-3 ${styles.itemBg} border rounded-2xl transition-transform hover:scale-105`}>
+            <span className={`text-[9px] sm:text-[10px] uppercase tracking-tighter ${styles.textRashi} mb-1`}>{RASHI_NE[i]}</span>
+            <span className={`text-xl sm:text-2xl font-black ${styles.textPoints}`}>{toDevanagariNum(points)}</span>
           </div>
         ))}
       </div>

@@ -56,6 +56,7 @@ export const createBooking = async (req, res) => {
     // Check if slot is already booked
     console.log(`🔍 Checking for existing bookings on ${bookingDate.toISOString()} at ${time}`);
     
+    const fifteenMinsAgo = new Date(Date.now() - 15 * 60 * 1000);
     const existingBooking = await Booking.findOne({
       astrologerId,
       date: {
@@ -63,7 +64,12 @@ export const createBooking = async (req, res) => {
         $lt: new Date(bookingDate.toISOString().split('T')[0] + 'T23:59:59Z')
       },
       time,
-      bookingStatus: { $in: ['pending', 'confirmed'] }
+      bookingStatus: { $in: ['pending', 'confirmed'] },
+      $or: [
+        { paymentMethod: { $ne: 'khalti' } },
+        { paymentMethod: 'khalti', paymentStatus: 'paid' },
+        { paymentMethod: 'khalti', paymentStatus: 'pending', createdAt: { $gt: fifteenMinsAgo } }
+      ]
     });
     
     if (existingBooking) {

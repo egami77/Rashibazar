@@ -75,10 +75,16 @@ export const getAstrologerAvailability = async (req, res) => {
     }
 
     // Get already booked slots
+    const fifteenMinsAgo = new Date(Date.now() - 15 * 60 * 1000);
     const bookedSlots = await Booking.find({
       astrologerId: id,
       date: { $gte: start, $lte: end },
-      bookingStatus: { $in: ['pending', 'confirmed'] }
+      bookingStatus: { $in: ['pending', 'confirmed'] },
+      $or: [
+        { paymentMethod: { $ne: 'khalti' } },
+        { paymentMethod: 'khalti', paymentStatus: 'paid' },
+        { paymentMethod: 'khalti', paymentStatus: 'pending', createdAt: { $gt: fifteenMinsAgo } }
+      ]
     });
 
     console.log(`📍 Found ${bookedSlots.length} booked slots`);
