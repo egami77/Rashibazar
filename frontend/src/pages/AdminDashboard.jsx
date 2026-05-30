@@ -16,6 +16,7 @@ import { format, parseISO, startOfDay, endOfDay, isWithinInterval } from 'date-f
 import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import API from '../services/api';
+import { logout } from '../services/auth';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -303,7 +304,7 @@ const AdminDashboard = () => {
             <Megaphone className="h-4 w-4 group-hover:rotate-12 transition-transform" />
             <span className="text-[10px] font-black uppercase tracking-[0.2em]">Broadcast</span>
           </button>
-          <button onClick={() => navigate('/')} className="w-full flex items-center gap-4 px-6 py-4 text-gray-600 hover:text-rose-500 transition-colors">
+          <button onClick={() => logout()} className="w-full flex items-center gap-4 px-6 py-4 text-gray-600 hover:text-rose-500 transition-colors">
             <LogOut className="h-4 w-4" />
             <span className="text-[10px] font-black uppercase tracking-[0.2em]">Logout</span>
           </button>
@@ -339,6 +340,10 @@ const AdminDashboard = () => {
           <button onClick={() => setShowAnnouncementModal(true)} className="flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 snap-center">
              <Megaphone className="h-4 w-4" />
              <span className="text-xs whitespace-nowrap uppercase tracking-widest">Broadcast</span>
+          </button>
+          <button onClick={() => logout()} className="flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/30 snap-center">
+             <LogOut className="h-4 w-4" />
+             <span className="text-xs whitespace-nowrap uppercase tracking-widest">Logout</span>
           </button>
         </div>
 

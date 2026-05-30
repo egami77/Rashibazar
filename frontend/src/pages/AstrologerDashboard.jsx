@@ -30,6 +30,7 @@ import { format, parseISO, isAfter, isBefore, addMinutes } from 'date-fns';
 import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '../components/Navbar';
+import { logout } from '../services/auth';
 
 const AstrologerDashboard = () => {
   const navigate = useNavigate();
@@ -377,7 +378,7 @@ const AstrologerDashboard = () => {
         </nav>
 
         <div className="mt-auto pt-8 border-t border-white/5 space-y-2 mb-20">
-          <button onClick={() => navigate('/')} className="w-full flex items-center gap-4 px-6 py-4 text-gray-600 hover:text-rose-500 transition-colors">
+          <button onClick={() => logout()} className="w-full flex items-center gap-4 px-6 py-4 text-gray-600 hover:text-rose-500 transition-colors">
             <LogOut className="h-4 w-4" />
             <span className="text-[10px] font-black uppercase tracking-[0.2em]">Logout</span>
           </button>
@@ -398,6 +399,10 @@ const AstrologerDashboard = () => {
               <span className="text-xs whitespace-nowrap">{item.label}</span>
             </button>
           ))}
+          <button onClick={() => logout()} className="flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/30 snap-center">
+             <LogOut className="h-4 w-4" />
+             <span className="text-xs whitespace-nowrap uppercase tracking-widest">Logout</span>
+          </button>
         </div>
 
         <div className="max-w-6xl mx-auto space-y-12">

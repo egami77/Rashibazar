@@ -23,6 +23,19 @@ export default function Login() {
     if (showForgot) wakeServer();
   }, [showForgot]);
 
+  // Redirect if already authenticated (fixes back button automatic logout issue)
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      try {
+        const path = redirectBasedOnRole();
+        navigate(path, { replace: true });
+      } catch (err) {
+        console.error("Auto-redirect failed", err);
+      }
+    }
+  }, [navigate]);
+
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
 
