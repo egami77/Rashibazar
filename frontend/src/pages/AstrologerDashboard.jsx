@@ -8,7 +8,7 @@ import {
   Phone, MessageCircle, Loader2, RefreshCw,
   Sparkles, X, ChevronRight, LayoutDashboard, 
   Settings, LogOut, Bell, ExternalLink, User as UserIcon,
-  Info, MapPin, Activity, Home, Building2, ListTodo, Zap
+  Info, MapPin, Activity, Home, Building2, ListTodo, Zap, Briefcase
 } from 'lucide-react';
 import {
   getAstrologerDashboard,
@@ -29,7 +29,7 @@ import ChangePasswordForm from '../components/ChangePasswordForm';
 import { format, parseISO, isAfter, isBefore, addMinutes } from 'date-fns';
 import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
-import Layout from '../components/Layout';
+import Navbar from '../components/Navbar';
 
 const AstrologerDashboard = () => {
   const navigate = useNavigate();
@@ -348,39 +348,44 @@ const AstrologerDashboard = () => {
   ];
 
   return (
-    <Layout>
-      <div className="flex flex-col lg:flex-row w-full min-h-screen">
+    <>
+      <Navbar />
+      <div className="min-h-screen bg-gradient-to-b from-black via-purple-950 to-black text-white flex ">
         {/* Sidebar Navigation */}
-        <aside className="w-72 bg-black/40 backdrop-blur-md border-r border-purple-600/30 sticky top-24 h-[calc(100vh-6rem)] hidden lg:flex flex-col p-8 z-40 overflow-y-auto">
+        <aside className="w-80 bg-black/40 backdrop-blur-md border-r border-purple-600/30 sticky top-0 h-screen hidden lg:flex flex-col p-8 z-50">
         <div className="mb-12">
-          <h2 className="text-2xl font-bold bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent tracking-wide">RASHIBAZAR</h2>
-          <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mt-1">Expert Dashboard</p>
+          <div className="flex items-center gap-3">
+             <Briefcase className="h-8 w-8 text-purple-500" />
+             <div>
+                <h2 className="text-xl font-bold bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent tracking-wide">EXPERT</h2>
+                <p className="text-[9px] text-gray-500 uppercase tracking-widest font-black -mt-1 opacity-50">Dashboard v2.0</p>
+             </div>
+          </div>
         </div>
 
-        <nav className="flex-1 space-y-2">
+        <nav className="flex-1 space-y-1.5 overflow-y-auto pr-2 custom-scrollbar">
           {dashboardTabs.map(item => (
             <button
               key={item.id}
               onClick={() => setActiveTab(item.id)}
               className={`w-full flex items-center gap-4 px-6 py-4 rounded-full transition-all group ${activeTab === item.id ? 'bg-gradient-to-r from-yellow-400 to-pink-500 text-black shadow-lg font-bold' : 'text-gray-400 hover:bg-purple-900/30 hover:text-white'}`}
             >
-              <item.icon className={`h-5 w-5 ${activeTab === item.id ? 'scale-110' : 'group-hover:scale-110'} transition-transform`} />
-              <span className="text-sm">{item.label}</span>
-              {activeTab === item.id && <ChevronRight className="ml-auto h-4 w-4" />}
+              <item.icon className={`h-4 w-4 ${activeTab === item.id ? 'scale-110' : 'group-hover:scale-110'} transition-transform`} />
+              <span className="text-xs uppercase tracking-widest">{item.label}</span>
             </button>
           ))}
         </nav>
 
-        <div className="mt-auto pt-8 border-t border-white/5">
-          <button onClick={() => navigate('/')} className="w-full flex items-center gap-4 px-6 py-4 text-gray-400 hover:text-rose-500 transition-colors">
-            <LogOut className="h-5 w-5" />
-            <span className="text-sm font-bold uppercase tracking-widest">Sign Out</span>
+        <div className="mt-auto pt-8 border-t border-white/5 space-y-2 mb-20">
+          <button onClick={() => navigate('/')} className="w-full flex items-center gap-4 px-6 py-4 text-gray-600 hover:text-rose-500 transition-colors">
+            <LogOut className="h-4 w-4" />
+            <span className="text-[10px] font-black uppercase tracking-[0.2em]">Logout</span>
           </button>
         </div>
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 p-4 md:p-8 lg:p-12 overflow-y-auto w-full">
+      <main className="flex-1 p-4 md:p-6 lg:p-12 overflow-y-auto w-full">
         {/* Mobile Navigation */}
         <div className="lg:hidden flex overflow-x-auto pb-4 mb-6 space-x-2 snap-x hide-scrollbar">
           {dashboardTabs.map(item => (
@@ -1107,7 +1112,6 @@ const AstrologerDashboard = () => {
             )}
           </AnimatePresence>
         </div>
-      </main>
 
       {/* Confirmation Modal */}
       <AnimatePresence>
@@ -1224,9 +1228,10 @@ const AstrologerDashboard = () => {
             </div>
           </div>
         )}
-    </div>
-  </Layout>
-);
+      </main>
+      </div>
+    </>
+  );
 };
 
 export default AstrologerDashboard;

@@ -7,7 +7,7 @@ const NepaliDatePkg = require("nepali-date-converter");
 const NepaliDate = NepaliDatePkg.NepaliDate || NepaliDatePkg.default || NepaliDatePkg;
 
 export const calculateKundali = (data) => {
-  console.log("🪐 Accurate calculateKundali called with data:", data);
+  console.log(" Accurate calculateKundali called with data:", data);
   
   const { name, birthDate, birthTime, birthPlace, gender, latitude, longitude } = data;
   

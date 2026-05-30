@@ -13,7 +13,7 @@ export const createBooking = async (req, res) => {
     
     // Validate required fields
     if (!astrologerId || !date || !time || !paymentMethod) {
-      console.error("❌ Missing required fields:", { astrologerId, date, time, paymentMethod });
+      console.error("   Missing required fields:", { astrologerId, date, time, paymentMethod });
       return res.status(400).json({ message: "Missing required fields: astrologerId, date, time, paymentMethod" });
     }
     
@@ -27,11 +27,11 @@ export const createBooking = async (req, res) => {
     });
     
     if (!astrologer) {
-      console.error("❌ Astrologer not found or not available:", astrologerId);
+      console.error("   Astrologer not found or not available:", astrologerId);
       return res.status(404).json({ message: "Astrologer not found or not available" });
     }
     
-    console.log(`✅ Astrologer found: ${astrologer.name}, Pricing: Npr${astrologer.pricing.perSession}`);
+    console.log(`   Astrologer found: ${astrologer.name}, Pricing: Npr${astrologer.pricing.perSession}`);
     
     // Parse date properly
     let bookingDate;
@@ -49,7 +49,7 @@ export const createBooking = async (req, res) => {
       
       console.log(`📅 Booking date: ${bookingDate.toISOString()}`);
     } catch (dateError) {
-      console.error("❌ Date parsing error:", dateError);
+      console.error("   Date parsing error:", dateError);
       return res.status(400).json({ message: "Invalid date format. Use YYYY-MM-DD" });
     }
     
@@ -73,11 +73,11 @@ export const createBooking = async (req, res) => {
     });
     
     if (existingBooking) {
-      console.error("❌ Time slot already booked");
+      console.error("   Time slot already booked");
       return res.status(400).json({ message: "This time slot is already booked" });
     }
     
-    console.log("✅ Slot is available. Creating booking...");
+    console.log("   Slot is available. Creating booking...");
     
     // Create booking
     const booking = new Booking({
@@ -95,21 +95,21 @@ export const createBooking = async (req, res) => {
     console.log("💾 Saving booking to database...");
     await booking.save();
     
-    console.log("✅ Booking saved successfully. Populating details...");
+    console.log("   Booking saved successfully. Populating details...");
     
     // Populate user and astrologer details
     const populatedBooking = await Booking.findById(booking._id)
       .populate('userId', 'name email phone')
       .populate('astrologerId', 'name email');
     
-    console.log("✅ Booking created successfully:", populatedBooking);
+    console.log("   Booking created successfully:", populatedBooking);
     
     res.status(201).json({
       message: "Booking created successfully",
       booking: populatedBooking
     });
   } catch (error) {
-    console.error("❌ createBooking error:", error.message);
+    console.error("   createBooking error:", error.message);
     console.error("Stack trace:", error.stack);
     res.status(500).json({ 
       error: error.message,

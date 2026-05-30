@@ -1,13 +1,14 @@
 // backend/controllers/kundaliController.js
 import Kundali from "../models/Kundali.js";
+import Compatibility from "../models/Compatibility.js";
 import { calculateKundali } from "../utils/kundaliCalculator.js";
 import { generateKundaliEngine, calculateGunaMilan } from "../utils/vedicEngine.js";
 
 // === GENERATE KUNDALI ===
 export const generateKundali = async (req, res) => {
   try {
-    console.log("📩 Received kundali request:", req.body);
-    console.log("👤 User ID:", req.userId || "Guest");
+    console.log(" Received kundali request:", req.body);
+    console.log(" User ID:", req.userId || "Guest");
 
     const {
       name,
@@ -37,8 +38,8 @@ export const generateKundali = async (req, res) => {
       });
     }
 
-    console.log("✅ Parsed birth date:", parsedBirthDate);
-    console.log("✅ Birth time:", birthTime);
+    console.log("   Parsed birth date:", parsedBirthDate);
+    console.log("   Birth time:", birthTime);
 
     // Calculate kundali
     const kundaliData = calculateKundali({
@@ -51,7 +52,7 @@ export const generateKundali = async (req, res) => {
       longitude
     });
 
-    console.log("✅ Kundali calculated successfully");
+    console.log("   Kundali calculated successfully");
 
     // Save if user is logged in
     if (req.userId) {
@@ -75,7 +76,7 @@ export const generateKundali = async (req, res) => {
       });
 
       await kundali.save();
-      console.log("💾 Kundali saved:", kundali._id);
+      console.log(" Kundali saved:", kundali._id);
     }
 
     return res.json({
@@ -85,7 +86,7 @@ export const generateKundali = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("❌ generateKundali error:", error);
+    console.error("   generateKundali error:", error);
     return res.status(500).json({
       message: "Failed to generate kundali",
       error: error.message,
@@ -166,7 +167,7 @@ export const deleteKundali = async (req, res) => {
 
 export const checkCompatibility = async (req, res) => {
   try {
-    const { partner1, partner2 } = req.body;
+    const { partner1, partner2, save = false } = req.body;
     const processPartner = (p) => {
       const birth = new Date(p.birthDate);
       const [h, m] = p.birthTime.split(':').map(Number);
@@ -192,14 +193,116 @@ export const checkCompatibility = async (req, res) => {
     if (s >= 28) { verdict = "Excellent Match! "; vColor = "text-green-400"; }
     else if (s >= 21) { verdict = "Good Match "; vColor = "text-yellow-400"; }
     else if (s >= 18) { verdict = "Average Match "; vColor = "text-orange-400"; }
-    res.json({
+    
+    const responseData = {
       score: s, maxScore: 36, percentage: matchingResult.percentage,
       verdict, verdictColor: vColor, koots: matchingResult.koots,
       partner1: { name: partner1.name, rashi: astro1.moonRashi, nakshatra: astro1.moonNakshatra, pada: astro1.planets[1].pada, mangalDosha: checkMangal(astro1) },
       partner2: { name: partner2.name, rashi: astro2.moonRashi, nakshatra: astro2.moonNakshatra, pada: astro2.planets[1].pada, mangalDosha: checkMangal(astro2) },
       doshas: matchingResult.doshas
-    });
+    };
+
+    // Save if user is logged in and save flag is true
+    if (req.userId && save) {
+      const compatibility = new Compatibility({
+        userId: req.userId,
+        partner1: {
+          name: partner1.name,
+          birthDate: partner1.birthDate,
+          birthTime: partner1.birthTime,
+          district: partner1.district,
+          latitude: partner1.latitude,
+          longitude: partner1.longitude,
+          rashi: astro1.moonRashi,
+          nakshatra: astro1.moonNakshatra,
+          pada: astro1.planets[1].pada,
+          mangalDosha: checkMangal(astro1)
+        },
+        partner2: {
+          name: partner2.name,
+          birthDate: partner2.birthDate,
+          birthTime: partner2.birthTime,
+          district: partner2.district,
+          latitude: partner2.latitude,
+          longitude: partner2.longitude,
+          rashi: astro2.moonRashi,
+          nakshatra: astro2.moonNakshatra,
+          pada: astro2.planets[1].pada,
+          mangalDosha: checkMangal(astro2)
+        },
+        score: s,
+        maxScore: 36,
+        percentage: matchingResult.percentage,
+        verdict,
+        verdictColor: vColor,
+        koots: matchingResult.koots,
+        doshas: matchingResult.doshas
+      });
+
+      await compatibility.save();
+      console.log(" Compatibility saved:", compatibility._id);
+    }
+
+    res.json(responseData);
   } catch (error) {
     res.status(500).json({ message: "Compatibility error", error: error.message });
+  }
+};
+
+// === GET COMPATIBILITY HISTORY ===
+export const getCompatibilityHistory = async (req, res) => {
+  try {
+    if (!req.userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const history = await Compatibility.find({ userId: req.userId })
+      .sort({ createdAt: -1 })
+      .limit(50);
+
+    res.json({
+      success: true,
+      message: "Compatibility history retrieved",
+      data: history
+    });
+  } catch (error) {
+    console.error("   getCompatibilityHistory error:", error);
+    res.status(500).json({
+      message: "Failed to retrieve compatibility history",
+      error: error.message
+    });
+  }
+};
+
+// === DELETE COMPATIBILITY ===
+export const deleteCompatibility = async (req, res) => {
+  try {
+    if (!req.userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const { id } = req.params;
+    const compatibility = await Compatibility.findById(id);
+
+    if (!compatibility) {
+      return res.status(404).json({ message: "Compatibility record not found" });
+    }
+
+    if (compatibility.userId.toString() !== req.userId) {
+      return res.status(403).json({ message: "Unauthorized to delete this record" });
+    }
+
+    await Compatibility.findByIdAndDelete(id);
+
+    res.json({
+      success: true,
+      message: "Compatibility record deleted"
+    });
+  } catch (error) {
+    console.error("   deleteCompatibility error:", error);
+    res.status(500).json({
+      message: "Failed to delete compatibility record",
+      error: error.message
+    });
   }
 };

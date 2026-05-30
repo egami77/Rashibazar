@@ -45,7 +45,7 @@ const createAdmins = async () => {
     }
 
     await mongoose.connect(process.env.MONGO_URI);
-    console.log('✅ Connected to MongoDB\n');
+    console.log('   Connected to MongoDB\n');
 
     if (ADMINS_TO_CREATE.length === 0) {
       console.log('No admins defined in ADMINS_TO_CREATE.');
@@ -59,14 +59,14 @@ const createAdmins = async () => {
       const { name, email, password, phone, role = 'admin' } = adminData;
 
       if (!name || !email || !password) {
-        console.log(`⚠️  Skipped invalid entry (name, email, password required): ${email || '(no email)'}`);
+        console.log(`  Skipped invalid entry (name, email, password required): ${email || '(no email)'}`);
         skipped++;
         continue;
       }
 
       const existing = await User.findOne({ email: email.toLowerCase().trim() });
       if (existing) {
-        console.log(`⏭️  Already exists (${existing.role}): ${email}`);
+        console.log(`  Already exists (${existing.role}): ${email}`);
         skipped++;
         continue;
       }
@@ -83,7 +83,7 @@ const createAdmins = async () => {
 
       await admin.save();
       created++;
-      console.log(`✅ Created: ${name} <${email}> (role: ${role})`);
+      console.log(`   Created: ${name} <${email}> (role: ${role})`);
       console.log(`   Temporary password: ${password}\n`);
     }
 
@@ -93,7 +93,7 @@ const createAdmins = async () => {
       console.log('Login at: http://localhost:5173/login → choose User tab → use admin email/password');
     }
   } catch (error) {
-    console.error('❌ Error:', error.message);
+    console.error('   Error:', error.message);
     if (error.message.includes('MONGO_URI')) {
       console.log('\nAdd to backend/.env:\nMONGO_URI=mongodb://localhost:27017/rashibazar');
     }

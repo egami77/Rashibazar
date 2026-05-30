@@ -8,7 +8,7 @@ import toast from "react-hot-toast";
 // =========================
 export const registerUser = async (data) => {
   try {
-    console.log("📤 Registering user:", data.email);
+    console.log(" Registering user:", data.email);
     const response = await API.post("/auth/register/user", data);
 
     if (response.data.token) {
@@ -20,7 +20,7 @@ export const registerUser = async (data) => {
 
     return response;
   } catch (error) {
-    console.error("❌ Registration error:", error.response?.data || error.message);
+    console.error("   Registration error:", error.response?.data || error.message);
     toast.error(error.response?.data?.message || "Registration failed");
     throw error;
   }
@@ -32,7 +32,7 @@ export const registerUser = async (data) => {
 // =========================
 export const registerAstrologer = async (data) => {
   try {
-    console.log("📤 Registering astrologer:", data.email);
+    console.log(" Registering astrologer:", data.email);
     const response = await API.post("/auth/register/astrologer", data);
 
     if (response.data.token) {
@@ -44,7 +44,7 @@ export const registerAstrologer = async (data) => {
 
     return response;
   } catch (error) {
-    console.error("❌ Astrologer registration error:", error.response?.data || error.message);
+    console.error("   Astrologer registration error:", error.response?.data || error.message);
     toast.error(error.response?.data?.message || "Registration failed");
     throw error;
   }
@@ -56,7 +56,7 @@ export const registerAstrologer = async (data) => {
 // =========================
 export const loginUser = async (data) => {
   try {
-    console.log("📤 Logging in:", data.email, "as", data.role);
+    console.log(" Logging in:", data.email, "as", data.role);
     const response = await API.post("/auth/login", data);
 
     if (response.data.token) {
@@ -66,11 +66,11 @@ export const loginUser = async (data) => {
         // Handles both user + admin
         localStorage.setItem("user", JSON.stringify(response.data.user));
         localStorage.removeItem("astrologer");
-        console.log("👤 User/Admin logged in:", response.data.user);
+        console.log(" User/Admin logged in:", response.data.user);
       } else if (response.data.astrologer) {
         localStorage.setItem("astrologer", JSON.stringify(response.data.astrologer));
         localStorage.removeItem("user");
-        console.log("👤 Astrologer logged in:", response.data.astrologer);
+        console.log(" Astrologer logged in:", response.data.astrologer);
       }
 
       toast.success("Login successful!");
@@ -78,7 +78,7 @@ export const loginUser = async (data) => {
 
     return response;
   } catch (error) {
-    console.error("❌ Login error:", error.response?.data || error.message);
+    console.error("   Login error:", error.response?.data || error.message);
     toast.error(error.response?.data?.message || "Login failed");
     throw error;
   }
@@ -91,7 +91,7 @@ export const loginUser = async (data) => {
 const FORGOT_PASSWORD_TIMEOUT_MS = 120000;
 
 export const forgotPassword = async (data) => {
-  console.log("📤 Requesting password reset for:", data.email);
+  console.log(" Requesting password reset for:", data.email);
 
   const requestOpts = { timeout: FORGOT_PASSWORD_TIMEOUT_MS };
   let lastError;
@@ -120,7 +120,7 @@ export const forgotPassword = async (data) => {
     errData?.error ||
     lastError?.message ||
     "Failed to send reset email";
-  console.error("❌ Forgot password error:", msg, errData || "");
+  console.error("   Forgot password error:", msg, errData || "");
   toast.dismiss("forgot-retry");
   toast.error(msg);
   throw lastError;
@@ -132,12 +132,12 @@ export const forgotPassword = async (data) => {
 // =========================
 export const resetPassword = async (token, data) => {
   try {
-    console.log("📤 Resetting password");
+    console.log(" Resetting password");
     const response = await API.post(`/auth/reset-password/${token}`, data);
     toast.success("Password reset successful!");
     return response;
   } catch (error) {
-    console.error("❌ Reset password error:", error.response?.data || error.message);
+    console.error("   Reset password error:", error.response?.data || error.message);
     toast.error(error.response?.data?.message || "Password reset failed");
     throw error;
   }
@@ -165,10 +165,10 @@ export const changePassword = async (data) => {
 // =========================
 export const getUserProfile = async () => {
   try {
-    console.log("📥 Fetching profile");
+    console.log("   Fetching profile");
     return await API.get("/auth/profile");
   } catch (error) {
-    console.error("❌ Profile fetch error:", error.response?.data || error.message);
+    console.error("   Profile fetch error:", error.response?.data || error.message);
     throw error;
   }
 };
@@ -234,7 +234,7 @@ export const isAuthenticated = () => {
 // LOGOUT
 // =========================
 export const logout = () => {
-  console.log("👋 Logging out");
+  console.log(" Logging out");
 
   localStorage.clear();
 
@@ -275,7 +275,7 @@ export const decodeToken = () => {
 
     return JSON.parse(jsonPayload);
   } catch (err) {
-    console.error("❌ Token decode error:", err);
+    console.error("   Token decode error:", err);
     return null;
   }
 };

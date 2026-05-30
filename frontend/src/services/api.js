@@ -33,7 +33,7 @@ API.interceptors.request.use(
     return config;
   },
   (error) => {
-    console.error("❌ Request error:", error);
+    console.error("   Request error:", error);
     return Promise.reject(error);
   }
 );
@@ -42,7 +42,7 @@ API.interceptors.request.use(
 API.interceptors.response.use(
   (response) => {
     if (import.meta.env.DEV) {
-      console.log(`✅ ${response.config.method.toUpperCase()} ${response.config.url} - ${response.status}`);
+      console.log(`   ${response.config.method.toUpperCase()} ${response.config.url} - ${response.status}`);
     }
     return response;
   },
@@ -61,7 +61,7 @@ API.interceptors.response.use(
           "Cannot reach the local API. Start the backend with: cd backend && npm run dev";
       }
 
-      console.error("❌ Network Error:", {
+      console.error("   Network Error:", {
         code: error.code,
         message: error.message,
         baseURL,
@@ -73,7 +73,7 @@ API.interceptors.response.use(
       });
     }
 
-    console.error("❌ API Error:", {
+    console.error("   API Error:", {
       url: error.config?.url,
       method: error.config?.method,
       status: error.response?.status,

@@ -528,7 +528,7 @@ export const forgotPassword = async (req, res) => {
     // Resend is fast — wait for it. Gmail on Render often times out if awaited.
     if (process.env.RESEND_API_KEY?.trim()) {
       await deliverResetEmail(mailOptions);
-      console.log(`✅ Reset email sent to ${user.email} (Resend)`);
+      console.log(`  Reset email sent to ${user.email} (Resend)`);
       return res.json({ message: successMessage });
     }
 
@@ -538,7 +538,7 @@ export const forgotPassword = async (req, res) => {
           "Password reset requested. Check your inbox and spam folder within a few minutes.",
       });
       deliverResetEmail(mailOptions)
-        .then(() => console.log(`✅ Reset email sent to ${user.email}`))
+        .then(() => console.log(`  Reset email sent to ${user.email}`))
         .catch((err) =>
           console.error(`Reset email failed for ${user.email}:`, err.message)
         );
@@ -546,7 +546,7 @@ export const forgotPassword = async (req, res) => {
     }
 
     await deliverResetEmail(mailOptions);
-    console.log(`✅ Reset email sent to ${user.email}`);
+    console.log(`  Reset email sent to ${user.email}`);
     res.json({ message: successMessage });
   } catch (err) {
     console.error("forgotPassword error:", {

@@ -259,9 +259,9 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black via-purple-950 to-black text-white flex pt-20">
+    <div className="min-h-screen bg-gradient-to-b from-black via-purple-950 to-black text-white flex ">
       {/* Sidebar */}
-      <aside className="w-72 bg-black/40 backdrop-blur-md border-r border-purple-600/30 sticky top-20 h-[calc(100vh-5rem)] hidden lg:flex flex-col p-8 z-50">
+      <aside className="w-80 bg-black/40 backdrop-blur-md border-r border-purple-600/30 sticky top-0 h-screen hidden lg:flex flex-col p-8 z-50">
         <div className="mb-12">
           <div className="flex items-center gap-3">
              <Shield className="h-8 w-8 text-purple-500" />
@@ -298,7 +298,7 @@ const AdminDashboard = () => {
           ))}
         </nav>
 
-        <div className="mt-auto pt-8 border-t border-white/5 space-y-2">
+        <div className="mt-auto pt-8 border-t border-white/5 space-y-2 mb-20">
           <button onClick={() => setShowAnnouncementModal(true)} className="w-full flex items-center gap-4 px-6 py-4 text-emerald-400 hover:bg-emerald-500/10 rounded-2xl transition-all group">
             <Megaphone className="h-4 w-4 group-hover:rotate-12 transition-transform" />
             <span className="text-[10px] font-black uppercase tracking-[0.2em]">Broadcast</span>

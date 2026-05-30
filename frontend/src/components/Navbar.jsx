@@ -31,7 +31,7 @@ export default function Navbar() {
   };
 
   // Hide navbar on auth pages
-  const noNavbarRoutes = ["/", "/login", "/signup", "/reset-password"];
+  const noNavbarRoutes = ["/", "/login", "/signup", "/reset-password", "/admin/dashboard", "/astrologer/dashboard"];
   if (noNavbarRoutes.includes(location.pathname)) return null;
 
   //

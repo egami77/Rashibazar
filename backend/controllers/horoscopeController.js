@@ -103,7 +103,7 @@ export const getHoroscope = async (req, res) => {
     });
     
   } catch (err) {
-    console.error("❌ getHoroscope error:", err);
+    console.error("   getHoroscope error:", err);
     res.status(500).json({ 
       message: "Failed to fetch horoscope",
       error: err.message 
@@ -278,7 +278,7 @@ export const getAllRashis = async (req, res) => {
       rashis
     });
   } catch (err) {
-    console.error("❌ getAllRashis error:", err);
+    console.error("   getAllRashis error:", err);
     res.status(500).json({ 
       success: false,
       message: "Failed to fetch rashis",
@@ -344,7 +344,7 @@ export const getDailyHoroscopeForAll = async (req, res) => {
     });
     
   } catch (err) {
-    console.error("❌ getDailyHoroscopeForAll error:", err);
+    console.error("   getDailyHoroscopeForAll error:", err);
     res.status(500).json({ 
       success: false,
       message: "Failed to fetch daily horoscopes",
@@ -715,7 +715,7 @@ export const updateHoroscope = async (req, res) => {
       horoscope.updatedAt = new Date();
       await horoscope.save();
       
-      console.log(`✅ Horoscope updated for ${rashi} (${period})`);
+      console.log(`   Horoscope updated for ${rashi} (${period})`);
     } else {
       // Create new
       const newHoroscope = new Horoscope({
@@ -734,7 +734,7 @@ export const updateHoroscope = async (req, res) => {
       await newHoroscope.save();
       horoscope = newHoroscope;
       
-      console.log(`✅ New horoscope created for ${rashi} (${period})`);
+      console.log(`   New horoscope created for ${rashi} (${period})`);
     }
 
     res.json({
@@ -743,7 +743,7 @@ export const updateHoroscope = async (req, res) => {
       data: horoscope
     });
   } catch (err) {
-    console.error("❌ updateHoroscope error:", err);
+    console.error("   updateHoroscope error:", err);
     res.status(500).json({ 
       message: "Failed to update horoscope",
       error: err.message 
@@ -770,7 +770,7 @@ export const getAstrologerHoroscopes = async (req, res) => {
       data: horoscopes
     });
   } catch (err) {
-    console.error("❌ getAstrologerHoroscopes error:", err);
+    console.error("   getAstrologerHoroscopes error:", err);
     res.status(500).json({ 
       message: "Failed to fetch horoscopes",
       error: err.message 
@@ -797,14 +797,14 @@ export const deleteHoroscope = async (req, res) => {
       });
     }
 
-    console.log(`✅ Horoscope deleted: ${horoscope.rashi} (${horoscope.period})`);
+    console.log(`   Horoscope deleted: ${horoscope.rashi} (${horoscope.period})`);
 
     res.json({
       success: true,
       message: "Horoscope deleted successfully"
     });
   } catch (err) {
-    console.error("❌ deleteHoroscope error:", err);
+    console.error("   deleteHoroscope error:", err);
     res.status(500).json({ 
       message: "Failed to delete horoscope",
       error: err.message 

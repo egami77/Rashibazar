@@ -3,7 +3,7 @@ import API from "./api";
 
 // Get horoscope for specific rashi and period
 export const getHoroscope = async (rashi, period, date = null) => {
-  console.log(`📡 Fetching ${period} horoscope for ${rashi}`);
+  console.log(` Fetching ${period} horoscope for ${rashi}`);
   
   try {
     const params = date ? { date } : {};
@@ -39,7 +39,7 @@ export const getDailyHoroscopeForAll = async () => {
 
 // Update horoscope (for astrologers)
 export const updateHoroscope = async (rashi, period, date, horoscopeData) => {
-  console.log(`📝 Updating horoscope for ${rashi} (${period})`);
+  console.log(` Updating horoscope for ${rashi} (${period})`);
   
   try {
     const response = await API.put(`/horoscope/${rashi}/${period}/${date}`, horoscopeData);
@@ -52,7 +52,7 @@ export const updateHoroscope = async (rashi, period, date, horoscopeData) => {
 
 // Get horoscopes for astrologer management
 export const getAstrologerHoroscopes = async (period = null) => {
-  console.log(`📡 Fetching astrologer horoscopes${period ? ` (${period})` : ''}`);
+  console.log(` Fetching astrologer horoscopes${period ? ` (${period})` : ''}`);
   
   try {
     const params = period ? { period } : {};
@@ -66,7 +66,7 @@ export const getAstrologerHoroscopes = async (period = null) => {
 
 // Delete horoscope (for astrologers)
 export const deleteHoroscope = async (horoscopeId) => {
-  console.log(`🗑️ Deleting horoscope: ${horoscopeId}`);
+  console.log(` Deleting horoscope: ${horoscopeId}`);
   
   try {
     const response = await API.delete(`/horoscope/${horoscopeId}`);

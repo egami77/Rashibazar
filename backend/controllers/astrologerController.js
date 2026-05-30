@@ -66,11 +66,11 @@ export const getAstrologerAvailability = async (req, res) => {
       isActive: true
     });
 
-    console.log(`📅 Fetching availability for astrologer ${id} from ${startDate} to ${endDate}`);
-    console.log(`📍 Found ${recurringSlots.length} recurring slots`);
+    console.log(` Fetching availability for astrologer ${id} from ${startDate} to ${endDate}`);
+    console.log(` Found ${recurringSlots.length} recurring slots`);
 
     if (recurringSlots.length === 0) {
-      console.log(`⚠️ No recurring slots found for astrologer ${id}`);
+      console.log(` No recurring slots found for astrologer ${id}`);
       return res.json({});
     }
 
@@ -87,7 +87,7 @@ export const getAstrologerAvailability = async (req, res) => {
       ]
     });
 
-    console.log(`📍 Found ${bookedSlots.length} booked slots`);
+    console.log(` Found ${bookedSlots.length} booked slots`);
 
     // Generate available slots for each day
     const availability = {};
@@ -137,13 +137,13 @@ export const getAstrologerAvailability = async (req, res) => {
       
       if (slots.length > 0) {
         availability[dateStr] = slots;
-        console.log(`✅ ${dateStr} (${['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][dayOfWeek]}): ${slots.length} slots available`);
+        console.log(`  ${dateStr} (${['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][dayOfWeek]}): ${slots.length} slots available`);
       }
       
       currentDate = addDays(currentDate, 1);
     }
 
-    console.log(`✅ Availability generation complete: ${Object.keys(availability).length} days with slots`);
+    console.log(`  Availability generation complete: ${Object.keys(availability).length} days with slots`);
     res.json(availability);
   } catch (err) {
     console.error("getAstrologerAvailability error:", err);
@@ -236,7 +236,7 @@ export const getAstrologerDashboard = async (req, res) => {
           notes: booking.notes,
           birthDetails: booking.birthDetails
         };
-        console.log('📦 Booking object:', { id: bookingObj.id, bookingId: booking._id, status: booking.bookingStatus });
+        console.log(' Booking object:', { id: bookingObj.id, bookingId: booking._id, status: booking.bookingStatus });
         return bookingObj;
       })
     });
@@ -327,7 +327,7 @@ export const addAvailability = async (req, res) => {
 
     const { dayOfWeek, startTime, endTime, slotDuration, isRecurring } = req.body;
 
-    console.log('📝 Received availability request:', { dayOfWeek, startTime, endTime, slotDuration, isRecurring });
+    console.log(' Received availability request:', { dayOfWeek, startTime, endTime, slotDuration, isRecurring });
 
     // Validate all fields
     if (dayOfWeek === undefined || dayOfWeek === null || dayOfWeek === '') {
@@ -368,19 +368,19 @@ export const addAvailability = async (req, res) => {
     });
 
     if (existing) {
-      console.log(`\n🔍 FOUND EXISTING SLOT:`);
+      console.log(`\n FOUND EXISTING SLOT:`);
       console.log(`   Day: ${existing.dayOfWeek} (${['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][existing.dayOfWeek]})`);
       console.log(`   Time: ${existing.startTime}-${existing.endTime}`);
       console.log(`   Trying to add: ${dayInt} ${startTime}-${endTime}`);
       
       const dayName = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][dayInt];
-      console.log(`❌ Duplicate slot found: ${dayName} ${startTime}-${existing.endTime}`);
+      console.log(`   Duplicate slot found: ${dayName} ${startTime}-${existing.endTime}`);
       return res.status(400).json({ 
         message: `Slot already exists for ${dayName} at ${startTime}. Delete it first if you want to modify it.`
       });
     }
     
-    console.log(`✅ No duplicate found. Proceeding to create slot for day ${dayInt} ${startTime}-${endTime}`);
+    console.log(`  No duplicate found. Proceeding to create slot for day ${dayInt} ${startTime}-${endTime}`);
 
     const availability = new Availability({
       astrologerId,
@@ -394,7 +394,7 @@ export const addAvailability = async (req, res) => {
 
     await availability.save();
     
-    console.log(`✅ Availability added for astrologer ${astrologerId}: ${dayInt} ${startTime}-${endTime}`);
+    console.log(`  Availability added for astrologer ${astrologerId}: ${dayInt} ${startTime}-${endTime}`);
 
     res.status(201).json({ 
       message: "Availability added successfully",
@@ -441,7 +441,7 @@ export const getMyAvailability = async (req, res) => {
       isActive: true 
     }).sort({ dayOfWeek: 1, startTime: 1 });
 
-    console.log(`📋 Astrologer ${astrologerId} has ${availability.length} slots:`);
+    console.log(`   Astrologer ${astrologerId} has ${availability.length} slots:`);
     availability.forEach(slot => {
       console.log(`   - Day ${slot.dayOfWeek} (${['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][slot.dayOfWeek]}): ${slot.startTime}-${slot.endTime} (${slot.slotDuration}min)`);
     });

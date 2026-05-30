@@ -100,7 +100,7 @@ const startServer = (port) => {
   try {
     const server = app.listen(port, () => {
       const actualPort = server.address().port;
-      console.log(`✅ Server running on port ${actualPort}`);
+      console.log(`   Server running on port ${actualPort}`);
       console.log(`MongoDB URI: ${process.env.MONGO_URI ? 'Configured' : 'Not configured'}`);
       console.log(`Client URL: ${process.env.CLIENT_URL || 'http://localhost:5173'}`);
     });
