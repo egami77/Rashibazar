@@ -45,12 +45,12 @@ export const ModernKundaliReport = ({ kundaliData }) => {
       const html2pdf = (await import("html2pdf.js")).default;
       html2pdf()
         .set({
-          margin: 8,
+          margin: 5,
           filename: `RashiBazar-Kundali-${birth.name.replace(/\s+/g, "_")}.pdf`,
           image: { type: "jpeg", quality: 0.95 },
-          html2canvas: { scale: 2, useCORS: true, backgroundColor: "#080517" },
-          jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-          pagebreak: { mode: ["css", "legacy"] },
+          html2canvas: { scale: 0.5, useCORS: true, backgroundColor: "#080517", allowTaint: true },
+          jsPDF: { unit: "mm", format: "a3", orientation: "portrait" },
+          pagebreak: { avoid: ["tr", "td", "table", ".no-break"] },
         })
         .from(el)
         .save();
